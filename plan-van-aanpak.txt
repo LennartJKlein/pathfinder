@@ -1,0 +1,9 @@
+0. Een programma schrijven met een 2-dimensionaal grid
+1. Data structure voor gates op het grid maken + inladen (met eigen simpele data)
+2. Inladen van (simpele) netlist in een data structure
+3. Route berekenen tussen punt A en B op een grid (obv simpele netlist)
+4. Efficiëntste route berekenen tussen punt A en punt B
+5. Obstakels ontwijken op een grid in het berekenen van een route
+6. Gemaakte route onthouden in een data structure
+7. 2 routes berekenen: obstakels ontwijken + vorige route ontwijken.
+8. 
