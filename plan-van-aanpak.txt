@@ -1,4 +1,4 @@
-0. Een programma schrijven met een 2-dimensionaal grid
+﻿0. ✓ Een programma schrijven met een 2-dimensionaal grid ✓
 1. Data structure voor gates op het grid maken + inladen (met eigen simpele data)
 2. Inladen van (simpele) netlist in een data structure
 3. Route berekenen tussen punt A en B op een grid (obv simpele netlist)
