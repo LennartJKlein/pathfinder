@@ -1,5 +1,5 @@
-# Calculate route between two points (coordinates as tuples)
 def calculatePath(a, b):
+	# Calculate route between two points (coordinates used as tuples)
 	ax = a[0]
 	ay = a[1]
 	bx = b[0]
