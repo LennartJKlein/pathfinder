@@ -16,13 +16,13 @@ To run this program, you need the following:
 
 Follow the steps below to install the program.
 
-Lorum ipsum dolor sit amet
+Clone this repository to a program of your preference.
 
 ```
-Give the example
+git@github.com:LennartJKlein/chips-circuits.git
 ```
 
-And repeat
+NEXT STEP
 
 ```
 until finished
