@@ -8,7 +8,7 @@ def calculatePath(a, b):
 	counter = 0
 
 	# Walk 1 step through the grid till the endpoint is found
-	while cursor["x"] != bx or cursor["y"] != by:
+	while (cursor["x"] != bx) or (cursor["y"] != by):
 	
 		if cursor["x"] < bx:
 			cursor["x"] += 1
@@ -17,10 +17,10 @@ def calculatePath(a, b):
 			cursor["x"] -= 1
 			print("left")
 		elif cursor["y"] < by:
-			cursor["y"] -= 1
+			cursor["y"] += 1
 			print("up")
 		elif cursor["y"] > by:
-			cursor["y"] += 1
+			cursor["y"] -= 1
 			print("down")
 
 		counter += 1
@@ -37,6 +37,6 @@ for i, line in enumerate(board):
 
 	print
 
-calculatePath((1,1), (4,3))
+calculatePath((4,3), (1,1))
 
 
