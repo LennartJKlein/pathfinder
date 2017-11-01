@@ -30,7 +30,6 @@ class Netlist:
 
     def print_list( self , list_number):
         # Maakt het printen van de objecten mogelijk
-
         if (list_number == 1):
             print(self.list_1)
         elif (list_number == 2):
