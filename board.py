@@ -1,5 +1,16 @@
-import csv
-import netlist as Netlist
+#___________________________________________________________________________
+# board.py                                                                  |
+#                                                                           |
+# Authors:                                                                  |
+# - Jurre Brandsen                                                          |
+#                                                                           |
+# Credit/copyright:                                                         |
+# - Westly White, stackoverflow, Jan 12 2016                                |
+#                                                                           |
+# Generates a grid with variable X- and Y-axisis.                           |
+# Option to turn labels on and off                                          |
+# Makes gates based on input from pathfinder.py                             |
+#___________________________________________________________________________|
 
 class Cell:
     """
@@ -65,65 +76,3 @@ class Board:
 
     def set_gate(self, x, y):
         self.board[x][y].visual = "0"
-
-def main():
-	# Determine X and Y of the board
-	b = Board(10, 10, True)
-
-	# Open the CSV file 'gates.csv'
-	with open('gates.csv', 'rb') as csvfile:
-		reader = csv.reader(csvfile)
-		for row in reader:
-		    gate = row
-
-		    # retrieve X cord in csv-file
-		    gateX = ','.join(gate[1])
-
-		    # retrieve Y cord in csv-file
-		    gateY = ''.join(gate[2]).strip(")")
-		    
-		    # Turn the cord into intergers
-		    gateX = int(gateX)
-		    gateY = int(gateY)
-
-		    # Set a gate in the grid for every row in the csv-file
-		    b.set_gate(gateX, gateY)
-
-	# initialise board
-	b.show_board()
-
-'''
-TO MERGE:
-'''
-
-def calculatePath(a, b):
-	# Calculate route between two points (coordinates used as tuples)
-	ax = a[0]
-	ay = a[1]
-	bx = b[0]
-	by = b[1]
-	cursor = {"x": ax, "y": ay}
-	counter = 0
-
-	# Walk 1 step through the grid till the endpoint is found
-	while (cursor["x"] != bx) or (cursor["y"] != by):
-	
-		if cursor["x"] < bx:
-			cursor["x"] += 1
-			print("right")
-		elif cursor["x"] > bx:
-			cursor["x"] -= 1
-			print("left")
-		elif cursor["y"] < by:
-			cursor["y"] += 1
-			print("up")
-		elif cursor["y"] > by:
-			cursor["y"] -= 1
-			print("down")
-
-		counter += 1
-
-	print("Steps made: " + str(counter))
-
-if __name__ == '__main__':
-	main()
