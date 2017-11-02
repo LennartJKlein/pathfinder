@@ -7,7 +7,7 @@
        1.4 Aanroepen van calculatePath in pathfinder.py
        1.5 Load gates.csv into a dict in pathfinder
     ✓  1.6 update labels to start at 0
-       		1.6.1 Align vertical labels to the left.
+       	✓  1.6.1 Align vertical labels to the left.
 
 ✓ 2.  Inladen van (simpele) netlist in een data structure
 
