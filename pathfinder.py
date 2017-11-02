@@ -64,21 +64,24 @@ def main():
     # Read a CSV file for gate tuples
     with open(FILE_GATES, 'rb') as csvfile:
         reader = csv.reader(csvfile)
+        
+        # Skip the header
+        next(reader, None)
+        
         for row in reader:
+        
+            # Skip row if the data is commented
+            if row[0][:1] != '#':
 
-            # Get the name of the gate
-            gateName = ''.join(row[0].strip("("))
+                # Get the name of the gate
+                gateName = row[0]            
 
-            # Get the X and Y coords of the gate
-            gateX = ','.join(row[1])
-            gateY = ''.join(row[2]).strip(")")
-            
-            # Turn the coords into intergers
-            gateX = int(gateX)
-            gateY = int(gateY)
+                # Fetch the coords X and Y
+                gateX = int(row[1])
+                gateY = int(row[2])
 
-            # Set a gate in the grid for every row in the file
-            b.set_gate(gateName, gateX, gateY)
+                # Set a gate in the grid for every row in the file
+                b.set_gate(gateName, gateX, gateY)
 
     # Print the board
     b.show_board()
