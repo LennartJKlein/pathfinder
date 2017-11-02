@@ -1,21 +1,20 @@
-#___________________________________________________________________________
-# pathfinder.py                                                             |
-#                                                                           |
-# Authors: - Jurre Brandsen                                                 |
-#          - Lennart Klein                                                  |
-#          - Thomas de Lange                                                |
-#                                                                           |
-# Pathfinder will find the most efficient path between two gates on a board.|
-#___________________________________________________________________________|
+"""
+core.py
+Authors: - Jurre Brandsen
+         - Lennart Klein
+         - Thomas de Lange
+
+Pathfinder wil find the most efficient path between two gates on a board.
+
+"""
 
 import csv
-import netlist as Netlist
-from board import *
+from helpers import *
 
 # Program settings
 BOARD_WIDTH = 6
 BOARD_HEIGHT = 6
-FILE_GATES = 'gates.csv'
+FILE_GATES = 'csv/gates.csv'
 
 # Initiate a board with a specified size
 board = Board(BOARD_WIDTH, BOARD_HEIGHT, True)
@@ -67,17 +66,17 @@ def main():
     # Read a CSV file for gate tuples
     with open(FILE_GATES, 'rb') as csvfile:
         reader = csv.reader(csvfile)
-        
+
         # Skip the header
         next(reader, None)
-        
+
         for row in reader:
-        
+
             # Skip row if the data is commented
             if row[0][:1] != '#':
 
                 # Get the name of the gate
-                gateName = row[0]            
+                gateName = row[0]
 
                 # Fetch the coords X and Y
                 gateX = int(row[1])
