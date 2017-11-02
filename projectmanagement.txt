@@ -2,7 +2,7 @@
 
   1.  Data structure voor gates op het grid maken + inladen (met eigen simpele data)
     ✓  1.1 ID van tuple inladen in set_gate()
-       1.2 Comment header maken in gates.csv die niet wordt ingeladen
+    ✓  1.2 Comment header maken in gates.csv die niet wordt ingeladen
        1.3 Verwijzen in comments naar maker van de board-class
        1.4 Aanroepen van calculatePath in pathfinder.py
 
