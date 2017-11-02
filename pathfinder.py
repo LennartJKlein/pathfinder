@@ -5,19 +5,24 @@
 #          - Lennart Klein                                                  |
 #          - Thomas de Lange                                                |
 #                                                                           |
-# Pathfinder will find the most efficient path between two gates.           |
+# Pathfinder will find the most efficient path between two gates on a board.|
 #___________________________________________________________________________|
 
 import csv
 import netlist as Netlist
 from board import *
 
+# Program settings
+BOARD_WIDTH = 10
+BOARD_HEIGHT = 10
+FILE_GATES = 'gates.csv'
+
 def calculatePath(a, b):
     '''
-    TODO
+    Calculate route between two points
+    :param a: first point (tuple of coordinates)
+    :param b: second point (tuple of coordinates)
     '''
-
-    # Calculate route between two points (coordinates used as tuples)
     ax = a[0]
     ay = a[1]
     bx = b[0]
@@ -25,9 +30,9 @@ def calculatePath(a, b):
     cursor = {"x": ax, "y": ay}
     counter = 0
 
-    # Walk 1 step through the grid till the endpoint is found
+    # Walk 1 step through the grid till the endpoint is reached
     while (cursor["x"] != bx) or (cursor["y"] != by):
-    
+
         if cursor["x"] < bx:
             cursor["x"] += 1
             print("right")
@@ -49,32 +54,32 @@ def calculatePath(a, b):
 def main():
     '''
     Initialise and draw a grid called Board
-    Read gate locations from the csv-file: 'gates.csv'
+    Read gate locations from 'gates.csv'
     '''
 
-    # Determine X and Y of the board
-    b = Board(10, 10, True)
+    # Initiate a board with a specified size
+    b = Board(BOARD_WIDTH, BOARD_HEIGHT, True)
 
-    # Open the CSV file 'gates.csv'
-    with open('gates.csv', 'rb') as csvfile:
+    # Read a CSV file for gate tuples
+    with open(FILE_GATES, 'rb') as csvfile:
         reader = csv.reader(csvfile)
         for row in reader:
-            gate = row
 
-            # retrieve X cord in csv-file
-            gateX = ','.join(gate[1])
+            # Get the name of the gate
+            gateName = '('.join(row[0])
 
-            # retrieve Y cord in csv-file
-            gateY = ''.join(gate[2]).strip(")")
+            # Get the X and Y coords of the gate
+            gateX = ','.join(row[1])
+            gateY = ''.join(row[2]).strip(")")
             
-            # Turn the cord into intergers
+            # Turn the coords into intergers
             gateX = int(gateX)
             gateY = int(gateY)
 
-            # Set a gate in the grid for every row in the csv-file
-            b.set_gate(gateX, gateY)
+            # Set a gate in the grid for every row in the file
+            b.set_gate(gateName, gateX, gateY)
 
-    # initialise board
+    # Print the board
     b.show_board()
 
 if __name__ == '__main__':
