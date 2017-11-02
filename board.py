@@ -34,8 +34,8 @@ class Board:
         :param show_labels: Display labels to the player
         '''
 
-        self.x = x
-        self.y = y
+        self.x = x -1  # Horizontal label starts at 0
+        self.y = y -1  # Vetical label starts at 0
         self.show_labels = show_labels
         self.board = {}
 
@@ -47,7 +47,7 @@ class Board:
             # Add the key X to the board dictionary
             self.board[y] = []   
 
-            for x in range(0, self.x):
+            for x in range(-1, self.x):
                 # Make a cell @ the current x, y and add it to the board
                 cell = Cell(x, y)
                 self.board[y].append(cell)
