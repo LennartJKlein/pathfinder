@@ -66,7 +66,7 @@ def main():
         for row in reader:
 
             # Get the name of the gate
-            gateName = '('.join(row[0])
+            gateName = ''.join(row[0].strip("("))
 
             # Get the X and Y coords of the gate
             gateX = ','.join(row[1])

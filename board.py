@@ -28,11 +28,11 @@ class Cell:
 class Board:
 
     def __init__(self, x, y, show_labels=True):
-        """
+        ''''
         :param x: How many columns the board uses
         :param y: How many rows the board uses
         :param show_labels: Display labels to the player
-        """
+        '''
 
         self.x = x
         self.y = y
@@ -74,5 +74,5 @@ class Board:
 
             print " ".join(row)
 
-    def set_gate(self, x, y):
-        self.board[x][y].visual = "0"
+    def set_gate(self, name, x, y):
+        self.board[x][y].visual = name
