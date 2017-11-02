@@ -68,16 +68,19 @@ def main():
         next(reader, None)
         
         for row in reader:
-            
-            # Get the name of the gate
-            gateName = row[0]            
+        
+            # Skip row if the data is commented
+            if row[0][:1] != '#':
 
-            # Fetch the coords X and Y
-            gateX = int(row[1])
-            gateY = int(row[2])
+                # Get the name of the gate
+                gateName = row[0]            
 
-            # Set a gate in the grid for every row in the file
-            b.set_gate(gateName, gateX, gateY)
+                # Fetch the coords X and Y
+                gateX = int(row[1])
+                gateY = int(row[2])
+
+                # Set a gate in the grid for every row in the file
+                b.set_gate(gateName, gateX, gateY)
 
     # Print the board
     b.show_board()
