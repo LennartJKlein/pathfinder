@@ -13,9 +13,12 @@ import netlist as Netlist
 from board import *
 
 # Program settings
-BOARD_WIDTH = 5
-BOARD_HEIGHT = 5
+BOARD_WIDTH = 6
+BOARD_HEIGHT = 6
 FILE_GATES = 'gates.csv'
+
+# Initiate a board with a specified size
+board = Board(BOARD_WIDTH, BOARD_HEIGHT, True)
 
 def calculatePath(a, b):
     '''
@@ -46,7 +49,11 @@ def calculatePath(a, b):
             cursor["y"] -= 1
             print("down")
 
+        # Mark the steps
+        board.set_gate("#", cursor["x"], cursor["y"])
+
         counter += 1
+
 
     print("Steps made: " + str(counter))
 
@@ -56,10 +63,6 @@ def main():
     Initialise and draw a grid called Board
     Read gate locations from 'gates.csv'
     '''
-
-    # Initiate a board with a specified size
-    b = Board(BOARD_WIDTH, BOARD_HEIGHT, True)
-
 
     # Read a CSV file for gate tuples
     with open(FILE_GATES, 'rb') as csvfile:
@@ -81,10 +84,13 @@ def main():
                 gateY = int(row[2])
 
                 # Set a gate in the grid for every row in the file
-                b.set_gate(gateName, gateX, gateY)
+                board.set_gate(gateName, gateX, gateY)
+
+    # Test
+    calculatePath((1,1),(3,2))
 
     # Print the board
-    b.show_board()
+    board.show_board()
 
 if __name__ == '__main__':
     main()
