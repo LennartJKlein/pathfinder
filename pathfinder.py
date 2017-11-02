@@ -33,27 +33,34 @@ def calculatePath(a, b):
     cursor = {"x": ax, "y": ay}
     counter = 0
 
+    print("Start")
+    board.show_board()
     # Walk 1 step through the grid till the endpoint is reached
     while (cursor["x"] != bx) or (cursor["y"] != by):
 
         if cursor["x"] < bx:
             cursor["x"] += 1
-            print("right")
+            print(" ")
+            print("down")
         elif cursor["x"] > bx:
             cursor["x"] -= 1
-            print("left")
+            print(" ")
+            print("up")
         elif cursor["y"] < by:
             cursor["y"] += 1
-            print("up")
+            print(" ")
+            print("right")
         elif cursor["y"] > by:
             cursor["y"] -= 1
-            print("down")
+            print(" ")
+            print("left")
 
+
+        
         # Mark the steps
         board.set_gate("#", cursor["x"], cursor["y"])
-
+        board.show_board()
         counter += 1
-
 
     print("Steps made: " + str(counter))
 
@@ -90,7 +97,7 @@ def main():
     calculatePath((1,1),(3,2))
 
     # Print the board
-    board.show_board()
+    #board.show_board()
 
 if __name__ == '__main__':
     main()
