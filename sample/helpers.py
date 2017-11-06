@@ -132,3 +132,40 @@ class Netlist:
 #
 # with CustomOpen('file') as f:
 #     contents = f.read()
+
+
+def calculatePath(board, a, b):
+    '''
+    Calculate route between two points
+    :param a: first point (tuple of coordinates)
+    :param b: second point (tuple of coordinates)
+    '''
+    ax = a[0]
+    ay = a[1]
+    bx = b[0]
+    by = b[1]
+    cursor = {"x": ax, "y": ay}
+    counter = 0
+
+    # Walk 1 step through the grid till the endpoint is reached
+    while (cursor["x"] != bx) or (cursor["y"] != by):
+
+        if cursor["x"] < bx:
+            cursor["x"] += 1
+            print "right",
+        elif cursor["x"] > bx:
+            cursor["x"] -= 1
+            print "left",
+        elif cursor["y"] < by:
+            cursor["y"] += 1
+            print "down",
+        elif cursor["y"] > by:
+            cursor["y"] -= 1
+            print "up",
+
+        # Mark the steps
+        board.set_gate("#", cursor["x"], cursor["y"])
+
+        counter += 1
+
+    print "- Steps made: " + str(counter)
