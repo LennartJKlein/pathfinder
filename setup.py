@@ -15,7 +15,7 @@ setup(
     long_description=readme,
     author='Jurre Brandsen, Lennart Klein, Thomas de Lange',
     author_email='info@lennartklein.nl',
-    url='https://github.com/LennartJKlein/chips-circuits',
+    url='https://github.com/LennartJKlein/pathfinder',
     license=license,
     packages=find_packages(exclude=('tests', 'docs'))
 )
