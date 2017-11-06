@@ -1,25 +1,21 @@
 # -*- coding: utf-8 -*-
 
-# Learn more: https://github.com/kennethreitz/setup.py
-
 from setuptools import setup, find_packages
 
-
-with open('README.rst') as f:
+with open('README.md') as f:
     readme = f.read()
 
 with open('LICENSE') as f:
     license = f.read()
 
 setup(
-    name='sample',
+    name='Pathfinder',
     version='0.1.0',
-    description='Sample package for Python-Guide.org',
+    description='A program that uses wires to connect gates on a chip efficiently.',
     long_description=readme,
-    author='Kenneth Reitz',
-    author_email='me@kennethreitz.com',
-    url='https://github.com/kennethreitz/samplemod',
+    author='Jurre Brandsen, Lennart Klein, Thomas de Lange',
+    author_email='info@lennartklein.nl',
+    url='https://github.com/LennartJKlein/chips-circuits',
     license=license,
     packages=find_packages(exclude=('tests', 'docs'))
 )
-
