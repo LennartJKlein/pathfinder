@@ -6,7 +6,7 @@ A program that uses wires to connect gates on a chip three-dimensionally and eff
 
 To run this program, you need the following:
 
-* Python 2.7.14
+* Python 3.6
 
 ## Installation
 

@@ -49,7 +49,7 @@ class Board:
                 self.board[y].append(cell)
 
     def show_board(self):
-        for key, cells in self.board.iteritems():
+        for key, cells in self.board.items():
 
             # Add the X Labels
             if self.show_labels:
@@ -58,7 +58,7 @@ class Board:
                     x_label.insert(0, " ")
                     for cell in self.board[key]:
                         x_label.append(str(cell.x))
-                    print " ".join(x_label)
+                    print(" ".join(x_label))
 
             row = []
             for cell in cells:
@@ -68,7 +68,7 @@ class Board:
             if self.show_labels:
                 row.insert(0, str((cell.y)))
 
-            print " ".join(row)
+            print(" ".join(row))
 
     def set_gate(self, name, x, y):
         self.board[y][x].visual = name
@@ -119,19 +119,19 @@ class Netlist:
     def print_list( self , list_number):
         # Maakt het printen van de objecten mogelijk
         if (list_number == 0):
-            print(self.list_0)
+            print((self.list_0))
         elif (list_number == 1):
-            print(self.list_1)
+            print((self.list_1))
         elif (list_number == 2):
-            print(self.list_2)
+            print((self.list_2))
         elif (list_number == 3):
-            print(self.list_3)
+            print((self.list_3))
         elif (list_number == 4):
-            print(self.list_4)
+            print((self.list_4))
         elif (list_number == 5):
-            print(self.list_5)
+            print((self.list_5))
         elif (list_number == 6):
-            print(self.list_6)
+            print((self.list_6))
         else:
             print("Use: OBJECT.print_list(list_number)")
 
@@ -168,20 +168,20 @@ def calculatePath(board, a, b):
 
         if cursor["x"] < bx:
             cursor["x"] += 1
-            print "right",
+            print("right", end=' ')
         elif cursor["x"] > bx:
             cursor["x"] -= 1
-            print "left",
+            print("left", end=' ')
         elif cursor["y"] < by:
             cursor["y"] += 1
-            print "down",
+            print("down", end=' ')
         elif cursor["y"] > by:
             cursor["y"] -= 1
-            print "up",
+            print("up", end=' ')
 
         # Mark the steps
         board.set_gate("#", cursor["x"], cursor["y"])
 
         counter += 1
 
-    print "- Steps made: " + str(counter)
+    print("- Steps made: " + str(counter))
