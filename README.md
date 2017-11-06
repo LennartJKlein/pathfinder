@@ -17,7 +17,7 @@ python setup.py install
 ```
 
 ## Documentation
-Learn how to install, test, use and integrate this program that finds efficient paths in the [documentation](https://github.com/LennartJKlein/blob/master/docs/index.md).
+Learn how to install, test, use and integrate this program that finds efficient paths in the [documentation](docs/index.md).
 
 ## Contributing
 
@@ -35,7 +35,7 @@ We use [SemVer](http://semver.org/) for semantic versioning. For the versions av
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE) file for details
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
 
 ## Acknowledgments
 
