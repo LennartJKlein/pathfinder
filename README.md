@@ -29,7 +29,7 @@ We use [SemVer](http://semver.org/) for semantic versioning. For the versions av
 
 ## Authors
 
-* **Jurre Brandsen** - *Initial work* - [www.jurrebrandsen.nl](http://www.jurrebrandsen.nl/)
+* **Jurre Brandsen** - *Developer* - [www.jurrebrandsen.nl](http://www.jurrebrandsen.nl/)
 * **Lennart Klein** - *Webdeveloper and webdesigner* - [www.lennartklein.nl](http://www.lennartklein.nl/)
 * **Thomas de Lange** - *Initial work* - [www.long-coding.nl](http://www.long-coding.nl/)
 
@@ -39,4 +39,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 
-* Thanks to Daan van den Berg for creating the "Chips and circuits" case (as specified on [this Wiki](http://heuristieken.nl/wiki/index.php?title=Chips_%26_Circuits))
+* Thanks to Daan van den Berg for creating the "Chips and circuits" case (as specified on [this Wiki](http://heuristieken.nl/wiki/index.php?title=Chips_%26_Circuits)).
+* Thanks to Westly White for his [initial grid design](https://stackoverflow.com/questions/41619600/numbering-rows-and-columns-in-a-grid-board) in board.py.
