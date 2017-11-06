@@ -25,6 +25,9 @@ def main():
     # Initiate a board with a specified size
     board = helpers.Board(BOARD_WIDTH, BOARD_HEIGHT, True)
 
+    # Initiate a list of gates
+    gates = []
+
     # Read a CSV file for gate tuples
     with open(FILE_GATES, 'rb') as csvfile:
         reader = csv.reader(csvfile)
@@ -38,14 +41,18 @@ def main():
             if row[0][:1] != '#':
 
                 # Get the name of the gate
-                gateName = row[0]
+                gateLabel = row[0]
 
                 # Fetch the coords X and Y
                 gateX = int(row[1])
                 gateY = int(row[2])
+                gateZ = int(row[3])
+
+                # Save gate object in gates[]
+                gates.append(helpers.Gate(gateLabel, gateX, gateY, gateZ))
 
                 # Set a gate in the grid for every row in the file
-                board.set_gate(gateName, gateX, gateY)
+                board.set_gate(gateLabel, gateX, gateY)
 
     # Test path calculation
     helpers.calculatePath(board, (1,1), (3,2))

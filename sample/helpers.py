@@ -73,6 +73,22 @@ class Board:
     def set_gate(self, name, x, y):
         self.board[y][x].visual = name
 
+class Gate:
+    """
+    :param x:     x-axis location
+    :param y:     y-axis location
+    :param y:     z-axis location
+    :param name:  label of the gate
+    """
+    def __init__(self, label, x, y, z):
+        self.x = int(x)
+        self.y = int(y)
+        self.z = int(z)
+        self.label = label
+
+    def __str__(self):
+        return self.label
+
 class Netlist:
     """
     Netlist contains all the given Netlists from http://heuristieken.nl/resources/CC_netlists2.txt and makes them usable as an accessable, readable and searchable object.
