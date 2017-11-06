@@ -1,85 +1,42 @@
-# Chips-circuits
+# Pathfinder
 
-A program that uses wires to connect gates on a chip efficiently.
+A program that uses wires to connect gates on a chip three-dimensionally and efficiently. Based on the case of [Chips & Circuits](http://heuristieken.nl/wiki/index.php?title=Chips_%26_Circuits)
 
-## Getting Started
-
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
-
-### Prerequisites
+## Requirements
 
 To run this program, you need the following:
 
 * Python 2.7.14
 
-### Installing
+## Installation
 
-Follow the steps below to install the program.
-
-Clone this repository to a program of your preference.
+Clone this repository (containing the pathfinder module) to a folder of your preference. And run the setup:
 
 ```
-git@github.com:LennartJKlein/chips-circuits.git
+python setup.py install
 ```
 
-NEXT STEP
-
-```
-until finished
-```
-
-End with an example of getting some data out of the system or using it for a little demo
-
-## Running the tests
-
-Explain how to run the automated tests for this system
-
-### Break down into end to end tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-## Deployment
-
-Add additional notes about how to deploy this on a live system
-
-## Built With
-
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
+## Documentation
+Learn how to install, test, use and integrate this program that finds efficient paths in the [documentation](https://github.com/LennartJKlein/blob/master/docs/index.md).
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
+This project is not open for contributing, for it being a school assignment.
 
 ## Versioning
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags).
+We use [SemVer](http://semver.org/) for semantic versioning. For the versions available, see the [tags on this repository](https://github.com/LennartJKlein/chips-circuits/tags).
 
 ## Authors
 
 * **Jurre Brandsen** - *Initial work* - [www.jurrebrandsen.nl](http://www.jurrebrandsen.nl/)
-* **Lennart Klein** - *Initial work* - [www.lennartklein.nl](http://www.lennartklein.nl/)
-* **Thomas de Lange** - *Initial work* - [www.thomasdelange.nl](http://www.thomasdelange.nl/)
+* **Lennart Klein** - *Webdeveloper and webdesigner* - [www.lennartklein.nl](http://www.lennartklein.nl/)
+* **Thomas de Lange** - *Initial work* - [www.long-coding.nl](http://www.long-coding.nl/)
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE) file for details
 
 ## Acknowledgments
 
-* Hat tip to anyone who's code was used
-* Inspiration
-* etc
+* Thanks to Daan van den Berg for creating the "Chips and circuits" case (as specified on [this Wiki](http://heuristieken.nl/wiki/index.php?title=Chips_%26_Circuits))
