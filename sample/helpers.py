@@ -29,7 +29,7 @@ class Board:
         :param show_labels: Display labels to the player
         '''
 
-        self.x = x - 1  # Horizontal label starts at 0
+        self.x = x
         self.y = y
         self.show_labels = show_labels
         self.board = {}
@@ -39,16 +39,16 @@ class Board:
     def generate_board(self):
         for y in range(0, self.y):
 
-            # Add the key X to the board dictionary
+            # Create an empty array in this row
             self.board[y] = []
 
-            for x in range(-1, self.x):
-                # Make a cell @ the current x, y and add it to the board
+            # Add a cell to this row for every column
+            for x in range(0, self.x):
+                # Make a cell at the current x, y and add it to the board
                 cell = Cell(x, y)
                 self.board[y].append(cell)
 
     def show_board(self):
-
         for key, cells in self.board.iteritems():
 
             # Add the X Labels
@@ -57,7 +57,7 @@ class Board:
                     x_label = []
                     x_label.insert(0, " ")
                     for cell in self.board[key]:
-                        x_label.append(str(cell.x + 1))
+                        x_label.append(str(cell.x))
                     print " ".join(x_label)
 
             row = []
@@ -66,12 +66,12 @@ class Board:
 
             # Add the Y labels
             if self.show_labels:
-                row.insert (0,str((cell.y - 1 + 1)))
+                row.insert(0, str((cell.y)))
 
             print " ".join(row)
 
     def set_gate(self, name, x, y):
-        self.board[x][y].visual = name
+        self.board[y][x].visual = name
 
 class Netlist:
     """
