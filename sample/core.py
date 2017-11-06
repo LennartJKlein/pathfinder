@@ -21,12 +21,12 @@ def main():
     Initialise and draw a grid called Board
     Read gate locations from gates file
     '''
-    
+
     # Initiate a board with a specified size
     board = helpers.Board(BOARD_WIDTH, BOARD_HEIGHT, True)
 
     # Read a CSV file for gate tuples
-    with open(FILE_GATES, 'rb') as csvfile:
+    with open(FILE_GATES, 'r') as csvfile:
         reader = csv.reader(csvfile)
 
         # Skip the header
