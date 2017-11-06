@@ -1,3 +1,5 @@
+✓ v0.0  Set up architecture for the files, codes and folder
+
 ✓ v0.1  Write a program to print a two-dimensional grid
     ✓  v0.1.1 Update labels to start at 0
     ✓  v0.1.2 Align vertical labels to the left.
