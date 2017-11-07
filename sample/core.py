@@ -60,5 +60,8 @@ def main():
     # Print the board
     board.show_board()
 
+    # Create a netlist
+    netlist = helpers.Netlist(1)
+
 if __name__ == '__main__':
     main()

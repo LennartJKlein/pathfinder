@@ -111,12 +111,13 @@ class Netlist:
     Accessing the dataset of one netlist in your code:
         include netlist number
     """
-    def __init__( self, number ):
-        netlist = "data/netlist"
-        netlist += str(number)
-        netlist += ".txt"
 
-        with open(netlist) as f:
+    def __init__(self, number):
+        filename = "data/netlist"
+        filename += str(number)
+        filename += ".txt"
+
+        with open(filename) as f:
             self.netlist = f.read()
         self.netlist = literal_eval(self.netlist)
 
@@ -125,24 +126,9 @@ class Netlist:
         #     print(type(tuples))
 
 
-    def print_list( self , list_number):
+    def print_list(self):
         # Maakt het printen van de objecten mogelijk
-        if (list_number == 0):
-            print((self.list_0))
-        elif (list_number == 1):
-            print((self.list_1))
-        elif (list_number == 2):
-            print((self.list_2))
-        elif (list_number == 3):
-            print((self.list_3))
-        elif (list_number == 4):
-            print((self.list_4))
-        elif (list_number == 5):
-            print((self.list_5))
-        elif (list_number == 6):
-            print((self.list_6))
-        else:
-            print("Use: OBJECT.print_list(list_number)")
+        print(self.netlist)
 
 def calculatePath(board, a, b):
     '''
@@ -179,5 +165,3 @@ def calculatePath(board, a, b):
         counter += 1
 
     print("- Steps made: " + str(counter))
-
-netlist = Netlist(1)
