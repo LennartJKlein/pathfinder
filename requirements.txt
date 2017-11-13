@@ -1,0 +1,11 @@
+Numpy Module:
+git clone https://github.com/numpy/numpy.git numpy
+import numpy as np
+
+Mathplot Module:
+https://github.com/matplotlib/matplotlib
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+Abstract Syntax Trees:
+from ast import literal_eval
