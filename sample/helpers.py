@@ -1,80 +1,40 @@
 """
 helpers.py
-
 - Cell
 - Board
+- Gate
 - Netlist
-
+- Calculate path
 """
-# TODO (thomas) import in doc zetten
+
 from ast import literal_eval
-
-
-class Cell:
-    """
-    :param x: x-axis location
-    :param y: y-axis location
-    """
-    def __init__(self, x, y):
-        self.x = int(x)
-        self.y = int(y)
-        self.visual = "."
-
-    def __str__(self):
-        return self.visual
+import numpy as np
 
 class Board:
 
-    def __init__(self, x, y, show_labels=True):
-        ''''
+    def __init__(self, x, y, z):
+        """
         :param x: How many columns the board uses
         :param y: How many rows the board uses
-        :param show_labels: Display labels to the player
-        '''
-
+        :param z: How many layers the board uses
+        """
         self.x = x
         self.y = y
-        self.show_labels = show_labels
-        self.board = {}
-
+        self.z = z
+        self.board = []
         self.generate_board()
 
     def generate_board(self):
-        for y in range(0, self.y):
-
-            # Create an empty array in this row
-            self.board[y] = []
-
-            # Add a cell to this row for every column
-            for x in range(0, self.x):
-                # Make a cell at the current x, y and add it to the board
-                cell = Cell(x, y)
-                self.board[y].append(cell)
+        self.board = np.zeros((self.z, self.y, self.x), dtype=int)
 
     def show_board(self):
-        for key, cells in self.board.items():
+        print(self.board)
 
-            # Add the X Labels
-            if self.show_labels:
-                if key == 0:
-                    x_label = []
-                    x_label.insert(0, " ")
-                    for cell in self.board[key]:
-                        x_label.append(str(cell.x))
-                    print(" ".join(x_label))
+    def set_gate(self, name, x, y, z):
+        self.board[z,y,x] = 2
 
-            row = []
-            for cell in cells:
-                row.append(str(cell))
-
-            # Add the Y labels
-            if self.show_labels:
-                row.insert(0, str((cell.y)))
-
-            print(" ".join(row))
-
-    def set_gate(self, name, x, y):
-        self.board[y][x].visual = name
+    def set_path(self, name, x, y, z):
+        self.board[z,y,x] = 1
 
 class Gate:
     """
@@ -118,19 +78,18 @@ class Netlist:
         filename += ".txt"
 
         with open(filename) as f:
-            self.netlist = f.read()
-        self.netlist = literal_eval(self.netlist)
+            self.list = f.read()
+        self.list = literal_eval(self.list)
 
         # laat zien dat het een array is gevuld met tuples
         # for tuples in self.netlist:
         #     print(type(tuples))
 
-
     def print_list(self):
         # Maakt het printen van de objecten mogelijk
-        print(self.netlist)
+        print(self.list)
 
-def calculatePath(board, a, b):
+def calculatePath(board, a, b, label):
     '''
     Calculate route between two points
     :param a: first point (tuple of coordinates)
@@ -138,13 +97,16 @@ def calculatePath(board, a, b):
     '''
     ax = a[0]
     ay = a[1]
+    az = a[2]
     bx = b[0]
     by = b[1]
-    cursor = {"x": ax, "y": ay}
+    bz = b[2]
+    cursor = {"x": ax, "y": ay, "z": az}
     counter = 0
+    found = False
 
     # Walk 1 step through the grid till the endpoint is reached
-    while (cursor["x"] != bx) or (cursor["y"] != by):
+    while (cursor["x"] != bx) or (cursor["y"] != by) or (cursor["z"] != bz):
 
         if cursor["x"] < bx:
             cursor["x"] += 1
@@ -159,8 +121,13 @@ def calculatePath(board, a, b):
             cursor["y"] -= 1
             print("up", end=' ')
 
-        # Mark the steps
-        board.set_gate("#", cursor["x"], cursor["y"])
+        # Check if endpoint is reached
+        if (cursor["x"] == bx) and (cursor["y"] == by) and (cursor["z"] == bz):
+            found = True
+
+        # Mark the steps while the endpoint is not reached
+        if found ==  False:
+            board.set_path(label, cursor["x"], cursor["y"], cursor["z"])
 
         counter += 1
 
