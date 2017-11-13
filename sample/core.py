@@ -10,12 +10,14 @@ Pathfinder will find the most efficient path between two gates on a board.
 import csv
 import helpers
 import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 # Program settings
-BOARD_WIDTH = 10
-BOARD_HEIGHT = 10
+BOARD_WIDTH = 18
+BOARD_HEIGHT = 17
 BOARD_DEPTH = 7
-FILE_GATES = 'data/gates.csv'
+FILE_GATES = 'data/gates2.csv'
 
 
 def main():
@@ -67,6 +69,15 @@ def main():
 
     # Print the board
     board.show_board()
+
+    # Plot the plot
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+
+    ax.scatter(board.get_coords('y', 2), board.get_coords('x', 2), board.get_coords('z', 2))
+    ax.legend()
+
+    plt.show()
 
 if __name__ == '__main__':
     main()

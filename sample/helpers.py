@@ -36,6 +36,20 @@ class Board:
     def set_path(self, name, x, y, z):
         self.board[z,y,x] = 1
 
+    def get_coords(self, axes, label):
+        var = np.argwhere(self.board == label)
+        coords = []
+
+        for cord in var:
+            if axes == 'z':
+                coords.append(cord[0])
+            if axes == 'y':
+                coords.append(cord[1])
+            if axes == 'x':
+                coords.append(cord[2])
+
+        return coords
+
 class Gate:
     """
     :param x:     x-axis location

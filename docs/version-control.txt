@@ -24,3 +24,5 @@
   v0.8  Calculate 2 routes, which evade obstacles and eachother.
 
   v0.9  Make the program modulair and installable (by using setup.py)
+
+✓ v0.10 Plot a 3d graph using matplotlib
