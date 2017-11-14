@@ -30,10 +30,10 @@ class Board:
     def show_board(self):
         print(self.board)
 
-    def set_gate(self, name, x, y, z):
+    def set_gate(self, x, y, z):
         self.board[z,y,x] = 2
 
-    def set_path(self, name, x, y, z):
+    def set_path(self, x, y, z):
         self.board[z,y,x] = 1
 
     def get_coords(self, axes, label):
@@ -103,7 +103,7 @@ class Netlist:
         # Maakt het printen van de objecten mogelijk
         print(self.list)
 
-def calculatePath(board, a, b, label):
+def calculatePath(board, a, b):
     '''
     Calculate route between two points
     :param a: first point (tuple of coordinates)
@@ -141,7 +141,7 @@ def calculatePath(board, a, b, label):
 
         # Mark the steps while the endpoint is not reached
         if found ==  False:
-            board.set_path(label, cursor["x"], cursor["y"], cursor["z"])
+            board.set_path(cursor["x"], cursor["y"], cursor["z"])
 
         counter += 1
 
