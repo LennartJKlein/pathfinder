@@ -10,6 +10,10 @@ helpers.py
 from ast import literal_eval
 import numpy as np
 
+# Program settings
+SIGN_PATH = 1
+SIGN_GATE = 2
+
 class Board:
 
     def __init__(self, x, y, z):
@@ -21,20 +25,16 @@ class Board:
         self.x = x
         self.y = y
         self.z = z
-        self.board = []
-        self.generate_board()
-
-    def generate_board(self):
         self.board = np.zeros((self.z, self.y, self.x), dtype=int)
 
-    def show_board(self):
+    def print_board(self):
         print(self.board)
 
     def set_gate(self, name, x, y, z):
-        self.board[z,y,x] = 2
+        self.board[z,y,x] = SIGN_GATE
 
     def set_path(self, name, x, y, z):
-        self.board[z,y,x] = 1
+        self.board[z,y,x] = SIGN_PATH
 
     def get_coords(self, axes, label):
         var = np.argwhere(self.board == label)

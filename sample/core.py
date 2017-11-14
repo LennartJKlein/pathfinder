@@ -68,7 +68,7 @@ def main():
         helpers.calculatePath(board, a_tuple, b_tuple, 1)
 
     # Print the board
-    board.show_board()
+    board.print_board()
 
     # Plot the plot
     fig = plt.figure()
