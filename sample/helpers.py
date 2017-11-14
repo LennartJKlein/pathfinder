@@ -11,8 +11,7 @@ from ast import literal_eval
 import numpy as np
 
 # Program settings
-SIGN_PATH = 1
-SIGN_GATE = 2
+SIGN_GATE = 1
 
 class Board:
 
@@ -33,8 +32,8 @@ class Board:
     def set_gate(self, x, y, z):
         self.board[z,y,x] = SIGN_GATE
 
-    def set_path(self, x, y, z):
-        self.board[z,y,x] = SIGN_PATH
+    def set_path(self, name, x, y, z):
+        self.board[z,y,x] = name
 
     def get_coords(self, axes, label):
         labels = np.argwhere(self.board == label)
@@ -89,7 +88,7 @@ class Netlist:
     def print_list(self):
         print(self.list)
 
-def calculatePath(board, a, b):
+def calculatePath(board, a, b, label):
     '''
     Calculate route between two points
     :param a: first point (tuple of coordinates)
@@ -110,16 +109,12 @@ def calculatePath(board, a, b):
 
         if cursor["x"] < bx:
             cursor["x"] += 1
-            print("right", end=' ')
         elif cursor["x"] > bx:
             cursor["x"] -= 1
-            print("left", end=' ')
         elif cursor["y"] < by:
             cursor["y"] += 1
-            print("down", end=' ')
         elif cursor["y"] > by:
             cursor["y"] -= 1
-            print("up", end=' ')
 
         # Check if endpoint is reached
         if (cursor["x"] == bx) and (cursor["y"] == by) and (cursor["z"] == bz):
@@ -127,8 +122,7 @@ def calculatePath(board, a, b):
 
         # Mark the steps while the endpoint is not reached
         if found ==  False:
-            board.set_path(cursor["x"], cursor["y"], cursor["z"])
+            board.set_path(label, cursor["x"], cursor["y"], cursor["z"])
 
         counter += 1
-
     print("- Steps made: " + str(counter))
