@@ -1,138 +1,93 @@
 """
 helpers.py
-
 - Cell
 - Board
+- Gate
 - Netlist
-
+- Calculate path
 """
 
-class Cell:
-    """
-    :param x: x-axis location
-    :param y: y-axis location
-    """
-    def __init__(self, x, y):
-        self.x = int(x)
-        self.y = int(y)
-        self.visual = "."
+from ast import literal_eval
+import numpy as np
 
-    def __str__(self):
-        return self.visual
+# Program settings
+SIGN_PATH = 1
+SIGN_GATE = 2
 
 class Board:
 
-    def __init__(self, x, y, show_labels=True):
-        ''''
+    def __init__(self, x, y, z):
+        """
         :param x: How many columns the board uses
         :param y: How many rows the board uses
-        :param show_labels: Display labels to the player
-        '''
-
+        :param z: How many layers the board uses
+        """
         self.x = x
         self.y = y
-        self.show_labels = show_labels
-        self.board = {}
+        self.z = z
+        self.board = np.zeros((self.z, self.y, self.x), dtype=int)
 
-        self.generate_board()
+    def print_board(self):
+        print(self.board)
 
-    def generate_board(self):
-        for y in range(0, self.y):
+    def set_gate(self, x, y, z):
+        self.board[z,y,x] = SIGN_GATE
 
-            # Create an empty array in this row
-            self.board[y] = []
+    def set_path(self, x, y, z):
+        self.board[z,y,x] = SIGN_PATH
 
-            # Add a cell to this row for every column
-            for x in range(0, self.x):
-                # Make a cell at the current x, y and add it to the board
-                cell = Cell(x, y)
-                self.board[y].append(cell)
+    def get_coords(self, axes, label):
+        labels = np.argwhere(self.board == label)
+        coords = []
 
-    def show_board(self):
-        for key, cells in self.board.items():
+        for cord in labels:
+            if axes == 'z':
+                coords.append(cord[0])
+            if axes == 'y':
+                coords.append(cord[1])
+            if axes == 'x':
+                coords.append(cord[2])
 
-            # Add the X Labels
-            if self.show_labels:
-                if key == 0:
-                    x_label = []
-                    x_label.insert(0, " ")
-                    for cell in self.board[key]:
-                        x_label.append(str(cell.x))
-                    print(" ".join(x_label))
+        return coords
 
-            row = []
-            for cell in cells:
-                row.append(str(cell))
+class Gate:
+    """
+    :param x:     x-axis location
+    :param y:     y-axis location
+    :param y:     z-axis location
+    :param name:  label of the gate
+    """
+    def __init__(self, label, x, y, z):
+        self.x = int(x)
+        self.y = int(y)
+        self.z = int(z)
+        self.label = label
 
-            # Add the Y labels
-            if self.show_labels:
-                row.insert(0, str((cell.y)))
-
-            print(" ".join(row))
-
-    def set_gate(self, name, x, y):
-        self.board[y][x].visual = name
+    def __str__(self):
+        return self.label
 
 class Netlist:
     """
-    Netlist contains all the given Netlists from http://heuristieken.nl/resources/CC_netlists2.txt and makes them usable as an accessable, readable and searchable object.
-    * netlist 0 - length 1
-    * netlist 1 - length 30
-    * netlist 2 - length 40
-    * netlist 3 - length 50
-    * netlist 4 - length 50
-    * netlist 5 - length 60
-    * netlist 6 - length 70
+    Netlist are tuples reperesenting the contecion between two gates. Al conections
+    must be made to solve the case.
 
-    Creating new instance of the netlist dataset in your code:
-        variableName = Netlist()
-
-    Accessing the dataset of one netlist in your code:
-        variableName.list_1
+    :param: number:     number of the netlist used
     """
-    def __init__( self ):
-        self.list_0 = [(1, 5)]
-        self.list_1 = [(23, 4), (5, 7), (1, 0), (15, 21), (3, 5), (7, 13), (3, 23), (23, 8), (22, 13), (15, 17), (20, 10), (15, 8), (13, 18), (19, 2), (22, 11), (10, 4), (11, 24), (3, 15), (2, 20), (3, 4), (20, 19), (16, 9), (19, 5), (3, 0), (15, 5), (6, 14), (7, 9), (9, 13), (22, 16), (10, 7)]
-        self.list_2 = [(12, 20), (23, 20), (6, 9), (15, 10), (12, 13), (8, 18), (1, 22), (10, 20), (4, 3), (10, 5), (17, 11), (1, 21), (22, 8), (22, 10), (19, 8), (13, 19), (10, 4), (9, 23), (22, 18), (16, 21), (4, 0), (18, 21), (5, 17), (8, 23), (18, 13), (13, 11), (11, 7), (14, 7), (14, 6), (14, 1), (24, 12), (11, 15), (2, 5), (11, 12), (0, 15), (14, 5), (15, 4), (19, 9), (3, 0), (15, 13)]
-        self.list_3 = [(0, 13), (0, 14), (0, 22), (8, 7), (2, 6), (3, 19), (3, 9), (4, 8), (4, 9), (5, 14), (6, 4), (4, 1), (7, 23), (10, 0), (10, 1), (8, 1), (7, 5), (12, 14), (13, 2), (8, 10), (11, 0), (11, 17), (11, 3), (8, 9), (12, 24), (13, 4), (13, 19), (15, 21), (10, 3), (18, 10), (24, 23), (16, 7), (17, 15), (17, 21), (17, 9), (18, 20), (18, 2), (12, 9), (1, 13), (19, 21), (20, 6), (1, 15), (2, 16), (20, 16), (22, 11), (22, 18), (2, 3), (5, 12), (24, 15), (24, 16)]
-        self.list_4 = [(42, 3), (3, 48), (14, 6), (36, 2), (14, 4), (10, 32), (47, 22), (41, 1), (21, 6), (39, 18), (22, 49), (35, 14), (5, 31), (48, 24), (12, 14), (8, 42), (28, 43), (20, 40), (26, 24), (46, 35), (0, 12), (46, 12), (35, 26), (21, 7), (43, 15), (0, 21), (35, 19), (31, 11), (43, 30), (12, 1), (4, 30), (49, 13), (4, 29), (8, 28), (32, 29), (34, 45), (14, 39), (17, 25), (28, 27), (31, 25), (37, 16), (2, 3), (3, 31), (4, 23), (5, 44), (33, 30), (36, 4), (29, 9), (46, 0), (39, 15)]
-        self.list_5 = [(34, 21), (48, 47), (38, 16), (0, 16), (28, 40), (24, 8), (36, 37), (26, 8), (8, 27), (39, 48), (44, 34), (22, 30), (43, 44), (47, 5), (19, 30), (31, 41), (0, 10), (12, 32), (3, 33), (45, 18), (0, 21), (23, 43), (44, 42), (18, 11), (24, 23), (41, 13), (26, 1), (16, 1), (20, 29), (31, 4), (7, 28), (28, 45), (0, 12), (44, 29), (34, 5), (2, 17), (9, 5), (30, 9), (36, 29), (18, 27), (32, 11), (40, 10), (4, 40), (35, 6), (17, 3), (10, 19), (25, 24), (20, 47), (12, 25), (4, 15), (19, 33), (33, 36), (1, 3), (13, 49), (25, 49), (15, 42), (33, 4), (27, 22), (4, 8), (12, 24)]
-        self.list_6 = [(16, 10), (25, 17), (1, 11), (32, 2), (1, 20), (12, 36), (34, 19), (11, 10), (11, 45), (21, 42), (36, 20), (15, 22), (3, 21), (48, 2), (32, 25), (38, 49), (24, 29), (14, 16), (0, 3), (30, 7), (3, 10), (16, 8), (46, 0), (26, 41), (34, 2), (1, 13), (25, 6), (49, 28), (27, 47), (3, 14), (40, 47), (14, 43), (14, 46), (27, 38), (14, 34), (26, 39), (47, 44), (46, 29), (12, 9), (49, 12), (38, 7), (30, 32), (30, 40), (13, 45), (5, 41), (29, 37), (45, 38), (44, 34), (44, 28), (22, 44), (43, 31), (48, 34), (6, 33), (33, 7), (1, 37), (5, 17), (37, 2), (39, 38), (27, 36), (18, 42), (17, 35), (12, 5), (37, 40), (5, 39), (37, 43), (8, 4), (39, 3), (33, 31), (21, 33), (0, 39)]
 
+    def __init__(self, number):
+        # Make file name used.
+        filename = "data/netlist"
+        filename += str(number)
+        filename += ".txt"
 
-    def print_list( self , list_number):
-        # Maakt het printen van de objecten mogelijk
-        if (list_number == 0):
-            print((self.list_0))
-        elif (list_number == 1):
-            print((self.list_1))
-        elif (list_number == 2):
-            print((self.list_2))
-        elif (list_number == 3):
-            print((self.list_3))
-        elif (list_number == 4):
-            print((self.list_4))
-        elif (list_number == 5):
-            print((self.list_5))
-        elif (list_number == 6):
-            print((self.list_6))
-        else:
-            print("Use: OBJECT.print_list(list_number)")
+        # Open netlist and read with literal evaluation.
+        with open(filename) as f:
+            self.list = f.read()
+        self.list = literal_eval(self.list)
 
-# Komt nog is voor het openen van de netlist bestanden. 
-# class CustomOpen(object):
-#     def __init__(self, filename):
-#         self.file = open(filename)
-#
-#     def __enter__(self):
-#         return self.file
-#
-#     def __exit__(self, ctx_type, ctx_value, ctx_traceback):
-#         self.file.close()
-#
-# with CustomOpen('file') as f:
-#     contents = f.read()
-
+    # Print function for debugging.
+    def print_list(self):
+        print(self.list)
 
 def calculatePath(board, a, b):
     '''
@@ -142,13 +97,16 @@ def calculatePath(board, a, b):
     '''
     ax = a[0]
     ay = a[1]
+    az = a[2]
     bx = b[0]
     by = b[1]
-    cursor = {"x": ax, "y": ay}
+    bz = b[2]
+    cursor = {"x": ax, "y": ay, "z": az}
     counter = 0
+    found = False
 
     # Walk 1 step through the grid till the endpoint is reached
-    while (cursor["x"] != bx) or (cursor["y"] != by):
+    while (cursor["x"] != bx) or (cursor["y"] != by) or (cursor["z"] != bz):
 
         if cursor["x"] < bx:
             cursor["x"] += 1
@@ -163,8 +121,13 @@ def calculatePath(board, a, b):
             cursor["y"] -= 1
             print("up", end=' ')
 
-        # Mark the steps
-        board.set_gate("#", cursor["x"], cursor["y"])
+        # Check if endpoint is reached
+        if (cursor["x"] == bx) and (cursor["y"] == by) and (cursor["z"] == bz):
+            found = True
+
+        # Mark the steps while the endpoint is not reached
+        if found ==  False:
+            board.set_path(cursor["x"], cursor["y"], cursor["z"])
 
         counter += 1
 
