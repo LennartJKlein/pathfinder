@@ -70,13 +70,14 @@ def main():
     # Print the board
     board.print_board()
 
-    # Plot the plot
+    # Plot config
     fig = plt.figure()
     ax = fig.gca(projection='3d')
 
+    # Make a scatter graph with the get_coords function
     ax.scatter(board.get_coords('y', 2), board.get_coords('x', 2), board.get_coords('z', 2))
-    ax.legend()
 
+    # Shot the finished product
     plt.show()
 
 if __name__ == '__main__':
