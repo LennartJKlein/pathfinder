@@ -10,6 +10,10 @@ helpers.py
 from ast import literal_eval
 import numpy as np
 
+# Program settings
+SIGN_PATH = 1
+SIGN_GATE = 2
+
 class Board:
 
     def __init__(self, x, y, z):
@@ -21,20 +25,16 @@ class Board:
         self.x = x
         self.y = y
         self.z = z
-        self.board = []
-        self.generate_board()
-
-    def generate_board(self):
         self.board = np.zeros((self.z, self.y, self.x), dtype=int)
 
-    def show_board(self):
+    def print_board(self):
         print(self.board)
 
-    def set_gate(self, name, x, y, z):
-        self.board[z,y,x] = 2
+    def set_gate(self, x, y, z):
+        self.board[z,y,x] = SIGN_GATE
 
-    def set_path(self, name, x, y, z):
-        self.board[z,y,x] = 1
+    def set_path(self, x, y, z):
+        self.board[z,y,x] = SIGN_PATH
 
     def get_coords(self, axes, label):
         var = np.argwhere(self.board == label)
@@ -89,7 +89,7 @@ class Netlist:
     def print_list(self):
         print(self.list)
 
-def calculatePath(board, a, b, label):
+def calculatePath(board, a, b):
     '''
     Calculate route between two points
     :param a: first point (tuple of coordinates)
@@ -127,7 +127,7 @@ def calculatePath(board, a, b, label):
 
         # Mark the steps while the endpoint is not reached
         if found ==  False:
-            board.set_path(label, cursor["x"], cursor["y"], cursor["z"])
+            board.set_path(cursor["x"], cursor["y"], cursor["z"])
 
         counter += 1
 

@@ -56,7 +56,7 @@ def main():
                 gates[gateLabel] = helpers.Gate(gateLabel, gateX, gateY, gateZ)
 
                 # Set a gate in the grid for every row in the file
-                board.set_gate(gateLabel, gateX, gateY, gateZ)
+                board.set_gate(gateX, gateY, gateZ)
 
     # Create a netlist and calculate paths
     netlist = helpers.Netlist(0)
@@ -65,18 +65,19 @@ def main():
         b = connection[1]
         a_tuple = (gates[a].x, gates[a].y, gates[a].z)
         b_tuple = (gates[b].x, gates[b].y, gates[b].z)
-        helpers.calculatePath(board, a_tuple, b_tuple, 1)
+        helpers.calculatePath(board, a_tuple, b_tuple)
 
     # Print the board
-    board.show_board()
+    board.print_board()
 
-    # Plot the plot
+    # Plot config
     fig = plt.figure()
     ax = fig.gca(projection='3d')
 
+    # Make a scatter graph with the get_coords function
     ax.scatter(board.get_coords('y', 2), board.get_coords('x', 2), board.get_coords('z', 2))
-    ax.legend()
 
+    # Shot the finished product
     plt.show()
 
 if __name__ == '__main__':
