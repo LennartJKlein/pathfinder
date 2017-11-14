@@ -14,10 +14,12 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
 # Program settings
-BOARD_WIDTH = 5
-BOARD_HEIGHT = 5
+BOARD_WIDTH = 18
+BOARD_HEIGHT = 16
 BOARD_DEPTH = 1
-FILE_GATES = 'data/gates.csv'
+SIGN_PATH_START = 2
+FILE_NETLIST = 1
+FILE_GATES = 'data/gates1.csv'
 
 def main():
     '''
@@ -31,6 +33,7 @@ def main():
     # Read a CSV file for gate tuples
     with open(FILE_GATES, 'r') as csvfile:
         reader = csv.reader(csvfile)
+        print("using: " + FILE_GATES)
 
         # Skip the header
         next(reader, None)
@@ -58,13 +61,16 @@ def main():
                 board.set_gate(gateX, gateY, gateZ)
 
     # Create a netlist and calculate paths
-    netlist = helpers.Netlist(0)
+    netlist = helpers.Netlist(FILE_NETLIST)
+    print("Using in Netlist #" + str(FILE_NETLIST))
+    pathsFound = SIGN_PATH_START
     for connection in netlist.list:
         a = connection[0]
         b = connection[1]
         a_tuple = (gates[a].x, gates[a].y, gates[a].z)
         b_tuple = (gates[b].x, gates[b].y, gates[b].z)
-        helpers.calculatePath(board, a_tuple, b_tuple)
+        helpers.calculatePath(board, a_tuple, b_tuple, pathsFound)
+        pathsFound += 1
 
     # Print the board
     board.print_board()
@@ -77,7 +83,7 @@ def main():
     ax.scatter(board.get_coords('y', 2), board.get_coords('x', 2), board.get_coords('z', 2))
 
     # Shot the finished product
-    #plt.show()
+    plt.show()
 
 if __name__ == '__main__':
     main()
