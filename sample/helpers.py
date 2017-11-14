@@ -94,35 +94,88 @@ def calculatePath(board, a, b, label):
     :param a: first point (tuple of coordinates)
     :param b: second point (tuple of coordinates)
     '''
-    ax = a[0]
-    ay = a[1]
-    az = a[2]
-    bx = b[0]
-    by = b[1]
-    bz = b[2]
-    cursor = {"x": ax, "y": ay, "z": az}
+
+    #cursor = {"x": ax, "y": ay, "z": az}
     counter = 0
     found = False
 
-    # Walk 1 step through the grid till the endpoint is reached
-    while (cursor["x"] != bx) or (cursor["y"] != by) or (cursor["z"] != bz):
+    queue = [a]
 
-        if cursor["x"] < bx:
-            cursor["x"] += 1
-        elif cursor["x"] > bx:
-            cursor["x"] -= 1
-        elif cursor["y"] < by:
-            cursor["y"] += 1
-        elif cursor["y"] > by:
-            cursor["y"] -= 1
+    a_list = list(a)
+    b_list = list(b)
 
-        # Check if endpoint is reached
-        if (cursor["x"] == bx) and (cursor["y"] == by) and (cursor["z"] == bz):
-            found = True
 
-        # Mark the steps while the endpoint is not reached
-        if found ==  False:
-            board.set_path(label, cursor["x"], cursor["y"], cursor["z"])
+    # Create a list for the 4 adjacent cells
+    # X-axis
+    a_left = list(a)
+    a_left[0] -= 1
 
-        counter += 1
+    # If wall/gates/anything
+    if board.board[a_left[2], a_left[1], a_left[0]] == 0:
+        print ("Free space")
+        # something
+
+    a_right = a_list
+    a_right[0] += 1
+
+    # If wall/gates/anything
+    if board.board[a_right[2], a_right[1], a_right[0]] == 0:
+        print ("Free space")
+        # something
+
+    # # Y-axis
+    a_up = a_list
+    a_up[1] -= 1
+
+    # If wall/gates/anything
+    if board.board[a_up[2], a_up[1], a_up[0]] == 0:
+        print ("Free space")
+        # something
+
+    a_down = a_list
+    a_down[1] += 1
+
+    # If wall/gates/anything
+    if board.board[a_down[2], a_down[1], a_down[0]] == 0:
+        print ("Free space")
+        # something
+
+    # Z-axis
+
+
+
+
+def compareTuples(a, b):
+
+    # Check if tuple already is in a list
+    compare_list = [(a == b) for a, b in zip(a,b)]
+    return all(item == True for item in compare_list)
+
+
+
+
+
+
+
+    # # Walk 1 step through the grid till the endpoint is reached
+    # while (cursor["x"] != bx) or (cursor["y"] != by) or (cursor["z"] != bz):
+
+
+
+    #     # Check if endpoint is reached
+    #     if (cursor["x"] == bx) and (cursor["y"] == by) and (cursor["z"] == bz):
+    #         found = True
+
+    #     # Mark the steps while the endpoint is not reached
+    #     if found ==  False:
+    #         board.set_path(label, cursor["x"], cursor["y"], cursor["z"])
+
+    #     counter += 1
+
+
+
+
+
+
+
     print("- Steps made: " + str(counter))
