@@ -68,39 +68,25 @@ class Gate:
 
 class Netlist:
     """
-    Netlist is arg1 en moet gegeven worden.
-    
-    Netlist contains all the given Netlists from http://heuristieken.nl/resources/CC_netlists2.txt and makes them usable as an accessable, readable and searchable object.
-    * netlist 0 - length 1
-    * netlist 1 - length 30
-    * netlist 2 - length 40
-    * netlist 3 - length 50
-    * netlist 4 - length 50
-    * netlist 5 - length 60
-    * netlist 6 - length 70
+    Netlist are tuples reperesenting the contecion between two gates. Al conections
+    must be made to solve the case.
 
-    Creating new instance of the netlist dataset in your code:
-        variableName = Netlist()
-
-    Accessing the dataset of one netlist in your code:
-        include netlist number
+    :param: number:     number of the netlist used
     """
 
     def __init__(self, number):
+        # Make file name used.
         filename = "data/netlist"
         filename += str(number)
         filename += ".txt"
 
+        # Open netlist and read with literal evaluation.
         with open(filename) as f:
             self.list = f.read()
         self.list = literal_eval(self.list)
 
-        # laat zien dat het een array is gevuld met tuples
-        # for tuples in self.netlist:
-        #     print(type(tuples))
-
+    # Print function for debugging.
     def print_list(self):
-        # Maakt het printen van de objecten mogelijk
         print(self.list)
 
 def calculatePath(board, a, b, label):
