@@ -20,6 +20,8 @@ BOARD_DEPTH = 1
 SIGN_PATH_START = 2
 FILE_NETLIST = 1
 FILE_GATES = 'data/gates1.csv'
+PATH_NUMBER = 2 # start at two
+SIGN_GATE = 1
 
 def main():
     '''
@@ -42,7 +44,6 @@ def main():
         gates = {}
 
         for row in reader:
-            
             # Skip row if the data is commented
             if row[0][:1] != '#':
 
@@ -60,27 +61,31 @@ def main():
                 # Set a gate in the grid for every row in the file
                 board.set_gate(gateX, gateY, gateZ)
 
-    # Create a netlist and calculate paths
-    netlist = helpers.Netlist(FILE_NETLIST)
-    print("Using in Netlist #" + str(FILE_NETLIST))
-    pathsFound = SIGN_PATH_START
-    for connection in netlist.list:
-        a = connection[0]
-        b = connection[1]
-        a_tuple = (gates[a].x, gates[a].y, gates[a].z)
-        b_tuple = (gates[b].x, gates[b].y, gates[b].z)
-        helpers.calculatePath(board, a_tuple, b_tuple, pathsFound)
-        pathsFound += 1
-
     # Print the board
     board.print_board()
 
     # Plot config
     fig = plt.figure()
     ax = fig.gca(projection='3d')
+    # Create a netlist and calculate paths
+    netlist = helpers.Netlist(FILE_NETLIST)
+    print("Using in Netlist #" + str(FILE_NETLIST))
+    label = SIGN_PATH_START
+    for connection in netlist.list:
+        a = connection[0]
+        b = connection[1]
+        a_tuple = (gates[a].x, gates[a].y, gates[a].z)
+        b_tuple = (gates[b].x, gates[b].y, gates[b].z)
+        # calculatePathe algorithm returns a object containig info about te route
+        newPath = helpers.calculatePath(board, a_tuple, b_tuple, label)
+
+        # Read the data in to a variable to read separete.
+        path_data = newPath.return_path()
+        # Plot the line. TODO label naar toevoegen.
+        lines = plt.plot(path_data[0], path_data[1], path_data[2])
 
     # Make a scatter graph with the get_coords function
-    ax.scatter(board.get_coords('y', 2), board.get_coords('x', 2), board.get_coords('z', 2))
+    ax.scatter(board.get_coords('y', SIGN_GATE), board.get_coords('x', SIGN_GATE), board.get_coords('z', SIGN_GATE))
 
     # Shot the finished product
     plt.show()
