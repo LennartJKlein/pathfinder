@@ -14,10 +14,10 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
 # Program settings
-BOARD_WIDTH = 18
-BOARD_HEIGHT = 17
-BOARD_DEPTH = 7
-FILE_GATES = 'data/gates2.csv'
+BOARD_WIDTH = 5
+BOARD_HEIGHT = 5
+BOARD_DEPTH = 1
+FILE_GATES = 'data/gates.csv'
 
 def main():
     '''
@@ -77,7 +77,7 @@ def main():
     ax.scatter(board.get_coords('y', 2), board.get_coords('x', 2), board.get_coords('z', 2))
 
     # Shot the finished product
-    plt.show()
+    #plt.show()
 
 if __name__ == '__main__':
     main()

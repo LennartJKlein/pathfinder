@@ -11,8 +11,8 @@ from ast import literal_eval
 import numpy as np
 
 # Program settings
-SIGN_PATH = 1
-SIGN_GATE = 2
+SIGN_PATH = 9
+SIGN_GATE = 1
 
 class Board:
 
