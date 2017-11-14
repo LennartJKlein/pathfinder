@@ -10,7 +10,6 @@ helpers.py
 from ast import literal_eval
 import numpy as np
 
-# Program settings
 SIGN_GATE = 1
 
 class Board:
@@ -88,12 +87,39 @@ class Netlist:
     def print_list(self):
         print(self.list)
 
+class PathMaker:
+    """Path maker creates lines to be used in MathPlotLib."""
+    def __init__(self, label):
+        self.path_walked = ([],[],[])
+        self.label = label
+
+    def append_new_coordinate(self, new):
+        # Adds a new coordinate to self.path_walked
+        new_list = []
+        for items in new:
+            new_list = new_list + items
+
+        for items in self.path_walked:
+            items.append(new_list.pop(0))
+
+        # return base
+        return self.path_walked
+
+    # return the variable containing the info on the path.
+    def return_path(self):
+        return self.path_walked
+
+    # Retrun the name of the path
+    def return_label(self):
+        return self.label
+
 def calculatePath(board, a, b, label):
     '''
     Calculate route between two points
     :param a: first point (tuple of coordinates)
     :param b: second point (tuple of coordinates)
     '''
+
     ax = a[0]
     ay = a[1]
     az = a[2]
@@ -101,8 +127,11 @@ def calculatePath(board, a, b, label):
     by = b[1]
     bz = b[2]
     cursor = {"x": ax, "y": ay, "z": az}
-    counter = 0
+    step_counter = 0
     found = False
+
+    # Create a new instance of PathMaker with label as the name.
+    newPath = PathMaker(label)
 
     # Walk 1 step through the grid till the endpoint is reached
     while (cursor["x"] != bx) or (cursor["y"] != by) or (cursor["z"] != bz):
@@ -116,6 +145,9 @@ def calculatePath(board, a, b, label):
         elif cursor["y"] > by:
             cursor["y"] -= 1
 
+        # Append the path to the path tracker.
+        newPath.append_new_coordinate(([cursor["x"]],[cursor["y"]],[cursor["z"]]))
+
         # Check if endpoint is reached
         if (cursor["x"] == bx) and (cursor["y"] == by) and (cursor["z"] == bz):
             found = True
@@ -124,5 +156,8 @@ def calculatePath(board, a, b, label):
         if found ==  False:
             board.set_path(label, cursor["x"], cursor["y"], cursor["z"])
 
-        counter += 1
-    print("- Steps made: " + str(counter))
+        step_counter += 1
+
+    print("- Steps made: " + str(step_counter))
+    # Returns the data on the path to create lines or log.
+    return newPath
