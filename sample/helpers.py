@@ -99,6 +99,7 @@ def calculatePath(board, a, b, label):
     counter = 0
     found = False
 
+    # (X,Y,Z,COUNTER)
     queue = [a]
 
     a_list = list(a)
@@ -112,16 +113,32 @@ def calculatePath(board, a, b, label):
 
     # If wall/gates/anything
     if board.board[a_left[2], a_left[1], a_left[0]] == 0:
-        print ("Free space")
-        # something
+        print ("Free space found.")
+        print ("Appending a_left to queue")
+        a_left.insert(3, counter)
+        queue.append(a_left)
+        print ("queue is now:" + str(queue))
+        print("")
+
+    else:
+        print("No free space here.")
+        print("")
 
     a_right = a_list
     a_right[0] += 1
 
     # If wall/gates/anything
     if board.board[a_right[2], a_right[1], a_right[0]] == 0:
-        print ("Free space")
-        # something
+        print ("Free space found.")
+        print ("Appending a_right to queue")
+        a_right.insert(3, counter)
+        queue.append(a_right)
+        print ("queue is now:" + str(queue))
+        print("")
+
+    else:
+        print("No free space here.")
+        print("")
 
     # # Y-axis
     a_up = a_list
@@ -129,16 +146,32 @@ def calculatePath(board, a, b, label):
 
     # If wall/gates/anything
     if board.board[a_up[2], a_up[1], a_up[0]] == 0:
-        print ("Free space")
-        # something
+        print ("Free space found.")
+        a_up.insert(3, counter)
+        print ("Appending a_up to queue")
+        queue.append(a_up)
+        print ("queue is now:" + str(queue))
+        print("")
+
+    else:
+        print("No free space here.")
+        print("")
 
     a_down = a_list
     a_down[1] += 1
 
     # If wall/gates/anything
     if board.board[a_down[2], a_down[1], a_down[0]] == 0:
-        print ("Free space")
-        # something
+        print ("Free space found.")
+        print ("Appending a_down to queue")
+        a_down.insert(3, counter)
+        queue.append(a_down)
+        print ("queue is now:" + str(queue))
+        print("")
+
+    else:
+        print("No free space here.")
+        print("")
 
     # Z-axis
 

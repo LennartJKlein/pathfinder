@@ -33,7 +33,7 @@ def main():
     # Read a CSV file for gate tuples
     with open(FILE_GATES, 'r') as csvfile:
         reader = csv.reader(csvfile)
-        print("using: " + FILE_GATES)
+        print("Using: " + FILE_GATES)
 
         # Skip the header
         next(reader, None)
@@ -63,6 +63,7 @@ def main():
     # Create a netlist and calculate paths
     netlist = helpers.Netlist(FILE_NETLIST)
     print("Using in Netlist #" + str(FILE_NETLIST))
+    print("")
     pathsFound = SIGN_PATH_START
     for connection in netlist.list:
         a = connection[0]
