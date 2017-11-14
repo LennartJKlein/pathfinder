@@ -37,10 +37,10 @@ class Board:
         self.board[z,y,x] = SIGN_PATH
 
     def get_coords(self, axes, label):
-        var = np.argwhere(self.board == label)
+        labels = np.argwhere(self.board == label)
         coords = []
 
-        for cord in var:
+        for cord in labels:
             if axes == 'z':
                 coords.append(cord[0])
             if axes == 'y':

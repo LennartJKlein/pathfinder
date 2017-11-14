@@ -19,7 +19,6 @@ BOARD_HEIGHT = 17
 BOARD_DEPTH = 7
 FILE_GATES = 'data/gates2.csv'
 
-
 def main():
     '''
     Initialise and draw a grid called Board
