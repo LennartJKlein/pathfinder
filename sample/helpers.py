@@ -87,7 +87,7 @@ class Netlist:
     def print_list(self):
         print(self.list)
 
-class PathMaker:
+class PathInfo:
     """Path maker creates lines to be used in MathPlotLib."""
     def __init__(self, label):
         self.path_walked = ([],[],[])
@@ -131,8 +131,7 @@ def calculatePath(board, a, b, label):
     found = False
 
     # Create a new instance of PathMaker with label as the name.
-    newPath = PathMaker(label)
-
+    newPath = PathInfo(label)
     # Walk 1 step through the grid till the endpoint is reached
     while (cursor["x"] != bx) or (cursor["y"] != by) or (cursor["z"] != bz):
 
@@ -155,8 +154,7 @@ def calculatePath(board, a, b, label):
         # Mark the steps while the endpoint is not reached
         if found ==  False:
             board.set_path(label, cursor["x"], cursor["y"], cursor["z"])
-
-        step_counter += 1
+            step_counter += 1
 
     print("- Steps made: " + str(step_counter))
     # Returns the data on the path to create lines or log.

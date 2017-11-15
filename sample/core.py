@@ -78,6 +78,7 @@ def main():
 
         # calculatePathe algorithm returns a object containig info about te route
         newPath = helpers.calculatePath(board, a_tuple, b_tuple, label)
+        label += 1
 
         # Read the data in to a variable to read separete.
         path_data = newPath.return_path()
