@@ -61,14 +61,13 @@ def main():
                 # Set a gate in the grid for every row in the file
                 board.set_gate(gateX, gateY, gateZ)
 
-    # Print the board
-    board.print_board()
-
     # Plot config
     fig = plt.figure()
     ax = fig.gca(projection='3d')
-    # Create a netlist and calculate paths
+
+    # Create a netlist and calculate path
     netlist = helpers.Netlist(FILE_NETLIST)
+
     print("Using in Netlist #" + str(FILE_NETLIST))
     label = SIGN_PATH_START
     for connection in netlist.list:
@@ -76,13 +75,18 @@ def main():
         b = connection[1]
         a_tuple = (gates[a].x, gates[a].y, gates[a].z)
         b_tuple = (gates[b].x, gates[b].y, gates[b].z)
+
         # calculatePathe algorithm returns a object containig info about te route
         newPath = helpers.calculatePath(board, a_tuple, b_tuple, label)
 
         # Read the data in to a variable to read separete.
         path_data = newPath.return_path()
+
         # Plot the line. TODO label naar toevoegen.
         lines = plt.plot(path_data[0], path_data[1], path_data[2])
+
+    # Print the board
+    board.print_board()
 
     # Make a scatter graph with the get_coords function
     ax.scatter(board.get_coords('y', SIGN_GATE), board.get_coords('x', SIGN_GATE), board.get_coords('z', SIGN_GATE))
