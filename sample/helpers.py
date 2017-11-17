@@ -88,166 +88,159 @@ class Netlist:
     def print_list(self):
         print(self.list)
 
-def calculatePath(board, a, b, label):
+def calculatePath(board, aTuple, bTuple, label):
     '''
     Calculate route between two points
     :param a: first point (tuple of coordinates)
     :param b: second point (tuple of coordinates)
     '''
 
-    #cursor = {"x": ax, "y": ay, "z": az}
-    counterLeft = 0
-    counterRight = 0
-    counterUp = 0
-    counterDown = 0
-    found = False
+    
+    # # Pre-create coordinates
+    # a_left = list(aTuple)
+    # a_right = list(aTuple)
+    # a_up = list(aTuple)
+    # a_down = list(aTuple)
+    # counterLeft = 0
+    # counterRight = 0
+    # counterUp = 0
+    # counterDown = 0
 
-    # (X,Y,Z,COUNTER)
-    queue = [a]
 
-    a_list = list(a)
-    b_list = list(b)
-
-    print("Walking from gate: " + str(a_list) + " to " + str(b_list))
+    # Create comparable lists from tuples
+    a = list(aTuple)
+    b = list(bTuple)
+    
+    print("Walking from gate: " + str(a) + " to " + str(b))
     print("")
 
-    a_left = list(a)
-    a_right = list(a)
-    a_up = list(a)
-    a_down = list (a)
+    # Initiate queue and constraints
+    queue = [a]
+    steps = 0
+    found = False
 
-    while not a_left == b_list or a_right == b_list or a_down == b_list or a_up == b_list:
+    while found == False:
 
-        # # Create a list for the 4 adjacent cells
-        # # X-axis
+        print(str(queue))
 
-        a_left[0] -= 1
-        counterLeft += 1
-        print("Step left: " + str(a_left))
+        steps += 1
 
-        # # If wall/gates/anything
-        # if board.board[a_left[2], a_left[1], a_left[0]] == 0:
-        #     print ("Free space found.")
-        #     print ("Appending a_left to queue")
-        #     # counterLeft += 1
-        #     # a_left.insert(3, counterLeft)
-        #     queue.append(a_left)
-        #     print ("counting step")
-        #     print ("queue is now:" + str(queue))
-        #     print("")
+        if steps == 5:
+            found = True
 
-        # else:
-        #     print("No free space here.")
-        #     print("")
+        # Pick first coordinate from the queue
+        coord = queue.pop();
 
-        a_right[0] += 1
-        counterRight += 1
-        print("Step right: " + str(a_right))
+        if coord == b:
+            found = True
 
-        # # If wall/gates/anything
-        # if board.board[a_right[2], a_right[1], a_right[0]] == 0:
-        #     print ("Free space found.")
-        #     print ("Appending a_right to queue")
-        #     # counterRight += 1
-        #     # a_right.insert(3, counterRight)
-        #     queue.append(a_right)
-        #     print ("counting step")
-        #     print ("queue is now:" + str(queue))
-        #     print("")
+        else:
+            # Create a list for the 4 adjacent cells of this coord   [2, 1, 0] [0, 1, 0] [1, 2, 0] [1, 0, 0] [1, 1, 1] [1, 1, -1]
+             for i, axes in enumerate(coord):
+                newCoordPlus = list(coord)
+                newCoordPlus[i] += 1
+                queue.append(newCoordPlus)
 
-        # else:
-        #     print("No free space here.")
-        #     print("")
+                newCoordMin = list(coord)
+                newCoordMin[i] -= 1
+                queue.append(newCoordMin)
 
-        # # # Y-axis
-        a_up[1] -= 1
-        counterUp -= 1
-        print("Step up: " + str(a_up))
+            #a_left[0] -= 1
+            #counterLeft += 1
+            #print("Step left: " + str(a_left))
 
-        # # If wall/gates/anything
-        # if board.board[a_up[2], a_up[1], a_up[0]] == 0:
-        #     print ("Free space found.")
-        #     print ("Appending a_up to queue")
-        #     # counterUp += 1
-        #     # a_up.insert(3, counterUp)
-        #     queue.append(a_up)
-        #     print ("counting step")
-        #     print ("queue is now:" + str(queue))
-        #     print("")
+            # # If wall/gates/anything
+            # if board.board[a_left[2], a_left[1], a_left[0]] == 0:
+            #     print ("Free space found.")
+            #     print ("Appending a_left to queue")
+            #     # counterLeft += 1
+            #     # a_left.insert(3, counterLeft)
+            #     queue.append(a_left)
+            #     print ("counting step")
+            #     print ("queue is now:" + str(queue))
+            #     print("")
 
-        # else:
-        #     print("No free space here.")
-        #     print("")
+            # else:
+            #     print("No free space here.")
+            #     print("")
 
-        a_down[1] += 1
-        counterDown += 1
-        print("Step down: " + str(a_down))
+            #a_right[0] += 1
+            #counterRight += 1
+            #print("Step right: " + str(a_right))
 
-        # # If wall/gates/anything
-        # if board.board[a_down[2], a_down[1], a_down[0]] == 0:
-        #     print ("Free space found.")
-        #     print ("Appending a_down to queue")
-        #     # counterDown += 1
-        #     # a_down.insert(3, counterDown)
-        #     queue.append(a_down)
-        #     print ("counting step")
-        #     print ("queue is now:" + str(queue))
-        #     print("")
+            # # If wall/gates/anything
+            # if board.board[a_right[2], a_right[1], a_right[0]] == 0:
+            #     print ("Free space found.")
+            #     print ("Appending a_right to queue")
+            #     # counterRight += 1
+            #     # a_right.insert(3, counterRight)
+            #     queue.append(a_right)
+            #     print ("counting step")
+            #     print ("queue is now:" + str(queue))
+            #     print("")
 
-        # else:
-        #     print("No free space here.")
-        #     print("")
+            # else:
+            #     print("No free space here.")
+            #     print("")
 
-        # # Z-axis
+            # # # Y-axis
+            #a_up[1] -= 1
+            #counterUp -= 1
+            #print("Step up: " + str(a_up))
 
+            # # If wall/gates/anything
+            # if board.board[a_up[2], a_up[1], a_up[0]] == 0:
+            #     print ("Free space found.")
+            #     print ("Appending a_up to queue")
+            #     # counterUp += 1
+            #     # a_up.insert(3, counterUp)
+            #     queue.append(a_up)
+            #     print ("counting step")
+            #     print ("queue is now:" + str(queue))
+            #     print("")
 
-        if a_left == b_list:
-            print("")
-            print("Found the gate after " + str(counterLeft) + " steps")
-            break
-        if a_right == b_list:
-            print("")
-            print("Found the gate after " + str(counterRight) + " steps")
-            break
-        if a_up == b_list:
-            print("")
-            print("Found the gate after " + str(counterUp) + " steps")
-            break
-        if a_down == b_list:
-            print("")
-            print("Found the gate after " + str(counterDown) + " steps")
-            break
+            # else:
+            #     print("No free space here.")
+            #     print("")
 
-    print ("")
+            #a_down[1] += 1
+            #counterDown += 1
+            #print("Step down: " + str(a_down))
 
+            # # If wall/gates/anything
+            # if board.board[a_down[2], a_down[1], a_down[0]] == 0:
+            #     print ("Free space found.")
+            #     print ("Appending a_down to queue")
+            #     # counterDown += 1
+            #     # a_down.insert(3, counterDown)
+            #     queue.append(a_down)
+            #     print ("counting step")
+            #     print ("queue is now:" + str(queue))
+            #     print("")
 
-def compareTuples(a, b):
+            # else:
+            #     print("No free space here.")
+            #     print("")
 
-    # Check if tuple already is in a list
-    compare_list = [(a == b) for a, b in zip(a,b)]
-    return all(item == True for item in compare_list)
+            # # Z-axis
 
 
+            # if a_left == b_list:
+            #     print("")
+            #     print("Found the gate after " + str(counterLeft) + " steps")
+            #     break
+            # if a_right == b_list:
+            #     print("")
+            #     print("Found the gate after " + str(counterRight) + " steps")
+            #     break
+            # if a_up == b_list:
+            #     print("")
+            #     print("Found the gate after " + str(counterUp) + " steps")
+            #     break
+            # if a_down == b_list:
+            #     print("")
+            #     print("Found the gate after " + str(counterDown) + " steps")
+            #     break
 
-    # # Walk 1 step through the grid till the endpoint is reached
-    # while (cursor["x"] != bx) or (cursor["y"] != by) or (cursor["z"] != bz):
-
-
-
-    #     # Check if endpoint is reached
-    #     if (cursor["x"] == bx) and (cursor["y"] == by) and (cursor["z"] == bz):
-    #         found = True
-
-    #     # Mark the steps while the endpoint is not reached
-    #     if found ==  False:
-    #         board.set_path(label, cursor["x"], cursor["y"], cursor["z"])
-
-    #     counter += 1
-
-
-
-
-
-
-
-    print("- Steps made: " + str(counter))
+    print("GEVONUDDHHHHH")
+    print("Steps made: " + str(steps))
