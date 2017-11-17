@@ -97,7 +97,7 @@ def calculatePath(board, aTuple, bTuple, label):
     :param label: the label this path gets on the board
     '''
 
-    print("Walking from gate: " + str(a) + " to " + str(b))
+    print("Walking from gate: " + str(aTuple) + " to " + str(bTuple))
 
     # Create comparable lists from the point tuples
     a = list(aTuple)
@@ -105,6 +105,7 @@ def calculatePath(board, aTuple, bTuple, label):
 
     # Initiate queue and constraints
     queue = [a]
+    archive = []
     loops = 0
     found = False
 
@@ -128,18 +129,21 @@ def calculatePath(board, aTuple, bTuple, label):
                 # Step forth on this axes
                 newCoordPlus = list(coord)
                 newCoordPlus[i] += 1
-                if not newCoordPlus in queue
-                   and newCoordPlus[0] > 0
-                   and newCoordPlus[1] > 0:
+                if not newCoordPlus in queue and newCoordPlus[0] > 0 and newCoordPlus[1] > 0:
                     queue.append(newCoordPlus)
+                    coordList = [newCoordPlus, loops]
+                    archive.append(coordList)
 
                 # Step back on this axes
                 newCoordMin = list(coord)
                 newCoordMin[i] -= 1
-                if not newCoordMin in queue
-                   and newCoordMin[0] > 0
-                   and newCoordMin[1] > 0:
+                if not newCoordMin in queue and newCoordMin[0] > 0 and newCoordMin[1] > 0:
                     queue.append(newCoordMin)
+                    coordList = [newCoordMin, loops]
+                    archive.append(coordList)
 
     print("Point B has been found!")
     print("Loops needed: " + str(loops))
+    print("")
+    print("archive is: " + str(archive))
+    print("")
