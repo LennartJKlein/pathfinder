@@ -116,20 +116,17 @@ def calculatePath(board, aTuple, bTuple, label):
 
     # Initiate queue and constraints
     queue = [a]
-    steps = 0
+    loops = 0
     found = False
 
     while found == False:
 
         print(str(queue))
 
-        steps += 1
-
-        if steps == 5:
-            found = True
+        loops += 1
 
         # Pick first coordinate from the queue
-        coord = queue.pop();
+        coord = queue.pop(0);
 
         if coord == b:
             found = True
@@ -139,11 +136,13 @@ def calculatePath(board, aTuple, bTuple, label):
              for i, axes in enumerate(coord):
                 newCoordPlus = list(coord)
                 newCoordPlus[i] += 1
-                queue.append(newCoordPlus)
+                if not newCoordPlus in queue and newCoordPlus[0] > 0 and and newCoordPlus[1] > 0:
+                    queue.append(newCoordPlus)
 
                 newCoordMin = list(coord)
                 newCoordMin[i] -= 1
-                queue.append(newCoordMin)
+                if not newCoordMin in queue and newCoordMinus[0] > 0 and and newCoordMinus[1] > 0:
+                    queue.append(newCoordMin)
 
             #a_left[0] -= 1
             #counterLeft += 1
@@ -243,4 +242,4 @@ def calculatePath(board, aTuple, bTuple, label):
             #     break
 
     print("GEVONUDDHHHHH")
-    print("Steps made: " + str(steps))
+    print("Loops needed: " + str(loops))
