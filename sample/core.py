@@ -75,6 +75,7 @@ def main():
 
     # Print the board
     board.print_board()
+    print("")
 
     # Plot config
     fig = plt.figure()
