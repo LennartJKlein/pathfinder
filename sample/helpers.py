@@ -103,17 +103,23 @@ def calculatePath(board, aTuple, bTuple, label):
     a = list(aTuple)
     b = list(bTuple)
 
-    # Initiate queue and constraints
+    # Initiate data structures
     queue = [a]
     archive = []
+
+    # Initiate constraints
+    boardDimensions = board.board.shape
+    boardDepth = boardDimensions[0]
+    boardHeight = boardDimensions[1]
+    boardWidth = boardDimensions[2]
     loops = 0
     found = False
 
     # Algorithm
-    while found == False:
+    while found == False and len(queue) > 0:
 
         # Track the progress
-        print(str(queue))
+        # print(str(queue))
         loops += 1
 
         # Pick first coordinate from the queue
@@ -123,23 +129,44 @@ def calculatePath(board, aTuple, bTuple, label):
         if coord == b:
             found = True
         else:
-            # Create all the adjacent cells of this coord and add them to the queue
-             for i, axes in enumerate(coord):
+            # Create all the adjacent cells of this coord and perhaps add them to the queue
 
-                # Step forth on this axes
-                newCoordPlus = list(coord)
-                newCoordPlus[i] += 1
-                if not newCoordPlus in queue and newCoordPlus[0] > 0 and newCoordPlus[1] > 0:
-                    queue.append(newCoordPlus)
-                    coordList = [newCoordPlus, loops]
-                    archive.append(coordList)
+            # Loop through all the axes of this coord
+            for i, axes in enumerate(coord):
 
-                # Step back on this axes
-                newCoordMin = list(coord)
-                newCoordMin[i] -= 1
-                if not newCoordMin in queue and newCoordMin[0] > 0 and newCoordMin[1] > 0:
-                    queue.append(newCoordMin)
-                    coordList = [newCoordMin, loops]
+                # Run twice voor every axes
+                for j in range(-1, 2, 2):   # j=-1  &  j=1
+                    coordNew = list(coord)
+                    coordNew[i] += j
+                    coordNewX = coordNew[0]
+                    coordNewY = coordNew[1]
+                    coordNewZ = coordNew[2]
+                    
+                    if coordNew in archive:
+                        continue
+                    
+                    # Check if the new coord has positive coordinates
+                    if any(axes < 0 for axes in coordNew):
+                        continue
+
+                    # Check if the new coord falls within the board
+                    if coordNewX >= boardWidth or coordNewY >= boardHeight or coordNewZ >= boardDepth:
+                        continue
+
+                    # Check if the new coord is empty
+                    if board.board[coordNewZ, coordNewY, coordNewX] != 0:
+                        if coordNew != b:
+                            continue
+
+                    # Add the coord to the queue
+                    queue.append(coordNew)
+
+                    # TESTING: print this coord as a 3 on the board
+                    #if coordNew != b:
+                    #    board.set_path(3, coordNewX, coordNewY, coordNewZ)
+
+                    # Add loop counter to the coord and save it in the archive
+                    coordList = [coordNew, loops]
                     archive.append(coordList)
 
     print("Point B has been found!")

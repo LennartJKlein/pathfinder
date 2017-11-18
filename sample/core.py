@@ -16,7 +16,7 @@ from mpl_toolkits.mplot3d import Axes3D
 # Program settings
 BOARD_WIDTH = 6
 BOARD_HEIGHT = 6
-BOARD_DEPTH = 1
+BOARD_DEPTH = 6
 SIGN_PATH_START = 2
 FILE_NETLIST = 0
 FILE_GATES = 'data/gates.csv'
@@ -73,6 +73,10 @@ def main():
         helpers.calculatePath(board, a_tuple, b_tuple, pathsFound)
         pathsFound += 1
 
+    # Testing obstacles
+    board.set_path(99, 2, 3, 0)
+    board.set_path(99, 1, 2, 0)
+
     # Print the board
     board.print_board()
     print("")
@@ -82,10 +86,10 @@ def main():
     ax = fig.gca(projection='3d')
 
     # Make a scatter graph with the get_coords function
-    ax.scatter(board.get_coords('y', 2), board.get_coords('x', 2), board.get_coords('z', 2))
+    ax.scatter(board.get_coords('y', 1), board.get_coords('x', 1), board.get_coords('z', 1), color="blue")
 
     # Shot the finished product
-    #plt.show()
+    plt.show()
 
 if __name__ == '__main__':
     main()
