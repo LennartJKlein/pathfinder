@@ -88,89 +88,119 @@ class Netlist:
     def print_list(self):
         print(self.list)
 
-def calculatePath(board, aTuple, bTuple, label):
+def calculatePath(board, a, b, label):
     '''
     Calculate route between two points
     :param board: a Numpy array
-    :param aTuple: first point on the board (tuple of coordinates)
-    :param bTuple: second point on the board (tuple of coordinates)
+    :param a: first point on the board (list of Z, Y, X coordinates)
+    :param b: second point on the board (list of  Z, Y, X coordinates)
     :param label: the label this path gets on the board
     '''
 
-    print("Walking from gate: " + str(aTuple) + " to " + str(bTuple))
-
-    # Create comparable lists from the point tuples
-    a = list(aTuple)
-    b = list(bTuple)
-
-    # Initiate data structures
-    queue = [a]
-    archive = []
+    print("Walking from gate: " + str(a) + " to " + str(b))
 
     # Initiate constraints
     boardDimensions = board.board.shape
     boardDepth = boardDimensions[0]
     boardHeight = boardDimensions[1]
     boardWidth = boardDimensions[2]
+
+    # Initiate counters
     loops = 0
     found = False
+
+    # Initiate data structures
+    queue = [a]
+    archive = np.zeros((boardDepth, boardHeight, boardWidth), dtype=int)
 
     # Algorithm
     while found == False and len(queue) > 0:
 
-        # Track the progress
-        # print(str(queue))
+        # Track the steps
         loops += 1
 
         # Pick first coordinate from the queue
         coord = queue.pop(0);
 
-        # Check if this coord is the destination
-        if coord == b:
-            found = True
-        else:
-            # Create all the adjacent cells of this coord and perhaps add them to the queue
+        # Create all the adjacent cells of this coord and perhaps add them to the queue
+        # First, loop through all the axes of this coord
+        for i, axes in enumerate(coord):
 
+            # Run twice for every axes
+            for j in range(-1, 2, 2):   # j=-1  &  j=1
+                coordNew = list(coord)
+                coordNew[i] += j
+                coordNewZ = coordNew[0]
+                coordNewY = coordNew[1]
+                coordNewX = coordNew[2]
+
+                # Check if the new coord has positive coordinates
+                if any(axes < 0 for axes in coordNew):
+                    continue
+
+                # Check if the new coord falls within the board
+                if coordNewX >= boardWidth or coordNewY >= boardHeight or coordNewZ >= boardDepth:
+                    continue
+
+                # Check if this coord is already in the archive
+                if archive[coordNewZ, coordNewY, coordNewX] != 0:
+                    continue
+                
+                # Check if there are no obstacles on the board
+                if board.board[coordNewZ, coordNewY, coordNewX] > 0:
+                    if coordNewZ == b[0] and coordNewY == b[1] and coordNewX == b[2]:
+                        found = True
+                    else:
+                        continue
+
+                # Add the coord to the queue
+                queue.append(coordNew)
+
+                # Save the iteration counter to this coordinate in the archive
+                archive[coordNewZ, coordNewY, coordNewX] = loops
+
+                # Check if B is found
+                if found:
+                    break
+
+    #print("Point B has been found! Loops needed: " + str(loops))
+    #print("Archive:")
+    #print(str(archive))
+
+    # Backtracking the shortest route
+    if found:
+        cursor = list(b)
+        cursorChanged = False
+
+        for i in range(loops - 1, 0, -1):
+            
             # Loop through all the axes of this coord
-            for i, axes in enumerate(coord):
+            for j, axes in enumerate(cursor):
 
                 # Run twice voor every axes
-                for j in range(-1, 2, 2):   # j=-1  &  j=1
-                    coordNew = list(coord)
-                    coordNew[i] += j
-                    coordNewX = coordNew[0]
+                for k in range(-1, 2, 2):   # j=-1  &  j=1
+                    
+                    coordNew = list(cursor)
+                    coordNew[j] += k
+                    coordNewZ = coordNew[0]
                     coordNewY = coordNew[1]
-                    coordNewZ = coordNew[2]
-                    
-                    if coordNew in archive:
-                        continue
-                    
-                    # Check if the new coord has positive coordinates
+                    coordNewX = coordNew[2]
+
+                    # Check if the cell has positive coordinates
                     if any(axes < 0 for axes in coordNew):
                         continue
 
-                    # Check if the new coord falls within the board
+                    # Check if the cell falls within the board
                     if coordNewX >= boardWidth or coordNewY >= boardHeight or coordNewZ >= boardDepth:
                         continue
 
-                    # Check if the new coord is empty
-                    if board.board[coordNewZ, coordNewY, coordNewX] != 0:
-                        if coordNew != b:
-                            continue
-
-                    # Add the coord to the queue
-                    queue.append(coordNew)
-
-                    # TESTING: print this coord as a 3 on the board
-                    #if coordNew != b:
-                    #    board.set_path(3, coordNewX, coordNewY, coordNewZ)
-
-                    # Add loop counter to the coord and save it in the archive
-                    coordList = [coordNew, loops]
-                    archive.append(coordList)
-
-    print("Point B has been found!")
-    print("Loops needed: " + str(loops))
-    print("")
-    print("archive is: " + str(archive))
-    print("")
+                    # Check if this cell is on the i'th position in the shortest path
+                    if archive[coordNewZ, coordNewY, coordNewX] == i:
+                        board.board[coordNewZ, coordNewY, coordNewX] = label
+                        cursor = coordNew
+                        cursorChanged = True
+                        break
+                
+                if cursorChanged:
+                    cursorChanged = False
+                    break
