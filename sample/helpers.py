@@ -60,6 +60,11 @@ class Netlist:
             # Set a new label for the next path
             label += 1
 
+    def count_connections(self, board):
+        for items in self.list:
+            board.gates[items[0]].connections_needed += 1
+            board.gates[items[1]].connections_needed += 1
+
     def print_list(self):
         # Print function for debugging
         print(self.list)
@@ -160,6 +165,12 @@ class Gate:
     def __str__(self):
         return self.label
 
+    def gate_free(self):
+        if self.connections_needed > self.connections_made:
+            return True
+        else:
+            return False
+
 class Path:
     """
     Path from A to B
@@ -199,7 +210,7 @@ class Path:
         :param board: a Numpy array
         '''
 
-        # Initiate constraints
+        # Initiate the dimantions of the board
         boardDimensions = board.board.shape
         boardDepth = boardDimensions[0]
         boardHeight = boardDimensions[1]
@@ -209,12 +220,12 @@ class Path:
         loops = 0
         found = False
 
-        # Initiate data structures
+        # Initiate numpy data structures
         queue = [self.a]
         archive = np.zeros((boardDepth, boardHeight, boardWidth), dtype=int)
         self.add_coordinate(self.b)
 
-        # Algorithm
+        # Algorithm core logic
         while found == False and len(queue) > 0:
 
             # Track the steps
@@ -223,8 +234,8 @@ class Path:
             # Pick first coordinate from the queue
             coord = queue.pop(0);
 
-            # Create all the adjacent cells of this coord and perhaps add them to the queue
-            # First, loop through all the axes of this coord
+            # Create all the adjacent cells of this coord and perhaps add them
+            # to the queue. First, loop through all the axes of this coord.
             for i, axes in enumerate(coord):
 
                 # Run twice for every axes
@@ -261,6 +272,19 @@ class Path:
                             " has been found with " + str(loops) + " loops")
                         else:
                             continue
+
+                    # Check serounding tiles for gates
+                    for i, axes in enumerate(coordNew):
+
+                        for j in range(-1, 2, 2):
+                            coordNewer = list(coordNew)
+                            coordNewer[i] += j
+                            coordNewerZ = coordNewer[0]
+                            coordNewerY = coordNewer[1]
+                            coordNewerX = coordNewer[2]
+
+                            if board.board[coordNewerZ, coordNewerY, coordNewerX] == SIGN_GATE:
+                                tempGate = Gate(coordNewer)
 
                     # -------------- / CONSTRAINTS ---------------
 
