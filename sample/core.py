@@ -15,11 +15,9 @@ import numpy as np
 BOARD_WIDTH = 18
 BOARD_HEIGHT = 13
 BOARD_DEPTH = 7
-SIGN_PATH_START = 2
 FILE_NETLIST = 1
 FILE_GATES = 'data/gates1.csv'
-PATH_NUMBER = 2 # start at two
-SIGN_GATE = 1
+PATH_NUMBER = 2  # start at two
 
 def main():
     '''
@@ -41,9 +39,6 @@ def main():
         # Skip the header
         next(reader, None)
 
-        # Initiate a list of gates
-        gates = {}
-
         for row in reader:
             # Skip row if the data is commented
             if row[0][:1] != '#':
@@ -57,34 +52,16 @@ def main():
                 gateZ = int(row[3])
 
                 # Save gate object in gates list
-                gates[gateLabel] = helpers.Gate(gateLabel, gateX, gateY, gateZ)
+                board.gates[gateLabel] = helpers.Gate(gateLabel, gateX, gateY, gateZ)
 
                 # Set a gate in the grid for every row in the file
                 board.set_gate(gateX, gateY, gateZ)
 
     # Create a netlist and calculate path
     netlist = helpers.Netlist(FILE_NETLIST)
-    print("Using in Netlist #" + str(FILE_NETLIST))
 
     # Loop through every connection in the netlist
-    label = SIGN_PATH_START
-    for connection in netlist.list:
-        a = connection[0]
-        b = connection[1]
-        a_list = [gates[a].z, gates[a].y, gates[a].x]
-        b_list = [gates[b].z, gates[b].y, gates[b].x]
-
-        # Create a new path object
-        new_path = helpers.Path(a_list, b_list, label, "grey")
-
-        # Add this path to the board object
-        board.paths.append(new_path)
-
-        # Calculate the route for this path
-        new_path.calculate_DIJKSTRA(board)
-
-        # Set a new label for the next path
-        label += 1
+    netlist.execute(board)
 
     # Print the board data
     board.print_board()

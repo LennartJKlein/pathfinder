@@ -12,7 +12,56 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
+# Program settings
 SIGN_GATE = 1
+SIGN_PATH_START = 2
+
+class Netlist:
+    """
+    Netlist are tuples reperesenting the contecion between two gates. Al conections
+    must be made to solve the case.
+
+    :param: number:     number of the netlist used
+    """
+
+    def __init__(self, number):
+        # Make file name used.
+        self.filename = "data/netlist"
+        self.filename += str(number)
+        self.filename += ".txt"
+
+        # Open netlist and read with literal evaluation.
+        with open(self.filename) as f:
+            self.list = f.read()
+
+        self.list = literal_eval(self.list)
+
+        print("Using in Netlist #" + str(self.filename))
+
+    def execute(self, board):
+        label = SIGN_PATH_START
+
+        for connection in self.list:
+            a = connection[0]
+            b = connection[1]
+            a_list = [board.gates[a].z, board.gates[a].y, board.gates[a].x]
+            b_list = [board.gates[b].z, board.gates[b].y, board.gates[b].x]
+
+            # Create a new path object
+            new_path = Path(a_list, b_list, label, "grey")
+
+            # Add this path to the board object
+            board.paths.append(new_path)
+
+            # Calculate the route for this path
+            new_path.calculate_DIJKSTRA(board)
+
+            # Set a new label for the next path
+            label += 1
+
+    # Print function for debugging.
+    def print_list(self):
+        print(self.list)
 
 class Board:
 
@@ -27,6 +76,7 @@ class Board:
         self.z = z
         self.board = np.zeros((self.z, self.y, self.x), dtype=int)
         self.paths = []
+        self.gates = {}
 
     def print_board(self):
         print(self.board)
@@ -103,30 +153,6 @@ class Gate:
 
     def __str__(self):
         return self.label
-
-class Netlist:
-    """
-    Netlist are tuples reperesenting the contecion between two gates. Al conections
-    must be made to solve the case.
-
-    :param: number:     number of the netlist used
-    """
-
-    def __init__(self, number):
-        # Make file name used.
-        filename = "data/netlist"
-        filename += str(number)
-        filename += ".txt"
-
-        # Open netlist and read with literal evaluation.
-        with open(filename) as f:
-            self.list = f.read()
-            
-        self.list = literal_eval(self.list)
-
-    # Print function for debugging.
-    def print_list(self):
-        print(self.list)
 
 class Path:
     """
