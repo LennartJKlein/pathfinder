@@ -13,7 +13,7 @@ import numpy as np
 
 # Program settings
 BOARD_WIDTH = 18
-BOARD_HEIGHT = 13
+BOARD_HEIGHT = 17
 BOARD_DEPTH = 7
 FILE_NETLIST = 1
 FILE_GATES = 'data/gates1.csv'

@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
 # Program settings
-SIGN_PATH_START = 2
+SIGN_PATH_START = 1
 SIGN_GATE = 1
 
 class Netlist:
