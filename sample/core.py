@@ -58,7 +58,12 @@ def main():
 
     # Create a netlist and calculate path
     netlist = helpers.Netlist(FILE_NETLIST)
-    netlist.calculate_connections(board)
+
+    # Count the connections to and from every gate
+    netlist.count_connections(board)
+
+    # Calculate the connections in this netlist
+    netlist.execute_connections(board)
 
     # Print the board data
     board.print_board()

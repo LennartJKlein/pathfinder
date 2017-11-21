@@ -38,7 +38,7 @@ class Netlist:
 
         print("Using in Netlist #" + str(self.filename))
 
-    def calculate_connections(self, board):
+    def execute_connections(self, board):
         label = SIGN_PATH_START
 
         for connection in self.list:
