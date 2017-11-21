@@ -149,21 +149,38 @@ class Gate:
         self.x = int(x)
         self.y = int(y)
         self.z = int(z)
-        self.connections_made = 0
-        self.connections_needed = 0
+        self.spaces_free = 5
+        self.spaces_needed = 0
 
         for connection in netlist.list:
             if connection[0] == label or connection[1] == label:
-                self.connections_needed += 1        
+                self.spaces_needed += 1       
 
-    def __str__(self):
-        return self.label
+        print(self.spaces_needed)
+
+
+    def get_free_spaces(self, board, coord):
+        counter = 0
+
+        for i, axes in enumerate(coord):
+            # Run twice for every axes
+            for j in range(-1, 2, 2):   # j=-1  &  j=1
+                coord = [self.z, self.y, self.x]
+                coord[i] += j
+                
+                if board.board[coord[0], coord[1], coord[2]] == 0:
+                    counter += 1
+
+        return counter
 
     def is_free(self):
-        if (self.connections_needed - self.connections_made) > 0:
-            return False
-        else:
+        if (self.spaces_free - self.spaces_needed) > 0:
             return True
+        else:
+            return False
+    
+    def __str__(self):
+        return self.label
 
 class Path:
     """
@@ -297,6 +314,11 @@ class Path:
                                     coordNewerY == self.b[1] and \
                                     coordNewerX == self.b[2]):
 
+                                    board.gatesObjects[coordNewerZ, coordNewerY, coordNewerX].get_free_spaces(board, coordNewer)
+                                    print("GATE #" + str(board.gatesObjects[coordNewerZ, coordNewerY, coordNewerX].label))
+                                    print(str(board.gatesObjects[coordNewerZ, coordNewerY, coordNewerX].spaces_needed))
+                                    print(str(board.gatesObjects[coordNewerZ, coordNewerY, coordNewerX].is_free()))
+                                    print("")
 
                                     if board.gatesObjects[coordNewerZ, coordNewerY, coordNewerX].is_free() == False:
                                         continue
@@ -365,8 +387,8 @@ class Path:
             self.add_coordinate(self.a)
             
             # Add 1 to the made connections for gate A and B
-            board.gatesObjects[self.a[0], self.a[1], self.a[2]].connections_made += 1
-            board.gatesObjects[self.b[0], self.b[1], self.b[2]].connections_made += 1
+            board.gatesObjects[self.a[0], self.a[1], self.a[2]].spaces_needed -= 1
+            board.gatesObjects[self.b[0], self.b[1], self.b[2]].spaces_needed -= 1
 
         else:
             print("Path " + str(self.label) + " ERROR. Could not be calculated.")
