@@ -78,7 +78,7 @@ def main():
         board.paths.append(new_path)
 
         # Calculate the route for this path
-        new_path.calculate_DIJKSTRA(board)
+        new_path.calculate_GREEDY(board)
 
         # Set a new label for the next path
         label += 1

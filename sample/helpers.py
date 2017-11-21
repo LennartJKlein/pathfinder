@@ -56,7 +56,7 @@ class Board:
                 graph.plot(path.get_coords('x'), path.get_coords('y'), path.get_coords('z'))
 
     def plot(self):
-        # Graph plot config
+        # Config graph plot
         fig = plt.figure()
         ax = fig.gca(projection='3d')
         ax.set_xlim(0, self.x)
@@ -66,11 +66,11 @@ class Board:
         ax.set_ylabel("Y")
         ax.set_zlabel("Z")
 
-        # Add all the paths in this board to the graph
+        # Add paths to the graph
         self.plot_paths(plt, False)
         
-        # Show gates in the graph (with the get_coords function)
-        ax.scatter(self.get_coords('x', SIGN_GATE), self.get_coords('y', SIGN_GATE), self.get_coords('z', SIGN_GATE))
+        # Add gates to the graph
+        ax.scatter(self.get_coords('x', SIGN_GATE), self.get_coords('y', SIGN_GATE), self.get_coords('z', SIGN_GATE), color="black")
         
         # Show the graph
         plt.show()
@@ -147,7 +147,7 @@ class Path:
 
         return coords
 
-    def calculate_DIJKSTRA(self, board):
+    def calculate_GREEDY(self, board):
         '''
         Calculate route between two points
         :param board: a Numpy array
