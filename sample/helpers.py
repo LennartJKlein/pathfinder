@@ -162,6 +162,12 @@ class Gate:
     def __str__(self):
         return self.label
 
+    def gate_free(self):
+        if self.connections_needed > self.connections_made:
+            return True
+        else:
+            return False
+
 class Path:
     """
     Path from A to B
@@ -261,6 +267,20 @@ class Path:
                             " has been found with " + str(loops) + " loops")
                         else:
                             continue
+
+                    # Check serounding tiles for gates
+                    for i, axes in enumerate(coordNew):
+
+                        for j in range(-1, 2, 2):
+                            coordNewer = list(coordNew)
+                            coordNewer[i] += j
+                            coordNewerZ = coordNewer[0]
+                            coordNewerY = coordNewer[1]
+                            coordNewerX = coordNewer[2]
+
+                            if board.board[coordNewerZ, coordNewerY, coordNewerX] == SIGN_GATE:
+                                tempGate = Gate(coordNewer)
+
 
                     # Add the coord to the queue
                     queue.append(coordNew)
