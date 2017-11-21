@@ -45,8 +45,8 @@ class Netlist:
             # Get the coordinates of the two gates in this connection
             a = connection[0]
             b = connection[1]
-            coordGateA = np.argwhere(board.gatesNumbers == a)
-            coordGateB = np.argwhere(board.gatesNumbers == b)
+            coordGateA = np.argwhere(board.gatesNumbers == a + 1)
+            coordGateB = np.argwhere(board.gatesNumbers == b + 1)
 
             # Create a new path object
             new_path = Path(coordGateA[0], coordGateB[0], label, "grey")
