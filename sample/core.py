@@ -27,7 +27,9 @@ def main():
     Read gate locations from gates file
     '''
 
+    # Config NumPy
     np.set_printoptions(threshold=np.nan)
+
     # Initiate a board with a specified size
     board = helpers.Board(BOARD_WIDTH, BOARD_HEIGHT, BOARD_DEPTH)
 
@@ -79,7 +81,7 @@ def main():
         board.paths.append(new_path)
 
         # Calculate the route for this path
-        new_path.calculate_GREEDY(board)
+        new_path.calculate_DIJKSTRA(board)
 
         # Set a new label for the next path
         label += 1

@@ -161,7 +161,7 @@ class Path:
 
         return coords
 
-    def calculate_GREEDY(self, board):
+    def calculate_DIJKSTRA(self, board):
         '''
         Calculate route between two points
         :param board: a Numpy array
