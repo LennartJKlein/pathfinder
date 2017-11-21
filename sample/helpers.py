@@ -45,6 +45,11 @@ class Netlist:
             # Get the coordinates of the two gates in this connection
             a = connection[0]
             b = connection[1]
+            print("------ OUTPUT -------")
+            print("connection[0]", connection[0])
+            print("connection[1]", connection[1])
+            print("")
+
             coordGateA = np.argwhere(board.gatesNumbers == a + 1)
             coordGateB = np.argwhere(board.gatesNumbers == b + 1)
 
