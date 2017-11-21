@@ -38,10 +38,11 @@ class Netlist:
 
         print("Using in Netlist #" + str(self.filename))
 
-    def execute(self, board):
+    def calculate_connections(self, board):
         label = SIGN_PATH_START
 
         for connection in self.list:
+            # Get the coordinates of the two gates in this connection
             a = connection[0]
             b = connection[1]
             a_list = [board.gates[a].z, board.gates[a].y, board.gates[a].x]
@@ -59,8 +60,8 @@ class Netlist:
             # Set a new label for the next path
             label += 1
 
-    # Print function for debugging.
     def print_list(self):
+        # Print function for debugging
         print(self.list)
 
 class Board:
@@ -149,6 +150,8 @@ class Gate:
         self.x = int(x)
         self.y = int(y)
         self.z = int(z)
+        self.connections_needed = 0
+        self.connections_made = 0
         self.label = label
 
     def __str__(self):

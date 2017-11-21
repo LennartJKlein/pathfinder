@@ -17,7 +17,6 @@ BOARD_HEIGHT = 13
 BOARD_DEPTH = 7
 FILE_NETLIST = 1
 FILE_GATES = 'data/gates1.csv'
-PATH_NUMBER = 2  # start at two
 
 def main():
     '''
@@ -59,9 +58,7 @@ def main():
 
     # Create a netlist and calculate path
     netlist = helpers.Netlist(FILE_NETLIST)
-
-    # Loop through every connection in the netlist
-    netlist.execute(board)
+    netlist.calculate_connections(board)
 
     # Print the board data
     board.print_board()
