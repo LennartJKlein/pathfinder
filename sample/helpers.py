@@ -153,10 +153,9 @@ class Gate:
         self.spaces_needed = 0
 
         for connection in netlist.list:
-            if connection[0] == label or connection[1] == label:
-                self.spaces_needed += 1       
-
-        print(self.spaces_needed)
+            # connection + 1 plus 1 to match label.
+            if ( connection[0] + 1 ) == label or ( connection[1] + 1 )== label:
+                self.spaces_needed += 1
 
 
     def get_free_spaces(self, board, coord):
