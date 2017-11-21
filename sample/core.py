@@ -51,16 +51,16 @@ def main():
                 gateZ = int(row[3])
 
                 # Save gate object in gates list
-                board.gates[gateLabel] = helpers.Gate(gateLabel, gateX, gateY, gateZ)
+                new_gate = helpers.Gate(gateLabel, gateX, gateY, gateZ)
 
                 # Set a gate in the grid for every row in the file
-                board.set_gate(gateX, gateY, gateZ)
+                board.set_gate(gateX, gateY, gateZ, new_gate)
 
     # Create a netlist and calculate path
     netlist = helpers.Netlist(FILE_NETLIST)
 
     # Count the connections to and from every gate
-    netlist.count_connections(board)
+    # netlist.count_connections(board)
 
     # Calculate the connections in this netlist
     netlist.execute_connections(board)

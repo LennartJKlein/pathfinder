@@ -45,11 +45,11 @@ class Netlist:
             # Get the coordinates of the two gates in this connection
             a = connection[0]
             b = connection[1]
-            a_list = [board.gates[a].z, board.gates[a].y, board.gates[a].x]
-            b_list = [board.gates[b].z, board.gates[b].y, board.gates[b].x]
+            coordGateA = np.argwhere(board.gatesNumbers == a)
+            coordGateB = np.argwhere(board.gatesNumbers == b)
 
             # Create a new path object
-            new_path = Path(a_list, b_list, label, "grey")
+            new_path = Path(coordGateA[0], coordGateB[0], label, "grey")
 
             # Add this path to the board object
             board.paths.append(new_path)
@@ -77,13 +77,16 @@ class Board:
         self.z = z
         self.board = np.zeros((self.z, self.y, self.x), dtype=int)
         self.paths = []
-        self.gates = {}
+        self.gatesObjects = np.empty((self.z, self.y, self.x), dtype=object)
+        self.gatesNumbers = np.zeros((self.z, self.y, self.x), dtype=int)
 
     def print_board(self):
         print(self.board)
 
-    def set_gate(self, x, y, z):
+    def set_gate(self, x, y, z, gate):
         self.board[z,y,x] = SIGN_GATE
+        self.gatesObjects[z,y,x] = gate
+        self.gatesNumbers[z,y,x] = gate.label
 
     def get_coords(self, axes, label):
         labels = np.argwhere(self.board == label)
@@ -232,6 +235,8 @@ class Path:
                     coordNewY = coordNew[1]
                     coordNewX = coordNew[2]
 
+                    # --------------- CONSTRAINTS ----------------
+
                     # Check if the new coord has positive coordinates
                     if any(axes < 0 for axes in coordNew):
                         continue
@@ -256,6 +261,8 @@ class Path:
                             " has been found with " + str(loops) + " loops")
                         else:
                             continue
+
+                    # -------------- / CONSTRAINTS ---------------
 
                     # Add the coord to the queue
                     queue.append(coordNew)
