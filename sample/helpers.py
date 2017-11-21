@@ -51,9 +51,17 @@ class Board:
     def plot_paths(self, graph, ownColor):
         for path in self.paths:
             if ownColor:
-                graph.plot(path.get_coords('x'), path.get_coords('y'), path.get_coords('z'), color=path.color)
+                graph.plot(
+                path.get_coords('x'),
+                path.get_coords('y'),
+                path.get_coords('z'),
+                color=path.color)
             else:
-                graph.plot(path.get_coords('x'), path.get_coords('y'), path.get_coords('z'))
+                graph.plot(
+                path.get_coords('x'),
+                path.get_coords('y'),
+                path.get_coords('z')
+                )
 
     def plot(self):
         # Graph plot config
@@ -68,10 +76,14 @@ class Board:
 
         # Add all the paths in this board to the graph
         self.plot_paths(plt, False)
-        
+
         # Show gates in the graph (with the get_coords function)
-        ax.scatter(self.get_coords('x', SIGN_GATE), self.get_coords('y', SIGN_GATE), self.get_coords('z', SIGN_GATE))
-        
+        ax.scatter(
+        self.get_coords('x', SIGN_GATE),
+        self.get_coords('y', SIGN_GATE),
+        self.get_coords('z', SIGN_GATE)
+        )
+
         # Show the graph
         plt.show()
 
@@ -194,18 +206,23 @@ class Path:
                         continue
 
                     # Check if the new coord falls within the board
-                    if coordNewX >= boardWidth or coordNewY >= boardHeight or coordNewZ >= boardDepth:
+                    if coordNewX >= boardWidth or \
+                    coordNewY >= boardHeight or \
+                    coordNewZ >= boardDepth:
                         continue
 
                     # Check if this coord is already in the archive
                     if archive[coordNewZ, coordNewY, coordNewX] != 0:
                         continue
-                    
+
                     # Check if there are no obstacles on the board
                     if board.board[coordNewZ, coordNewY, coordNewX] > 0:
-                        if coordNewZ == self.b[0] and coordNewY == self.b[1] and coordNewX == self.b[2]:
+                        if coordNewZ == self.b[0] and \
+                        coordNewY == self.b[1] and \
+                        coordNewX == self.b[2]:
                             found = True
-                            print("Path " + str(self.label) + " has been found with " + str(loops) + " loops")
+                            print("Path " + str(self.label) + \
+                            " has been found with " + str(loops) + " loops")
                         else:
                             continue
 
@@ -225,13 +242,13 @@ class Path:
             cursorChanged = False
 
             for i in range(loops - 1, 0, -1):
-                
+
                 # Loop through all the axes of this coord
                 for j, axes in enumerate(cursor):
 
                     # Run twice voor every axes
                     for k in range(-1, 2, 2):   # j=-1  &  j=1
-                        
+
                         coordNew = list(cursor)
                         coordNew[j] += k
                         coordNewZ = coordNew[0]
@@ -243,7 +260,9 @@ class Path:
                             continue
 
                         # Check if the cell falls within the board
-                        if coordNewX >= boardWidth or coordNewY >= boardHeight or coordNewZ >= boardDepth:
+                        if coordNewX >= boardWidth or \
+                        coordNewY >= boardHeight or \
+                        coordNewZ >= boardDepth:
                             continue
 
                         # Check if this cell is on the i'th position in the shortest path
@@ -259,7 +278,7 @@ class Path:
                             cursor = coordNew
                             cursorChanged = True
                             break
-                    
+
                     if cursorChanged:
                         cursorChanged = False
                         break
