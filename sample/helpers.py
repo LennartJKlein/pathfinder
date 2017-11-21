@@ -166,18 +166,14 @@ class Gate:
             for j in range(-1, 2, 2):   # j=-1  &  j=1
                 coord = [self.z, self.y, self.x]
                 coord[i] += j
-                
+
                 if board.board[coord[0], coord[1], coord[2]] == 0:
                     counter += 1
 
-        return counter
+        space_free = counter - self.spaces_needed
 
-    def is_free(self):
-        if (self.spaces_free - self.spaces_needed) > 0:
-            return True
-        else:
-            return False
-    
+        return space_free
+
     def __str__(self):
         return self.label
 
@@ -305,6 +301,7 @@ class Path:
 
                             # Check if this gate needs space around it
                             if board.gatesObjects[coordNewerZ, coordNewerY, coordNewerX] != None:
+                                # Don't look at the own gate.
                                 if not (coordNewerZ == self.a[0] and \
                                     coordNewerY == self.a[1] and \
                                     coordNewerX == self.a[2]) \
@@ -313,15 +310,11 @@ class Path:
                                     coordNewerY == self.b[1] and \
                                     coordNewerX == self.b[2]):
 
-                                    board.gatesObjects[coordNewerZ, coordNewerY, coordNewerX].get_free_spaces(board, coordNewer)
-                                    print("GATE #" + str(board.gatesObjects[coordNewerZ, coordNewerY, coordNewerX].label))
-                                    print(str(board.gatesObjects[coordNewerZ, coordNewerY, coordNewerX].spaces_needed))
-                                    print(str(board.gatesObjects[coordNewerZ, coordNewerY, coordNewerX].is_free()))
-                                    print("")
+                                    boardTemp = board.gatesObjects[coordNewerZ, coordNewerY, coordNewerX]
 
-                                    if board.gatesObjects[coordNewerZ, coordNewerY, coordNewerX].is_free() == False:
+                                    if boardTemp.get_free_spaces(board, coordNewer) < 1:
                                         continue
-                                
+
 
                     # -------------- / CONSTRAINTS ---------------
 
@@ -384,8 +377,12 @@ class Path:
 
             # Add the starting point to the end of the path-list
             self.add_coordinate(self.a)
-            
+
             # Add 1 to the made connections for gate A and B
+            # print("----------- Gates Conected  ------------")
+            # print(board.gatesObjects[self.a[0], self.a[1], self.a[2]].label)
+            # print(board.gatesObjects[self.b[0], self.b[1], self.b[2]].label)
+            
             board.gatesObjects[self.a[0], self.a[1], self.a[2]].spaces_needed -= 1
             board.gatesObjects[self.b[0], self.b[1], self.b[2]].spaces_needed -= 1
 
