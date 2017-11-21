@@ -9,10 +9,10 @@ helpers.py
 
 from ast import literal_eval
 import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
-# Program settings
-SIGN_PATH = 1
-SIGN_GATE = 2
+SIGN_GATE = 1
 
 class Board:
 
@@ -26,6 +26,7 @@ class Board:
         self.y = y
         self.z = z
         self.board = np.zeros((self.z, self.y, self.x), dtype=int)
+        self.paths = []
 
     def print_board(self):
         print(self.board)
@@ -33,22 +34,59 @@ class Board:
     def set_gate(self, x, y, z):
         self.board[z,y,x] = SIGN_GATE
 
-    def set_path(self, x, y, z):
-        self.board[z,y,x] = SIGN_PATH
-
     def get_coords(self, axes, label):
         labels = np.argwhere(self.board == label)
         coords = []
 
-        for cord in labels:
+        for coord in labels:
             if axes == 'z':
-                coords.append(cord[0])
+                coords.append(coord[0])
             if axes == 'y':
-                coords.append(cord[1])
+                coords.append(coord[1])
             if axes == 'x':
-                coords.append(cord[2])
+                coords.append(coord[2])
 
         return coords
+
+    def plot_paths(self, graph, ownColor):
+        for path in self.paths:
+            if ownColor:
+                graph.plot(
+                  path.get_coords('x'),
+                  path.get_coords('y'),
+                  path.get_coords('z'),
+                  color=path.color
+                )
+            else:
+                graph.plot(
+                  path.get_coords('x'),
+                  path.get_coords('y'),
+                  path.get_coords('z')
+                )
+
+    def plot(self):
+        # Config graph plot
+        fig = plt.figure()
+        ax = fig.gca(projection='3d')
+        ax.set_xlim(0, self.x)
+        ax.set_ylim(0, self.y)
+        ax.set_zlim(self.z, 0)
+        ax.set_xlabel("X")
+        ax.set_ylabel("Y")
+        ax.set_zlabel("Z")
+
+        # Add paths to the graph
+        self.plot_paths(plt, False)
+
+        # Add gates to the graph
+        ax.scatter(
+          self.get_coords('x', SIGN_GATE),
+          self.get_coords('y', SIGN_GATE),
+          self.get_coords('z', SIGN_GATE)
+        )
+
+        # Show the graph
+        plt.show()
 
 class Gate:
     """
@@ -83,52 +121,170 @@ class Netlist:
         # Open netlist and read with literal evaluation.
         with open(filename) as f:
             self.list = f.read()
+            
         self.list = literal_eval(self.list)
 
     # Print function for debugging.
     def print_list(self):
         print(self.list)
 
-def calculatePath(board, a, b):
-    '''
-    Calculate route between two points
-    :param a: first point (tuple of coordinates)
-    :param b: second point (tuple of coordinates)
-    '''
-    ax = a[0]
-    ay = a[1]
-    az = a[2]
-    bx = b[0]
-    by = b[1]
-    bz = b[2]
-    cursor = {"x": ax, "y": ay, "z": az}
-    counter = 0
-    found = False
+class Path:
+    """
+    Path from A to B
+    :param: coordA:     first point on the board (list of Z, Y, X coordinates)
+    :param: coordB:     second point on the board (list of  Z, Y, X coordinates)
+    :param: aLabel:     the ID of this path
+    :param: aColor:     the color for plotting
+    """
 
-    # Walk 1 step through the grid till the endpoint is reached
-    while (cursor["x"] != bx) or (cursor["y"] != by) or (cursor["z"] != bz):
+    def __init__(self, coordA, coordB, aLabel, aColor):
+        self.label = aLabel
+        self.path = []
+        self.a = coordA
+        self.b = coordB
+        self.color = aColor
 
-        if cursor["x"] < bx:
-            cursor["x"] += 1
-            print("right", end=' ')
-        elif cursor["x"] > bx:
-            cursor["x"] -= 1
-            print("left", end=' ')
-        elif cursor["y"] < by:
-            cursor["y"] += 1
-            print("down", end=' ')
-        elif cursor["y"] > by:
-            cursor["y"] -= 1
-            print("up", end=' ')
+    def add_coordinate(self, coord):
+        # Adds a new coordinate (list) to self.path
+        self.path.append(coord)
 
-        # Check if endpoint is reached
-        if (cursor["x"] == bx) and (cursor["y"] == by) and (cursor["z"] == bz):
-            found = True
+    def get_coords(self, axes):
+        coords = []
 
-        # Mark the steps while the endpoint is not reached
-        if found ==  False:
-            board.set_path(cursor["x"], cursor["y"], cursor["z"])
+        for coord in self.path:
+            if axes == 'z':
+                coords.append(coord[0])
+            if axes == 'y':
+                coords.append(coord[1])
+            if axes == 'x':
+                coords.append(coord[2])
 
-        counter += 1
+        return coords
 
-    print("- Steps made: " + str(counter))
+    def calculate_DIJKSTRA(self, board):
+        '''
+        Calculate route between two points
+        :param board: a Numpy array
+        '''
+
+        # Initiate constraints
+        boardDimensions = board.board.shape
+        boardDepth = boardDimensions[0]
+        boardHeight = boardDimensions[1]
+        boardWidth = boardDimensions[2]
+
+        # Initiate counters
+        loops = 0
+        found = False
+
+        # Initiate data structures
+        queue = [self.a]
+        archive = np.zeros((boardDepth, boardHeight, boardWidth), dtype=int)
+        self.add_coordinate(self.b)
+
+        # Algorithm
+        while found == False and len(queue) > 0:
+
+            # Track the steps
+            loops += 1
+
+            # Pick first coordinate from the queue
+            coord = queue.pop(0);
+
+            # Create all the adjacent cells of this coord and perhaps add them to the queue
+            # First, loop through all the axes of this coord
+            for i, axes in enumerate(coord):
+
+                # Run twice for every axes
+                for j in range(-1, 2, 2):   # j=-1  &  j=1
+                    coordNew = list(coord)
+                    coordNew[i] += j
+                    coordNewZ = coordNew[0]
+                    coordNewY = coordNew[1]
+                    coordNewX = coordNew[2]
+
+                    # Check if the new coord has positive coordinates
+                    if any(axes < 0 for axes in coordNew):
+                        continue
+
+                    # Check if the new coord falls within the board
+                    if coordNewX >= boardWidth or \
+                       coordNewY >= boardHeight or \
+                       coordNewZ >= boardDepth:
+                        continue
+
+                    # Check if this coord is already in the archive
+                    if archive[coordNewZ, coordNewY, coordNewX] != 0:
+                        continue
+
+                    # Check if there are no obstacles on the board
+                    if board.board[coordNewZ, coordNewY, coordNewX] > 0:
+                        if coordNewZ == self.b[0] and \
+                           coordNewY == self.b[1] and \
+                           coordNewX == self.b[2]:
+                            found = True
+                            print("Path " + str(self.label) + \
+                            " has been found with " + str(loops) + " loops")
+                        else:
+                            continue
+
+                    # Add the coord to the queue
+                    queue.append(coordNew)
+
+                    # Save the iteration counter to this coordinate in the archive
+                    archive[coordNewZ, coordNewY, coordNewX] = loops
+
+                    # Check if B is found
+                    if found:
+                        break
+
+        # Backtracking the shortest route
+        if found:
+            cursor = list(self.b)
+            cursorChanged = False
+
+            for i in range(loops - 1, 0, -1):
+
+                # Loop through all the axes of this coord
+                for j, axes in enumerate(cursor):
+
+                    # Run twice voor every axes
+                    for k in range(-1, 2, 2):   # j=-1  &  j=1
+
+                        coordNew = list(cursor)
+                        coordNew[j] += k
+                        coordNewZ = coordNew[0]
+                        coordNewY = coordNew[1]
+                        coordNewX = coordNew[2]
+
+                        # Check if the cell has positive coordinates
+                        if any(axes < 0 for axes in coordNew):
+                            continue
+
+                        # Check if the cell falls within the board
+                        if coordNewX >= boardWidth or \
+                           coordNewY >= boardHeight or \
+                           coordNewZ >= boardDepth:
+                            continue
+
+                        # Check if this cell is on the i'th position in the shortest path
+                        if archive[coordNewZ, coordNewY, coordNewX] == i:
+
+                            # Put the ID in the Numpy board
+                            board.board[coordNewZ, coordNewY, coordNewX] = self.label
+
+                            # Remember this coord
+                            self.add_coordinate([coordNewZ, coordNewY, coordNewX])
+
+                            # Move the cursor
+                            cursor = coordNew
+                            cursorChanged = True
+                            break
+
+                    if cursorChanged:
+                        cursorChanged = False
+                        break
+
+            self.add_coordinate(self.a)
+        else:
+            print("Path " + str(self.label) + " ERROR. Could not be calculated.")

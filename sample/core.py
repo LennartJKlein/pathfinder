@@ -10,14 +10,16 @@ Pathfinder will find the most efficient path between two gates on a board.
 import csv
 import helpers
 import numpy as np
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 
 # Program settings
 BOARD_WIDTH = 18
-BOARD_HEIGHT = 17
+BOARD_HEIGHT = 13
 BOARD_DEPTH = 7
-FILE_GATES = 'data/gates2.csv'
+SIGN_PATH_START = 2
+FILE_NETLIST = 1
+FILE_GATES = 'data/gates1.csv'
+PATH_NUMBER = 2 # start at two
+SIGN_GATE = 1
 
 def main():
     '''
@@ -25,12 +27,16 @@ def main():
     Read gate locations from gates file
     '''
 
+    # Config NumPy
+    np.set_printoptions(threshold=np.nan)
+
     # Initiate a board with a specified size
     board = helpers.Board(BOARD_WIDTH, BOARD_HEIGHT, BOARD_DEPTH)
 
     # Read a CSV file for gate tuples
     with open(FILE_GATES, 'r') as csvfile:
         reader = csv.reader(csvfile)
+        print("Using: " + FILE_GATES)
 
         # Skip the header
         next(reader, None)
@@ -39,7 +45,6 @@ def main():
         gates = {}
 
         for row in reader:
-            
             # Skip row if the data is commented
             if row[0][:1] != '#':
 
@@ -57,27 +62,35 @@ def main():
                 # Set a gate in the grid for every row in the file
                 board.set_gate(gateX, gateY, gateZ)
 
-    # Create a netlist and calculate paths
-    netlist = helpers.Netlist(0)
+    # Create a netlist and calculate path
+    netlist = helpers.Netlist(FILE_NETLIST)
+    print("Using in Netlist #" + str(FILE_NETLIST))
+
+    # Loop through every connection in the netlist
+    label = SIGN_PATH_START
     for connection in netlist.list:
         a = connection[0]
         b = connection[1]
-        a_tuple = (gates[a].x, gates[a].y, gates[a].z)
-        b_tuple = (gates[b].x, gates[b].y, gates[b].z)
-        helpers.calculatePath(board, a_tuple, b_tuple)
+        a_list = [gates[a].z, gates[a].y, gates[a].x]
+        b_list = [gates[b].z, gates[b].y, gates[b].x]
 
-    # Print the board
+        # Create a new path object
+        new_path = helpers.Path(a_list, b_list, label, "grey")
+
+        # Add this path to the board object
+        board.paths.append(new_path)
+
+        # Calculate the route for this path
+        new_path.calculate_DIJKSTRA(board)
+
+        # Set a new label for the next path
+        label += 1
+
+    # Print the board data
     board.print_board()
 
-    # Plot config
-    fig = plt.figure()
-    ax = fig.gca(projection='3d')
-
-    # Make a scatter graph with the get_coords function
-    ax.scatter(board.get_coords('y', 2), board.get_coords('x', 2), board.get_coords('z', 2))
-
-    # Shot the finished product
-    plt.show()
+    # Plot the board
+    board.plot()
 
 if __name__ == '__main__':
     main()
