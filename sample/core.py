@@ -27,6 +27,7 @@ def main():
     Read gate locations from gates file
     '''
 
+    np.set_printoptions(threshold=np.nan)
     # Initiate a board with a specified size
     board = helpers.Board(BOARD_WIDTH, BOARD_HEIGHT, BOARD_DEPTH)
 
