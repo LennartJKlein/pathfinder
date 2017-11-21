@@ -13,8 +13,8 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
 # Program settings
-SIGN_GATE = 1
 SIGN_PATH_START = 2
+SIGN_GATE = 1
 
 class Netlist:
     """
@@ -60,11 +60,6 @@ class Netlist:
             # Set a new label for the next path
             label += 1
 
-    def count_connections(self, board):
-        for items in self.list:
-            board.gates[items[0]].connections_needed += 1
-            board.gates[items[1]].connections_needed += 1
-
     def print_list(self):
         # Print function for debugging
         print(self.list)
@@ -87,11 +82,6 @@ class Board:
 
     def print_board(self):
         print(self.board)
-
-    def set_gate(self, x, y, z, gate):
-        self.board[z,y,x] = SIGN_GATE
-        self.gatesObjects[z,y,x] = gate
-        self.gatesNumbers[z,y,x] = gate.label
 
     def get_coords(self, axes, label):
         labels = np.argwhere(self.board == label)
@@ -154,22 +144,26 @@ class Gate:
     :param y:     z-axis location
     :param name:  label of the gate
     """
-    def __init__(self, label, x, y, z):
+    def __init__(self, netlist, label, x, y, z):
+        self.label = label
         self.x = int(x)
         self.y = int(y)
         self.z = int(z)
-        self.connections_needed = 0
         self.connections_made = 0
-        self.label = label
+        self.connections_needed = 0
+
+        for connection in netlist.list:
+            if connection[0] == label or connection[1] == label:
+                self.connections_needed += 1        
 
     def __str__(self):
         return self.label
 
-    def gate_free(self):
-        if self.connections_needed > self.connections_made:
-            return True
-        else:
+    def is_free(self):
+        if (self.connections_needed - self.connections_made) > 0:
             return False
+        else:
+            return True
 
 class Path:
     """
@@ -273,7 +267,7 @@ class Path:
                         else:
                             continue
 
-                    # Check serounding tiles for gates
+                    # Check surrounding tiles for gates that need space
                     for i, axes in enumerate(coordNew):
 
                         for j in range(-1, 2, 2):
@@ -283,8 +277,30 @@ class Path:
                             coordNewerY = coordNewer[1]
                             coordNewerX = coordNewer[2]
 
-                            if board.board[coordNewerZ, coordNewerY, coordNewerX] == SIGN_GATE:
-                                tempGate = Gate(coordNewer)
+                            # Check if the new coord has positive coordinates
+                            if any(axes < 0 for axes in coordNewer):
+                                continue
+
+                            # Check if the new coord falls within the board
+                            if coordNewerX >= boardWidth or \
+                               coordNewerY >= boardHeight or \
+                               coordNewerZ >= boardDepth:
+                                continue
+
+                            # Check if this gate needs space around it
+                            if board.gatesObjects[coordNewerZ, coordNewerY, coordNewerX] != None:
+                                if not (coordNewerZ == self.a[0] and \
+                                    coordNewerY == self.a[1] and \
+                                    coordNewerX == self.a[2]) \
+                                    or \
+                                   (coordNewerZ == self.b[0] and \
+                                    coordNewerY == self.b[1] and \
+                                    coordNewerX == self.b[2]):
+
+
+                                    if board.gatesObjects[coordNewerZ, coordNewerY, coordNewerX].is_free() == False:
+                                        continue
+                                
 
                     # -------------- / CONSTRAINTS ---------------
 
@@ -345,6 +361,12 @@ class Path:
                         cursorChanged = False
                         break
 
+            # Add the starting point to the end of the path-list
             self.add_coordinate(self.a)
+            
+            # Add 1 to the made connections for gate A and B
+            board.gatesObjects[self.a[0], self.a[1], self.a[2]].connections_made += 1
+            board.gatesObjects[self.b[0], self.b[1], self.b[2]].connections_made += 1
+
         else:
             print("Path " + str(self.label) + " ERROR. Could not be calculated.")

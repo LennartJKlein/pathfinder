@@ -17,6 +17,7 @@ BOARD_HEIGHT = 13
 BOARD_DEPTH = 7
 FILE_NETLIST = 1
 FILE_GATES = 'data/gates1.csv'
+SIGN_GATE = 1
 
 def main():
     '''
@@ -29,6 +30,9 @@ def main():
 
     # Initiate a board with a specified size
     board = helpers.Board(BOARD_WIDTH, BOARD_HEIGHT, BOARD_DEPTH)
+
+    # Create a netlist and calculate path
+    netlist = helpers.Netlist(FILE_NETLIST)
 
     # Read a CSV file for gate tuples
     with open(FILE_GATES, 'r') as csvfile:
@@ -51,16 +55,12 @@ def main():
                 gateZ = int(row[3])
 
                 # Save gate object in gates list
-                new_gate = helpers.Gate(gateLabel, gateX, gateY, gateZ)
+                new_gate = helpers.Gate(netlist, gateLabel, gateX, gateY, gateZ)
 
                 # Set a gate in the grid for every row in the file
-                board.set_gate(gateX, gateY, gateZ, new_gate)
-
-    # Create a netlist and calculate path
-    netlist = helpers.Netlist(FILE_NETLIST)
-
-    # Count the connections to and from every gate
-    # netlist.count_connections(board)
+                board.gatesObjects[gateZ, gateY, gateX] = new_gate
+                board.gatesNumbers[gateZ, gateY, gateX] = gateLabel
+                board.board[gateZ, gateY, gateX] = SIGN_GATE
 
     # Calculate the connections in this netlist
     netlist.execute_connections(board)
