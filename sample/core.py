@@ -10,14 +10,8 @@ Pathfinder will find the most efficient path between two gates on a board.
 import csv
 import helpers
 import numpy as np
-
-# Program settings
-BOARD_WIDTH = 18
-BOARD_HEIGHT = 17
-BOARD_DEPTH = 7
-FILE_NETLIST = 1
-FILE_GATES = 'data/gates1.csv'
-SIGN_GATE = 1
+import colors as CLR
+import settings
 
 def main():
     '''
@@ -29,15 +23,16 @@ def main():
     np.set_printoptions(threshold=np.nan)
 
     # Initiate a board with a specified size
-    board = helpers.Board(BOARD_WIDTH, BOARD_HEIGHT, BOARD_DEPTH)
+    board = helpers.Board(settings.BOARD_WIDTH, settings.BOARD_HEIGHT, settings.BOARD_DEPTH)
 
     # Create a netlist and calculate path
-    netlist = helpers.Netlist(FILE_NETLIST)
+    netlist = helpers.Netlist(settings.FILE_NETLIST)
 
     # Read a CSV file for gate tuples
-    with open(FILE_GATES, 'r') as csvfile:
+    with open('data/gates'+ str(settings.FILE_GATES) + '.csv', 'r') as csvfile:
         reader = csv.reader(csvfile)
-        print("Using: " + FILE_GATES)
+        print("Using gates file #" + str(settings.FILE_GATES))
+        print("")
 
         # Skip the header
         next(reader, None)
@@ -60,7 +55,7 @@ def main():
                 # Set a gate in the grid for every row in the file
                 board.gatesObjects[gateZ, gateY, gateX] = new_gate
                 board.gatesNumbers[gateZ, gateY, gateX] = gateLabel
-                board.board[gateZ, gateY, gateX] = SIGN_GATE
+                board.board[gateZ, gateY, gateX] = settings.SIGN_GATE
 
     # Calculate the connections in this netlist
     netlist.execute_connections(board)
