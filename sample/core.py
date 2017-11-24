@@ -24,7 +24,10 @@ def main():
     Read gate locations from gates file
     '''
 
-    # Config NumPy
+    connections_compleet = True
+
+    # while connections_compleet == True:
+
     np.set_printoptions(threshold=np.nan)
 
     # Initiate a board with a specified size
@@ -32,6 +35,7 @@ def main():
 
     # Create a netlist and calculate path
     netlist = Netlist(settings.FILE_NETLIST)
+    netlist.print_list()
 
     # Read a CSV file for gate tuples
     with open('data/gates'+ str(settings.FILE_GATES) + '.csv', 'r') as csvfile:
@@ -63,6 +67,7 @@ def main():
                 board.board[gateZ, gateY, gateX] = settings.SIGN_GATE
 
     # Calculate the connections in this netlist
+    # netlist_found = netlist.execute_connections(board)
     netlist.execute_connections(board)
 
     # Print the board data

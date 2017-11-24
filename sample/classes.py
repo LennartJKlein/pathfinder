@@ -38,6 +38,7 @@ class Netlist:
 
         print("Using netlist #" + str(number))
 
+
     def execute_connections(self, board):
         path_number = settings.SIGN_PATH_START
         amount_fail = 0
@@ -46,10 +47,11 @@ class Netlist:
             # Get the coordinates of the two gates in this connection
             a = connection[0]
             b = connection[1]
+            progression_counter = 1
 
-            #print("")
-            #print(str(connection[0]) + "  ->  "  + str(connection[1]))
-            
+            # print("")
+            # print(str(connection[0]) + "  ->  "  + str(connection[1]))
+
             coordGateA = np.argwhere(board.gatesNumbers == a + 1)
             coordGateB = np.argwhere(board.gatesNumbers == b + 1)
 
@@ -66,8 +68,19 @@ class Netlist:
             if result == False:
                 amount_fail += 1
 
+                i = self.list.index(connection)
+                tuple_before = self.list[i - 1]
+
+                self.list[i] = tuple_before
+                self.list[i - 1] = connection
+
+                # return False
+
+
             # Set a new path_number for the next path
             path_number += 1
+            progression_counter += 1
+            # return True
 
         print(CLR.YELLOW + "Paths not calculated: " + str(amount_fail) + " / " + str(path_number) + CLR.DEFAULT)
         print(CLR.YELLOW + str(round(amount_fail / path_number * 100, 2)) + "%" + CLR.DEFAULT)
@@ -389,7 +402,7 @@ class Path:
             # Add the starting point to the end of the path-list
             self.add_coordinate(self.a)
 
-            # Add 1 to the made connections for gate A and B            
+            # Add 1 to the made connections for gate A and B
             board.gatesObjects[self.a[0], self.a[1], self.a[2]].spaces_needed -= 1
             board.gatesObjects[self.b[0], self.b[1], self.b[2]].spaces_needed -= 1
 
