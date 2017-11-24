@@ -242,30 +242,39 @@ class Path:
         # Initiate numpy data structures
         queue = [self.a]
         archive = np.zeros((boardDepth, boardHeight, boardWidth), dtype=int)
+
+        # Add destination to the path route
         self.add_coordinate(self.b)
 
         # Algorithm core logic
-        while found == False and len(queue) > 0:
+        while len(queue) > 0:
 
-            # Track the steps
+            # Track the distance
             loops += 1
 
             # Pick first coordinate from the queue
             coord = queue.pop(0);
 
-            # Create all the adjacent cells of this coord and perhaps add them
-            # to the queue. First, loop through all the axes of this coord.
+            # Create all the adjacent cells of this coord.
+            # First, loop through all the axes of this coord.
+            # Then run twice for every axes: j=-1  &  j=1
             for i, axes in enumerate(coord):
+                for j in range(-1, 2, 2):   
 
-                # Run twice for every axes
-                for j in range(-1, 2, 2):   # j=-1  &  j=1
                     coordNew = list(coord)
                     coordNew[i] += j
                     coordNewZ = coordNew[0]
                     coordNewY = coordNew[1]
                     coordNewX = coordNew[2]
 
-                    # --------------- CONSTRAINTS ----------------
+                    # --------------- HEURISTICS ----------------
+
+                    # Check if this is the destination
+                    if coordNewZ == self.b[0] and \
+                       coordNewY == self.b[1] and \
+                       coordNewX == self.b[2]:
+                        found = True
+                        break
 
                     # Check if the new coord has positive coordinates
                     if any(axes < 0 for axes in coordNew):
@@ -281,19 +290,12 @@ class Path:
                     if archive[coordNewZ, coordNewY, coordNewX] != 0:
                         continue
 
-                    # Check if there are no obstacles on the board
+                    # Check if there are no obstacles on this coord
                     if board.board[coordNewZ, coordNewY, coordNewX] > 0:
-                        if coordNewZ == self.b[0] and \
-                           coordNewY == self.b[1] and \
-                           coordNewX == self.b[2]:
-                            found = True
-                            #print("Path " + str(self.label) + " has been found with " + str(loops) + " loops")
-                        else:
-                            continue
+                        continue
 
                     # Check surrounding tiles for gates that need space
                     for i, axes in enumerate(coordNew):
-
                         for j in range(-1, 2, 2):
                             coordNewer = list(coordNew)
                             coordNewer[i] += j
@@ -312,32 +314,31 @@ class Path:
                                 continue
 
                             # Check if this gate needs space around it
-                            if board.gatesObjects[coordNewerZ, coordNewerY, coordNewerX] != None:
-                                # Don't look at the own gate.
-                                if not (coordNewerZ == self.a[0] and \
-                                    coordNewerY == self.a[1] and \
-                                    coordNewerX == self.a[2]) \
-                                    or \
-                                   (coordNewerZ == self.b[0] and \
-                                    coordNewerY == self.b[1] and \
-                                    coordNewerX == self.b[2]):
+                            if board.gatesNumbers[coordNewerZ, coordNewerY, coordNewerX] > 0:
 
+                                # Don't look at the gates of A and B
+                                if not (coordNewerZ == self.a[0] and \
+                                        coordNewerY == self.a[1] and \
+                                        coordNewerX == self.a[2]) \
+                                        or \
+                                       (coordNewerZ == self.b[0] and \
+                                        coordNewerY == self.b[1] and \
+                                        coordNewerX == self.b[2]):
+
+                                    # Get info from this gate
                                     boardTemp = board.gatesObjects[coordNewerZ, coordNewerY, coordNewerX]
 
+                                    # See if the path may pass
                                     if boardTemp.get_free_spaces(board, coordNewer) < 1:
                                         continue
 
-                    # -------------- / CONSTRAINTS ---------------
+                    # -------------- / HEURISTICS ---------------
 
                     # Add the coord to the queue
                     queue.append(coordNew)
 
                     # Save the iteration counter to this coordinate in the archive
                     archive[coordNewZ, coordNewY, coordNewX] = loops
-
-                    # Check if B is found
-                    if found:
-                        break
 
         # Backtracking the shortest route
         if found:
@@ -347,9 +348,8 @@ class Path:
             for i in range(loops - 1, 0, -1):
 
                 # Loop through all the axes of this coord
+                # Run twice voor every axes
                 for j, axes in enumerate(cursor):
-
-                    # Run twice voor every axes
                     for k in range(-1, 2, 2):   # j=-1  &  j=1
 
                         coordNew = list(cursor)
@@ -374,7 +374,7 @@ class Path:
                             # Put the ID in the Numpy board
                             board.board[coordNewZ, coordNewY, coordNewX] = self.label
 
-                            # Remember this coord
+                            # Remember this coord for this path
                             self.add_coordinate([coordNewZ, coordNewY, coordNewX])
 
                             # Move the cursor
