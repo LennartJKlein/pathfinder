@@ -7,11 +7,16 @@ Authors: - Jurre Brandsen
 Pathfinder will find the most efficient path between two gates on a board.
 """
 
-import csv
-import helpers
-import numpy as np
-import colors as CLR
 import settings
+
+import numpy as np
+import csv
+
+import classes
+from classes import Board
+from classes import Netlist
+from classes import Gate
+import colors as CLR
 
 def main():
     '''
@@ -23,10 +28,10 @@ def main():
     np.set_printoptions(threshold=np.nan)
 
     # Initiate a board with a specified size
-    board = helpers.Board(settings.BOARD_WIDTH, settings.BOARD_HEIGHT, settings.BOARD_DEPTH)
+    board = Board(settings.BOARD_WIDTH, settings.BOARD_HEIGHT, settings.BOARD_DEPTH)
 
     # Create a netlist and calculate path
-    netlist = helpers.Netlist(settings.FILE_NETLIST)
+    netlist = Netlist(settings.FILE_NETLIST)
 
     # Read a CSV file for gate tuples
     with open('data/gates'+ str(settings.FILE_GATES) + '.csv', 'r') as csvfile:
@@ -50,7 +55,7 @@ def main():
                 gateZ = int(row[3])
 
                 # Save gate object in gates list
-                new_gate = helpers.Gate(netlist, gateLabel, gateX, gateY, gateZ)
+                new_gate = Gate(netlist, gateLabel, gateX, gateY, gateZ)
 
                 # Set a gate in the grid for every row in the file
                 board.gatesObjects[gateZ, gateY, gateX] = new_gate

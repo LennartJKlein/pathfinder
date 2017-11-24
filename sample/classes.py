@@ -7,12 +7,14 @@ helpers.py
 - Calculate path
 """
 
-from ast import literal_eval
+import settings
+
 import numpy as np
 import matplotlib.pyplot as plt
+from ast import literal_eval
 from mpl_toolkits.mplot3d import Axes3D
+
 import colors as CLR
-import settings
 
 class Netlist:
     """
