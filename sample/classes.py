@@ -13,6 +13,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from ast import literal_eval
 from mpl_toolkits.mplot3d import Axes3D
+import collections
 
 import colors as CLR
 
@@ -190,6 +191,23 @@ class Gate:
     def __str__(self):
         return self.label
 
+class Queue:
+    """
+    dequeue, append and count elements in Queue
+    :param: none
+    """
+    def __init__(self):
+        self.elements = collections.deque()
+    
+    def empty(self):
+        return len(self.elements) == 0
+    
+    def put(self, x):
+        self.elements.append(x)
+    
+    def get(self):
+        return self.elements.popleft()
+
 class Path:
     """
     Path from A to B
@@ -240,26 +258,28 @@ class Path:
         found = False
 
         # Initiate numpy data structures
-        queue = [self.a]
         archive = np.zeros((boardDepth, boardHeight, boardWidth), dtype=int)
         self.add_coordinate(self.b)
 
+        frontier = Queue()
+        frontier.put(self.a)
+
         # Algorithm core logic
-        while found == False and len(queue) > 0:
+        while not frontier.empty() and found == False:
 
             # Track the steps
             loops += 1
 
             # Pick first coordinate from the queue
-            coord = queue.pop(0);
+            current = frontier.get()
 
             # Create all the adjacent cells of this coord and perhaps add them
             # to the queue. First, loop through all the axes of this coord.
-            for i, axes in enumerate(coord):
+            for i, axes in enumerate(current):
 
                 # Run twice for every axes
                 for j in range(-1, 2, 2):   # j=-1  &  j=1
-                    coordNew = list(coord)
+                    coordNew = list(current)
                     coordNew[i] += j
                     coordNewZ = coordNew[0]
                     coordNewY = coordNew[1]
@@ -313,6 +333,7 @@ class Path:
 
                             # Check if this gate needs space around it
                             if board.gatesObjects[coordNewerZ, coordNewerY, coordNewerX] != None:
+                                
                                 # Don't look at the own gate.
                                 if not (coordNewerZ == self.a[0] and \
                                     coordNewerY == self.a[1] and \
@@ -330,7 +351,7 @@ class Path:
                     # -------------- / CONSTRAINTS ---------------
 
                     # Add the coord to the queue
-                    queue.append(coordNew)
+                    frontier.put(coordNew)
 
                     # Save the iteration counter to this coordinate in the archive
                     archive[coordNewZ, coordNewY, coordNewX] = loops
