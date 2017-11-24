@@ -7,14 +7,14 @@ helpers.py
 - Calculate path
 """
 
-from ast import literal_eval
+import settings
+
 import numpy as np
 import matplotlib.pyplot as plt
+from ast import literal_eval
 from mpl_toolkits.mplot3d import Axes3D
 
-# Program settings
-SIGN_PATH_START = 1
-SIGN_GATE = 1
+import colors as CLR
 
 class Netlist:
     """
@@ -36,34 +36,42 @@ class Netlist:
 
         self.list = literal_eval(self.list)
 
-        print("Using in Netlist #" + str(self.filename))
+        print("Using netlist #" + str(number))
 
     def execute_connections(self, board):
-        label = SIGN_PATH_START
+        path_number = settings.SIGN_PATH_START
+        amount_fail = 0
 
         for connection in self.list:
             # Get the coordinates of the two gates in this connection
             a = connection[0]
             b = connection[1]
-            print("------ OUTPUT -------")
-            print("connection[0]", connection[0])
-            print("connection[1]", connection[1])
-            print("")
 
+            #print("")
+            #print(str(connection[0]) + "  ->  "  + str(connection[1]))
+            
             coordGateA = np.argwhere(board.gatesNumbers == a + 1)
             coordGateB = np.argwhere(board.gatesNumbers == b + 1)
 
             # Create a new path object
-            new_path = Path(coordGateA[0], coordGateB[0], label, "grey")
+            new_path = Path(coordGateA[0], coordGateB[0], path_number, "grey")
 
             # Add this path to the board object
             board.paths.append(new_path)
 
             # Calculate the route for this path
-            new_path.calculate_DIJKSTRA(board)
+            result = new_path.calculate_DIJKSTRA(board)
 
-            # Set a new label for the next path
-            label += 1
+            # Count the score
+            if result == False:
+                amount_fail += 1
+
+            # Set a new path_number for the next path
+            path_number += 1
+
+        print(CLR.YELLOW + "Paths not calculated: " + str(amount_fail) + " / " + str(path_number) + CLR.DEFAULT)
+        print(CLR.YELLOW + str(round(amount_fail / path_number * 100, 2)) + "%" + CLR.DEFAULT)
+        print("")
 
     def print_list(self):
         # Print function for debugging
@@ -134,9 +142,9 @@ class Board:
 
         # Add gates to the graph
         ax.scatter(
-          self.get_coords('x', SIGN_GATE),
-          self.get_coords('y', SIGN_GATE),
-          self.get_coords('z', SIGN_GATE)
+          self.get_coords('x', settings.SIGN_GATE),
+          self.get_coords('y', settings.SIGN_GATE),
+          self.get_coords('z', settings.SIGN_GATE)
         )
 
         # Show the graph
@@ -158,7 +166,7 @@ class Gate:
         self.spaces_needed = 0
 
         for connection in netlist.list:
-            # connection + 1 plus 1 to match label.
+            # connection + 1 to match label
             if ( connection[0] + 1 ) == label or ( connection[1] + 1 )== label:
                 self.spaces_needed += 1
 
@@ -279,8 +287,7 @@ class Path:
                            coordNewY == self.b[1] and \
                            coordNewX == self.b[2]:
                             found = True
-                            print("Path " + str(self.label) + \
-                            " has been found with " + str(loops) + " loops")
+                            #print("Path " + str(self.label) + " has been found with " + str(loops) + " loops")
                         else:
                             continue
 
@@ -319,7 +326,6 @@ class Path:
 
                                     if boardTemp.get_free_spaces(board, coordNewer) < 1:
                                         continue
-
 
                     # -------------- / CONSTRAINTS ---------------
 
@@ -383,13 +389,12 @@ class Path:
             # Add the starting point to the end of the path-list
             self.add_coordinate(self.a)
 
-            # Add 1 to the made connections for gate A and B
-            # print("----------- Gates Conected  ------------")
-            # print(board.gatesObjects[self.a[0], self.a[1], self.a[2]].label)
-            # print(board.gatesObjects[self.b[0], self.b[1], self.b[2]].label)
-            
+            # Add 1 to the made connections for gate A and B            
             board.gatesObjects[self.a[0], self.a[1], self.a[2]].spaces_needed -= 1
             board.gatesObjects[self.b[0], self.b[1], self.b[2]].spaces_needed -= 1
 
+            return True
+
         else:
-            print("Path " + str(self.label) + " ERROR. Could not be calculated.")
+            #print("Path " + str(self.label) + " ERROR. Could not be calculated.")
+            return False
