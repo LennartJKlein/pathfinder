@@ -298,7 +298,7 @@ class Path:
 
                 # Save its distance from the start
                 cost_depth = 1 - neighbor[0] * 2
-                cost_neighbor = cost_archive[current_tpl] + 1 + cost_depth;
+                cost_neighbor = cost_archive[current_tpl] + 14 + cost_depth;
 
                 # Sum surrounding gates
                 for next_neighbor in board.get_neighbors(neighbor):
