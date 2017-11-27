@@ -156,7 +156,8 @@ class Board:
         ax.scatter(
           self.get_coords('x', settings.SIGN_GATE),
           self.get_coords('y', settings.SIGN_GATE),
-          self.get_coords('z', settings.SIGN_GATE)
+          self.get_coords('z', settings.SIGN_GATE),
+          color="black"
         )
 
         # Show the graph
@@ -296,6 +297,7 @@ class Path:
 
     def calculate_ASTAR(self, board):
         a_tpl = tuple(self.a)
+        b_tpl = tuple(self.b)
 
         # Create data structures
         queue = QueuePriority()
@@ -304,8 +306,10 @@ class Path:
         cost_archive = {}
         cost_archive[a_tpl] = 0
         
-        path = {}
-        path[a_tpl] = None
+        path_archive = {}
+        path_archive[a_tpl] = None
+
+        found = False
 
         # Keep searching till queue is empty or target is found
         while not queue.empty():
@@ -315,8 +319,9 @@ class Path:
             current_tpl = tuple(current)
 
             # Check if this is the target
-            if (current_tpl == tuple(self.b)):
+            if (current_tpl == b_tpl):
                 print("Path #" + str(self.label) +  " IS FOUND")
+                found = True
                 break
 
             # Create all neighbors of this coordinate
@@ -327,7 +332,7 @@ class Path:
 
                 # Check if this coordinate on the board is empty
                 if board.board[neighbor[0], neighbor[1], neighbor[2]] != 0:
-                    if neighbor != tuple(self.b):
+                    if neighbor != b_tpl:
                         continue
 
                 # Save its distance from the start
@@ -343,13 +348,35 @@ class Path:
                     queue.push(neighbor, prior)
 
                     # Remember where this neighbor came from
-                    path[neighbor] = current
+                    path_archive[neighbor] = current
 
-        #print("Path #" + str(self.label) +  ": " + str(cost_archive))
-        
-        # Backtracking the path
-        
+        # Backtracking the path        
+        if found:
 
+            # Add destination to the path route
+            self.add_coordinate(self.b)
+
+            # Set the cursor on the endpoint
+            cursor = path_archive[b_tpl]
+            
+            # Walk till A is found
+            while cursor != a_tpl:
+
+                # Put the ID in the Numpy board
+                board.board[cursor[0], cursor[1], cursor[2]] = self.label
+
+                # Remember this coord for this path
+                self.add_coordinate([cursor[0], cursor[1], cursor[2]])
+                
+                cursor = path_archive[cursor]
+            
+            # Add A to the path
+            self.add_coordinate(self.a)
+
+            return True
+        
+        else:
+            return False
 
     def calculate_DIJKSTRA(self, board):
         '''
@@ -465,7 +492,7 @@ class Path:
                     # -------------- / HEURISTICS ---------------
 
                     # Add the coord to the queue
-                    queue.put(coordNew)
+                    queue.push(coordNew)
 
                     # Save the iteration counter to this coordinate in the archive
                     archive[coordNewZ, coordNewY, coordNewX] = loops
