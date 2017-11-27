@@ -83,9 +83,9 @@ def main():
         settings.ASTAR_WEIGHT += 2
 
         # Print results of this execution
-        # print("------------ BOARD: " + str(i) + " --------------")
-        # print("Weight: " + str(settings.ASTAR_WEIGHT))
-        # print(CLR.YELLOW + "Paths calculated: " + str(amount_success) + " / " + str(amount_paths) + CLR.DEFAULT)
+        print("------------ BOARD: " + str(i) + " --------------")
+        print("Weight: " + str(settings.ASTAR_WEIGHT))
+        print(CLR.YELLOW + "Paths calculated: " + str(amount_success) + " / " + str(amount_paths) + CLR.DEFAULT)
         # print(CLR.YELLOW + str(round(amount_success / amount_paths * 100, 2)) + "%" + CLR.DEFAULT)
         # print("")
         # print(CLR.YELLOW + "Score: " + str(board.get_score()) + CLR.DEFAULT)
@@ -101,8 +101,8 @@ def main():
     # Config graph plot for iteration information
     fig = plt.figure()
     ax = fig.gca()
-    ax.set_xlim(0, 40)
-    ax.set_ylim(0, 60)
+    ax.set_xlim(0, 100)
+    ax.set_ylim(30, 80)
     ax.set_xlabel("Weight")
     ax.set_ylabel("Paths drawn")
     ax.plot(weights, score)
