@@ -233,12 +233,7 @@ class Queue:
     def pop(self):
         return self.elements.popleft()
 
-
-<<<<<<< HEAD
-def QueuePriority():
-=======
 class QueuePriority:
->>>>>>> 33b027ddb44f35e458b93bcb929d0e0144ffeca1
 
     def __init__(self):
         self.elements = []
