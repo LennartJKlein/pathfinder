@@ -36,7 +36,7 @@ def main():
     weights = []
     score = []
 
-    for i in range(50):
+    for i in range(1):
 
         # Initiate a board with a specified size
         board = Board(settings.BOARD_WIDTH, settings.BOARD_HEIGHT, settings.BOARD_DEPTH)
