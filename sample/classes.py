@@ -117,7 +117,7 @@ class Board:
         is_valid = []
         neighbors = [[x, y, z+1], [x, y, z-1], [x, y+1, z], [x, y-1, z], [x+1, y, z], [x-1, y, z]]
         for neighbor in neighbors:
-            if (self.valid_coord(neighbor)):
+            if self.valid_coord(neighbor):
                 is_valid.append(neighbor)
         return is_valid
 
@@ -172,7 +172,8 @@ class Board:
         if coord[2] >= self.width or \
            coord[1] >= self.height or \
            coord[0] >= self.depth:
-            return False
+            return False    
+
         return True
 
 class Gate:
@@ -323,6 +324,11 @@ class Path:
 
                 # Create a tuple
                 neighbor = tuple(neighbor)
+
+                # Check if this coordinate on the board is empty
+                if board.board[neighbor[0], neighbor[1], neighbor[2]] != 0:
+                    if neighbor != tuple(self.b):
+                        continue
 
                 # Save its distance from the start
                 cost_neighbor = cost_archive[current_tpl] + 1;
