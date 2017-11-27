@@ -55,9 +55,9 @@ class Board:
         return coords
 
     def get_neighbors(self, coord):
-        (x, y, z) = coord
+        (z, y, x) = coord
         is_valid = []
-        neighbors = [[x, y, z+1], [x, y, z-1], [x, y+1, z], [x, y-1, z], [x+1, y, z], [x-1, y, z]]
+        neighbors = [[z, y, x+1], [z, y, x-1], [z, y+1, x], [z, y-1, x], [z+1, y, x], [z-1, y, x]]
         for neighbor in neighbors:
             if self.valid_coord(neighbor):
                 is_valid.append(neighbor)
@@ -110,11 +110,11 @@ class Board:
         print(self.board)
 
     def valid_coord(self, coord):
-        # Check if the cords are positive
+        # Check if the coord is positive
         if any(axes < 0 for axes in coord):
             return False
 
-        # Check if the new coord falls within the board
+        # Check if the coord falls within the board
         if coord[2] >= self.width or \
            coord[1] >= self.height or \
            coord[0] >= self.depth:
@@ -279,7 +279,7 @@ class Path:
             current_tpl = tuple(current)
 
             # Check if this is the target
-            if (current_tpl == b_tpl):
+            if current_tpl == b_tpl:
                 found = True
                 break
 
@@ -364,7 +364,9 @@ class Path:
         boardDepth = boardDimensions[0]
         boardHeight = boardDimensions[1]
         boardWidth = boardDimensions[2]
-
+        a_tpl = tuple(self.a)
+        b_tpl = tuple(self.b)
+        
         # Initiate counters
         loops = 0
         found = False
@@ -386,136 +388,75 @@ class Path:
 
             # Pick first coordinate from the queue
             current = queue.pop()
+            current_tpl = tuple(current)
 
-            # Create all the adjacent cells of this coord and perhaps add them
-            # to the queue. First, loop through all the axes of this coord.
-            for i, axes in enumerate(current):
+            # Create all neighbors of this coordinate
+            for neighbor in board.get_neighbors(current):
+                neighbor = tuple(neighbor)
 
-                # Run twice for every axes
-                for j in range(-1, 2, 2):   # j=-1  &  j=1
-                    coordNew = list(current)
-                    coordNew[i] += j
-                    coordNewZ = coordNew[0]
-                    coordNewY = coordNew[1]
-                    coordNewX = coordNew[2]
+                # Check if this is the target
+                if neighbor == b_tpl:
+                    found = True
+                    break
 
-                    # --------------- HEURISTICS ----------------
+                # --------------- HEURISTICS ----------------
 
-                    # Check if this is the destination
-                    if (coordNewZ == self.b[0] and \
-                        coordNewY == self.b[1] and \
-                        coordNewX == self.b[2]):
-                        found = True
-                        break
+                # Check if this coord is already in the archive
+                if archive[neighbor[0], neighbor[1], neighbor[2]] != 0:
+                    continue
 
-                    # Check if the new coord has positive coordinates
-                    if any(axes < 0 for axes in coordNew):
-                        continue
+                # Check if there are no obstacles on this coord
+                if board.board[neighbor[0], neighbor[1], neighbor[2]] > 0:
+                    continue
 
-                    # Check if the new coord falls within the board
-                    if coordNewX >= boardWidth or \
-                       coordNewY >= boardHeight or \
-                       coordNewZ >= boardDepth:
-                        continue
+                # Check surrounding tiles for gates that need space
+                for neighbor_next in board.get_neighbors(neighbor):
+                    neighbor_next = tuple(neighbor_next)
 
-                    # Check if this coord is already in the archive
-                    if archive[coordNewZ, coordNewY, coordNewX] != 0:
-                        continue
+                    # Check if this gate needs space around it
+                    if board.gatesObjects[neighbor_next[0], neighbor_next[1], neighbor_next[2]] != None:
 
-                    # Check if there are no obstacles on this coord
-                    if board.board[coordNewZ, coordNewY, coordNewX] > 0:
-                        continue
+                        # Don't look at the own gates
+                        if not (neighbor_next == a_tpl) or (neighbor_next == b_tpl):
 
-                    # Check surrounding tiles for gates that need space
-                    for i, axes in enumerate(coordNew):
-                        for j in range(-1, 2, 2):
-                            coordNewer = list(coordNew)
-                            coordNewer[i] += j
-                            coordNewerZ = coordNewer[0]
-                            coordNewerY = coordNewer[1]
-                            coordNewerX = coordNewer[2]
+                            # Get info from this gate
+                            gate = board.gatesObjects[neighbor_next[0], neighbor_next[1], neighbor_next[2]]
 
-                            # Check if the new coord has positive coordinates
-                            if any(axes < 0 for axes in coordNewer):
+                            # See if the path may pass
+                            if gate.get_free_spaces(board, neighbor_next) == 0:
                                 continue
 
-                            # Check if the new coord falls within the board
-                            if coordNewerX >= boardWidth or \
-                               coordNewerY >= boardHeight or \
-                               coordNewerZ >= boardDepth:
-                                continue
+                # -------------- / HEURISTICS ---------------
 
-                            # Check if this gate needs space around it
-                            if board.gatesObjects[coordNewerZ, coordNewerY, coordNewerX] != None:
+                # Add the coord to the queue
+                queue.push(list(neighbor))
 
-                                # Don't look at the own gate.
-                                if not (coordNewerZ == self.a[0] and \
-                                    coordNewerY == self.a[1] and \
-                                    coordNewerX == self.a[2]) \
-                                    or \
-                                   (coordNewerZ == self.b[0] and \
-                                    coordNewerY == self.b[1] and \
-                                    coordNewerX == self.b[2]):
-
-                                    # Get info from this gate
-                                    gate = board.gatesObjects[coordNewerZ, coordNewerY, coordNewerX]
-
-                                    # See if the path may pass
-                                    if gate.get_free_spaces(board, coordNewer) < 1:
-                                        continue
-
-                    # -------------- / HEURISTICS ---------------
-
-                    # Add the coord to the queue
-                    queue.push(coordNew)
-
-                    # Save the iteration counter to this coordinate in the archive
-                    archive[coordNewZ, coordNewY, coordNewX] = loops
+                # Save the iteration counter to this coordinate in the archive
+                archive[neighbor[0], neighbor[1], neighbor[2]] = loops
 
         # Backtracking the shortest route
         if found:
             cursor = list(self.b)
-            cursorChanged = False
 
+            # Loop back the all the made steps
             for i in range(loops - 1, 0, -1):
 
-                # Loop through all the axes of this coord
-                # Run twice voor every axes
-                for j, axes in enumerate(cursor):
-                    for k in range(-1, 2, 2):   # j=-1  &  j=1
+                # Loop through all the neighbors of this tile
+                for neighbor in board.get_neighbors(cursor):
 
-                        coordNew = list(cursor)
-                        coordNew[j] += k
-                        coordNewZ = coordNew[0]
-                        coordNewY = coordNew[1]
-                        coordNewX = coordNew[2]
+                    neighbor = tuple(neighbor)
 
-                        # Check if the cell has positive coordinates
-                        if any(axes < 0 for axes in coordNew):
-                            continue
+                    # Check if this cell is on the i'th position in the shortest path
+                    if archive[neighbor[0], neighbor[1], neighbor[2]] == i:
 
-                        # Check if the cell falls within the board
-                        if coordNewX >= boardWidth or \
-                           coordNewY >= boardHeight or \
-                           coordNewZ >= boardDepth:
-                            continue
+                        # Put the ID in the Numpy board
+                        board.board[neighbor[0], neighbor[1], neighbor[2]] = self.label
 
-                        # Check if this cell is on the i'th position in the shortest path
-                        if archive[coordNewZ, coordNewY, coordNewX] == i:
+                        # Remember this coord for this path
+                        self.add_coordinate([neighbor[0], neighbor[1], neighbor[2]])
 
-                            # Put the ID in the Numpy board
-                            board.board[coordNewZ, coordNewY, coordNewX] = self.label
-
-                            # Remember this coord for this path
-                            self.add_coordinate([coordNewZ, coordNewY, coordNewX])
-
-                            # Move the cursor
-                            cursor = coordNew
-                            cursorChanged = True
-                            break
-
-                    if cursorChanged:
-                        cursorChanged = False
+                        # Move the cursor
+                        cursor = list(neighbor)
                         break
 
             # Add the starting point to the end of the path-list
