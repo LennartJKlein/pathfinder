@@ -273,27 +273,48 @@ class Path:
             return self.calculate_ASTAR(board)
 
     def calculate_ASTAR(self, board):
-
-        # Initiate the dimantions of the board
-        boardDimensions = board.board.shape
-        boardDepth = boardDimensions[0]
-        boardHeight = boardDimensions[1]
-        boardWidth = boardDimensions[2]
-
+        # Create data structures
         queue = QueuePriority()
         queue.push(self.a, 0)
-        came_from = {}
-        cost_so_far = {}
-        came_from[self.a] = None
-        cost_so_far[self.a] = 0
 
+        cost_archive = {}
+        cost_archive[self.a] = 0
+        
+        path = {}
+        path[self.a] = None
+
+        # Keep searching till queue is empty or target is found
         while not queue.empty():
+
+            # Pop first coordinate from queue
             current = queue.pop()
 
+            # Check if this is the target
             if (current == self.b):
                 break
 
-            for 
+            # Create all neighbors of this coordinate
+            for neighbor in board.get_neighbors(current, True):
+
+                # Save its distance from the start
+                neighbor_cost = cost_archive[current] + 1;
+
+                # Check if this coordinate is new or has a lower cost than before
+                if neighbor not in cost_archive \
+                   or cost_neighbor < cost_archive[neighbor]:
+
+                    # Calculate the cost and add it to the queue
+                    cost_archive[neighbor] = cost_neighbor
+                    prior = cost_neighbor + calculate_distance(neighbor, self.b)
+                    queue.push(neighbor)
+
+                    # Remember where this neighbor came from
+                    path[neighbor] = current
+
+        # Return the sortest path
+        return path, cost_archive
+
+
 
         #print("Path #" + str(self.label) +  ": " + str(calculate_distance(self.a, self.b)))
 
