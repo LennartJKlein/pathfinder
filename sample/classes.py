@@ -341,8 +341,8 @@ class Path:
 
         #print("Path #" + str(self.label) +  ": " + str(cost_archive))
         
-        # Return the sortest path
-        return path, cost_archive
+        # Backtracking the path
+        
 
 
     def calculate_DIJKSTRA(self, board):
