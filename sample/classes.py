@@ -301,15 +301,16 @@ class Path:
                 cost_neighbor = cost_archive[current_tpl] + 14 + cost_depth;
 
                 # Sum surrounding gates
-                for next_neighbor in board.get_neighbors(neighbor):
+                if neighbor[0] < 2:
+                    for next_neighbor in board.get_neighbors(neighbor):
 
-                    # If next_neighbor is a gate
-                    gate = board.gatesObjects[next_neighbor[0], next_neighbor[1], next_neighbor[2]]
-                    if gate != None:
+                        # If next_neighbor is a gate
+                        gate = board.gatesObjects[next_neighbor[0], next_neighbor[1], next_neighbor[2]]
+                        if gate != None:
 
-                        # Make the cost higher if gate has more connections
-                        for i in range(gate.spaces_needed):
-                            cost_neighbor += settings.ASTAR_WEIGHT
+                            # Make the cost higher if gate has more connections
+                            for i in range(gate.spaces_needed):
+                                cost_neighbor += settings.ASTAR_WEIGHT
 
                 # Check if this coordinate is new or has a lower cost than before
                 if neighbor not in cost_archive \

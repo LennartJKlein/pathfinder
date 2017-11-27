@@ -36,9 +36,8 @@ def main():
     weights = []
     score = []
 
-    for i in range(1):
-
-        print("board " + str(i) + " generated....")
+    # Experiment
+    for i in range(settings.AMOUNT_BOARDS):
 
         # Initiate a board with a specified size
         board = Board(settings.BOARD_WIDTH, settings.BOARD_HEIGHT, settings.BOARD_DEPTH)
@@ -81,21 +80,17 @@ def main():
 
         settings.ASTAR_WEIGHT += 2
 
-        # board.plot()
-
     # Config graph plot
-    fig = plt.figure()
-    ax = fig.gca()
-    ax.set_xlim(0, 10)
-    ax.set_ylim(0, 30)
-    ax.set_xlabel("Weight")
-    ax.set_ylabel("Paths drawn")
-    ax.plot(weights, score)
-
-    plt.show()
+    # fig = plt.figure()
+    # ax = fig.gca()
+    # ax.set_xlim(0, 10)
+    # ax.set_ylim(0, 30)
+    # ax.set_xlabel("Weight")
+    # ax.set_ylabel("Paths drawn")
+    # ax.plot(weights, score)
+    # plt.show()
 
     # Print results of this execution
-    # amount_paths, amount_fail = netlist.execute_connections(board)
     print(CLR.YELLOW + "Paths calculated: " + str(amount_paths - amount_fail) + " / " + str(amount_paths) + CLR.DEFAULT)
     print(CLR.YELLOW + str(round((amount_paths - amount_fail) / amount_paths * 100, 2)) + "%" + CLR.DEFAULT)
     print("")
