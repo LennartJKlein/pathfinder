@@ -81,19 +81,19 @@ class Netlist:
 
 class Board:
 
-    def __init__(self, x, y, z):
+    def __init__(self, width, height, depth):
         """
-        :param x: How many columns the board uses
-        :param y: How many rows the board uses
-        :param z: How many layers the board uses
+        :param width: How many columns the board uses
+        :param height: How many rows the board uses
+        :param depth: How many layers the board uses
         """
-        self.x = x
-        self.y = y
-        self.z = z
-        self.board = np.zeros((self.z, self.y, self.x), dtype=int)
+        self.x = width
+        self.y = height
+        self.z = depth
+        self.board = np.zeros((self.depth, self.height, self.width), dtype=int)
         self.paths = []
-        self.gatesObjects = np.empty((self.z, self.y, self.x), dtype=object)
-        self.gatesNumbers = np.zeros((self.z, self.y, self.x), dtype=int)
+        self.gatesObjects = np.empty((self.depth, self.height, self.width), dtype=object)
+        self.gatesNumbers = np.zeros((self.depth, self.height, self.width), dtype=int)
 
     def print_board(self):
         print(self.board)
@@ -111,6 +111,16 @@ class Board:
                 coords.append(coord[2])
 
         return coords
+
+    def get_neighbors(self, coord):
+        (x, y, z) = coord
+        is_valid = []
+        neighbors = [[x, y, z+1], [x, y, z-1], [x, y+1, z], [x, y-1, z], [x+1, y, z], [x-1, y, z]]
+        for neighbor in neighbors:
+            if (self.valid_coord(neighbor)):
+                is_valid.append(neighbor)
+        return is_valid
+
 
     def plot_paths(self, graph, ownColor):
         for path in self.paths:
@@ -132,9 +142,9 @@ class Board:
         # Config graph plot
         fig = plt.figure()
         ax = fig.gca(projection='3d')
-        ax.set_xlim(0, self.x)
-        ax.set_ylim(0, self.y)
-        ax.set_zlim(self.z, 0)
+        ax.set_xlim(0, self.width)
+        ax.set_ylim(0, self.height)
+        ax.set_zlim(self.depth, 0)
         ax.set_xlabel("X")
         ax.set_ylabel("Y")
         ax.set_zlabel("Z")
@@ -151,6 +161,19 @@ class Board:
 
         # Show the graph
         plt.show()
+
+    def valid_coord(self, coord):
+
+        # Check if the cords are positive
+        if any(axes < 0 for axes in coord):
+            return False
+
+        # Check if the new coord falls within the board
+        if coord >= self.width or \
+           coord >= self.height or \
+           coord >= self.depth:
+            return False
+        return True
 
 class Gate:
     """
@@ -274,26 +297,26 @@ class Path:
 
     def calculate_ASTAR(self, board):
 
-        # Initiate the dimantions of the board
-        boardDimensions = board.board.shape
-        boardDepth = boardDimensions[0]
-        boardHeight = boardDimensions[1]
-        boardWidth = boardDimensions[2]
+        # # Initiate the dimantions of the board
+        # boardDimensions = board.board.shape
+        # boardDepth = boardDimensions[0]
+        # boardHeight = boardDimensions[1]
+        # boardWidth = boardDimensions[2]
 
-        queue = QueuePriority()
-        queue.push(self.a, 0)
-        came_from = {}
-        cost_so_far = {}
-        came_from[self.a] = None
-        cost_so_far[self.a] = 0
+        # queue = QueuePriority()
+        # queue.push(self.a, 0)
+        # came_from = {}
+        # cost_so_far = {}
+        # came_from[self.a] = None
+        # cost_so_far[self.a] = 0
 
-        while not queue.empty():
-            current = queue.pop()
+        # while not queue.empty():
+        #     current = queue.pop()
 
-            if (current == self.b):
-                break
+        #     if (current == self.b):
+        #         break
 
-            for 
+        #     for 
 
         #print("Path #" + str(self.label) +  ": " + str(calculate_distance(self.a, self.b)))
 
