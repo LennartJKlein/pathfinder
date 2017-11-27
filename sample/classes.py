@@ -13,7 +13,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from ast import literal_eval
 from mpl_toolkits.mplot3d import Axes3D
-from scipy.spatial import distance as dist
+import collections
+import heapq
 
 import colors as CLR
 
@@ -61,7 +62,7 @@ class Netlist:
             board.paths.append(new_path)
 
             # Calculate the route for this path
-            result = new_path.calculate_ASTAR(board)
+            result = new_path.calculate(settings.PATH_ALGORITHM, board)
 
             # Count the score
             if result == False:
@@ -191,6 +192,40 @@ class Gate:
     def __str__(self):
         return self.label
 
+class Queue:
+    """
+    dequeue, append and count elements in Queue
+    :param: none
+    """
+
+    def __init__(self):
+        self.elements = collections.deque()
+    
+    def empty(self):
+        return len(self.elements) == 0
+    
+    def push(self, x):
+        self.elements.append(x)
+    
+    def pop(self):
+        return self.elements.popleft()
+
+
+def QueuePriority:
+
+    def __init__(self):
+        self.elements = []
+
+    def empty(self):
+        return len(self.elements) == 0
+
+    def push(self, coord, prior):
+        heapq.heappush(self.elements, (prior, coord))
+
+    def pop(self):
+        return heapq.heappop(self.elements)[1]
+
+
 class Path:
     """
     Path from A to B
@@ -224,11 +259,20 @@ class Path:
 
         return coords
 
-    def calculate_ASTAR(self, board):
+    def calculate(self, algorithm, board):
         '''
         Calculate route between two points with the A* algorithm
-        :param board: a Numpy array
+        :param board:       a Numpy array
+        :param algorithm:   algorithm to draw the path
         '''
+
+        if algorithm == "DIJKSTRA":
+            return self.calculate_DIJKSTRA(board)
+
+        if algorithm == "ASTAR":
+            return self.calculate_ASTAR(board)
+
+    def calculate_ASTAR(self, board):
 
         # Initiate the dimantions of the board
         boardDimensions = board.board.shape
@@ -236,9 +280,22 @@ class Path:
         boardHeight = boardDimensions[1]
         boardWidth = boardDimensions[2]
 
-        
+        queue = QueuePriority()
+        queue.push(self.a, 0)
+        came_from = {}
+        cost_so_far = {}
+        came_from[self.a] = None
+        cost_so_far[self.a] = 0
 
+        while not queue.empty():
+            current = queue.pop()
 
+            if (current == self.b):
+                break
+
+            for 
+
+        #print("Path #" + str(self.label) +  ": " + str(calculate_distance(self.a, self.b)))
 
     def calculate_DIJKSTRA(self, board):
         '''
@@ -257,26 +314,30 @@ class Path:
         found = False
 
         # Initiate numpy data structures
-        queue = [self.a]
         archive = np.zeros((boardDepth, boardHeight, boardWidth), dtype=int)
 
         # Add destination to the path route
         self.add_coordinate(self.b)
 
+        frontier = Queue()
+        frontier.push(self.a)
+
         # Algorithm core logic
-        while len(queue) > 0 and found == False:
+        while not frontier.empty() and found == False:
 
             # Track the distance
             loops += 1
 
             # Pick first coordinate from the queue
-            coord = queue.pop(0)
+            current = frontier.pop()
 
-            # Create all the adjacent cells of this coord and loop through them
-            for i, axes in enumerate(coord):
-                for j in range(-1, 2, 2):   
+            # Create all the adjacent cells of this coord and perhaps add them
+            # to the queue. First, loop through all the axes of this coord.
+            for i, axes in enumerate(current):
 
-                    coordNew = list(coord)
+                # Run twice for every axes
+                for j in range(-1, 2, 2):   # j=-1  &  j=1
+                    coordNew = list(current)
                     coordNew[i] += j
                     coordNewZ = coordNew[0]
                     coordNewY = coordNew[1]
@@ -329,16 +390,16 @@ class Path:
                                 continue
 
                             # Check if this gate needs space around it
-                            if board.gatesNumbers[coordNewerZ, coordNewerY, coordNewerX] > 0:
+                            if board.gatesObjects[coordNewerZ, coordNewerY, coordNewerX] != None:
 
-                                # Don't look at the gates of A and B
+                                # Don't look at the own gate.
                                 if not (coordNewerZ == self.a[0] and \
-                                        coordNewerY == self.a[1] and \
-                                        coordNewerX == self.a[2]) \
-                                        or \
-                                       (coordNewerZ == self.b[0] and \
-                                        coordNewerY == self.b[1] and \
-                                        coordNewerX == self.b[2]):
+                                    coordNewerY == self.a[1] and \
+                                    coordNewerX == self.a[2]) \
+                                    or \
+                                   (coordNewerZ == self.b[0] and \
+                                    coordNewerY == self.b[1] and \
+                                    coordNewerX == self.b[2]):
 
                                     # Get info from this gate
                                     boardTemp = board.gatesObjects[coordNewerZ, coordNewerY, coordNewerX]
@@ -350,7 +411,7 @@ class Path:
                     # -------------- / HEURISTICS ---------------
 
                     # Add the coord to the queue
-                    queue.append(coordNew)
+                    frontier.put(coordNew)
 
                     # Save the iteration counter to this coordinate in the archive
                     archive[coordNewZ, coordNewY, coordNewX] = loops
@@ -413,3 +474,9 @@ class Path:
         else:
             #print("Path " + str(self.label) + " ERROR. Could not be calculated.")
             return False
+
+def calculate_distance(a, b):
+    dx = (a[2] - b[2]) ** 2
+    dy = (a[1] - b[1]) ** 2
+    dz = (a[0] - b[0]) ** 2
+    return (dx + dy + dz) ** 0.5
