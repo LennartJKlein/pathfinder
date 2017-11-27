@@ -31,6 +31,7 @@ def main():
     # Show chosen settings
     print("Using netlist #" + str(settings.FILE_NETLIST))
     print("Using gates file #" + str(settings.FILE_GATES))
+    print("")
 
     # Keep track of results on different weights
     weights = []
@@ -73,33 +74,39 @@ def main():
                     board.board[gateZ, gateY, gateX] = settings.SIGN_GATE
 
         # Calculate the connections in this netlist
-        amount_paths, amount_fail = netlist.execute_connections(board)
+        amount_paths, amount_fail, amount_success = netlist.execute_connections(board)
 
         weights.append(settings.ASTAR_WEIGHT)
-        score.append(amount_paths - amount_fail)
+        score.append(amount_success)
 
+        # APPEND SETTINGS
         settings.ASTAR_WEIGHT += 2
 
-    # Config graph plot
-    # fig = plt.figure()
-    # ax = fig.gca()
-    # ax.set_xlim(0, 10)
-    # ax.set_ylim(0, 30)
-    # ax.set_xlabel("Weight")
-    # ax.set_ylabel("Paths drawn")
-    # ax.plot(weights, score)
-    # plt.show()
+        # Print results of this execution
+        # print("------------ BOARD: " + str(i) + " --------------")
+        # print("Weight: " + str(settings.ASTAR_WEIGHT))
+        # print(CLR.YELLOW + "Paths calculated: " + str(amount_success) + " / " + str(amount_paths) + CLR.DEFAULT)
+        # print(CLR.YELLOW + str(round(amount_success / amount_paths * 100, 2)) + "%" + CLR.DEFAULT)
+        # print("")
+        # print(CLR.YELLOW + "Score: " + str(board.get_score()) + CLR.DEFAULT)
+        # print("")
+        # print("")
 
-    # Print results of this execution
-    print(CLR.YELLOW + "Paths calculated: " + str(amount_paths - amount_fail) + " / " + str(amount_paths) + CLR.DEFAULT)
-    print(CLR.YELLOW + str(round((amount_paths - amount_fail) / amount_paths * 100, 2)) + "%" + CLR.DEFAULT)
-    print("")
+        # Print the board data
+        # board.print_board()
 
-    # Print the board data
-    board.print_board()
+        # Plot the board
+        # board.plot()
 
-    # Plot the board
-    board.plot()
+    # Config graph plot for iteration information
+    fig = plt.figure()
+    ax = fig.gca()
+    ax.set_xlim(0, 40)
+    ax.set_ylim(0, 60)
+    ax.set_xlabel("Weight")
+    ax.set_ylabel("Paths drawn")
+    ax.plot(weights, score)
+    plt.show()
 
 if __name__ == '__main__':
     main()

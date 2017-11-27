@@ -63,6 +63,9 @@ class Board:
                 is_valid.append(neighbor)
         return is_valid
 
+    def get_score(self):
+        return len(np.argwhere(self.board >= settings.SIGN_PATH_START))
+
     def plot_paths(self, graph, ownColor):
         for path in self.paths:
             if ownColor:
@@ -206,7 +209,9 @@ class Netlist:
             path_number += 1
             amount_paths += 1
 
-        return amount_paths, amount_fail
+        amount_success = amount_paths - amount_fail
+
+        return amount_paths, amount_fail, amount_success
 
     def print_list(self):
         '''
