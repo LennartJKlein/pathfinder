@@ -18,67 +18,6 @@ import heapq
 
 import colors as CLR
 
-class Netlist:
-    """
-    Netlist are tuples reperesenting the contecion between two gates. Al conections
-    must be made to solve the case.
-
-    :param: number:     number of the netlist used
-    """
-
-    def __init__(self, number):
-        # Make file name used.
-        self.filename = "data/netlist"
-        self.filename += str(number)
-        self.filename += ".txt"
-
-        # Open netlist and read with literal evaluation.
-        with open(self.filename) as f:
-            self.list = f.read()
-
-        self.list = literal_eval(self.list)
-
-        print("Using netlist #" + str(number))
-
-    def execute_connections(self, board):
-        path_number = settings.SIGN_PATH_START
-        amount_fail = 0
-
-        for connection in self.list:
-            # Get the coordinates of the two gates in this connection
-            a = connection[0]
-            b = connection[1]
-
-            #print("")
-            #print(str(connection[0]) + "  ->  "  + str(connection[1]))
-            
-            coordGateA = np.argwhere(board.gatesNumbers == a + 1)
-            coordGateB = np.argwhere(board.gatesNumbers == b + 1)
-
-            # Create a new path object
-            new_path = Path(coordGateA[0], coordGateB[0], path_number, "grey")
-
-            # Add this path to the board object
-            board.paths.append(new_path)
-
-            # Calculate the route for this path
-            result = new_path.calculate(settings.PATH_ALGORITHM, board)
-
-            # Count the score
-            if result == False:
-                amount_fail += 1
-
-            # Set a new path_number for the next path
-            path_number += 1
-
-        print(CLR.YELLOW + "Paths not calculated: " + str(amount_fail) + " / " + str(path_number) + CLR.DEFAULT)
-        print(CLR.YELLOW + str(round(amount_fail / path_number * 100, 2)) + "%" + CLR.DEFAULT)
-        print("")
-
-    def print_list(self):
-        # Print function for debugging
-        print(self.list)
-
 class Board:
 
     def __init__(self, width, height, depth):
@@ -95,8 +34,11 @@ class Board:
         self.gatesObjects = np.empty((self.depth, self.height, self.width), dtype=object)
         self.gatesNumbers = np.zeros((self.depth, self.height, self.width), dtype=int)
 
-    def print_board(self):
-        print(self.board)
+    def calculate_distance(self, a, b):
+        dx = (a[2] - b[2]) ** 2
+        dy = (a[1] - b[1]) ** 2
+        dz = (a[0] - b[0]) ** 2
+        return (dx + dy + dz) ** 0.5
 
     def get_coords(self, axes, label):
         labels = np.argwhere(self.board == label)
@@ -121,7 +63,6 @@ class Board:
                 is_valid.append(neighbor)
         return is_valid
 
-
     def plot_paths(self, graph, ownColor):
         for path in self.paths:
             if ownColor:
@@ -129,13 +70,15 @@ class Board:
                   path.get_coords('x'),
                   path.get_coords('y'),
                   path.get_coords('z'),
+                  zorder=-1,
                   color=path.color
                 )
             else:
                 graph.plot(
                   path.get_coords('x'),
                   path.get_coords('y'),
-                  path.get_coords('z')
+                  path.get_coords('z'),
+                  zorder=-1
                 )
 
     def plot(self):
@@ -163,8 +106,10 @@ class Board:
         # Show the graph
         plt.show()
 
-    def valid_coord(self, coord):
+    def print_board(self):
+        print(self.board)
 
+    def valid_coord(self, coord):
         # Check if the cords are positive
         if any(axes < 0 for axes in coord):
             return False
@@ -217,45 +162,77 @@ class Gate:
     def __str__(self):
         return self.label
 
-class Queue:
+class Netlist:
     """
-    dequeue, append and count elements in Queue
-    :param: none
+    Netlist are tuples reperesenting the contecion between two gates. Al conections
+    must be made to solve the case.
+
+    :param: number:     id of the netlist
     """
 
-    def __init__(self):
-        self.elements = collections.deque()
-    
-    def empty(self):
-        return len(self.elements) == 0
-    
-    def push(self, x):
-        self.elements.append(x)
-    
-    def pop(self):
-        return self.elements.popleft()
+    def __init__(self, number):
+        self.filename = "data/netlist"
+        self.filename += str(number)
+        self.filename += ".txt"
 
-class QueuePriority:
+        # Open netlist and read with literal evaluation
+        with open(self.filename) as f:
+            self.list = f.read()
 
-    def __init__(self):
-        self.elements = []
+        self.list = literal_eval(self.list)
 
-    def empty(self):
-        return len(self.elements) == 0
+    def execute_connections(self, board):
+        '''
+        Draw all the connections in this netlist
+        :param board:  a threedimensional Numpy array
+        '''
+        path_number = settings.SIGN_PATH_START
+        amount_fail = 0
 
-    def push(self, coord, prior):
-        heapq.heappush(self.elements, (prior, coord))
+        for connection in self.list:
+            # Get the coordinates of the two gates in this connection
+            a = connection[0]
+            b = connection[1]
 
-    def pop(self):
-        return heapq.heappop(self.elements)[1]
+            #print("")
+            #print(str(connection[0]) + "  ->  "  + str(connection[1]))
+            
+            coordGateA = np.argwhere(board.gatesNumbers == a + 1)
+            coordGateB = np.argwhere(board.gatesNumbers == b + 1)
+
+            # Create a new path object
+            new_path = Path(coordGateA[0], coordGateB[0], path_number, "grey")
+
+            # Add this path to the board object
+            board.paths.append(new_path)
+
+            # Calculate the route for this path
+            result = new_path.calculate(settings.PATH_ALGORITHM, board)
+
+            # Count the score
+            if result == False:
+                amount_fail += 1
+
+            # Set a new path_number for the next path
+            path_number += 1
+
+        print(CLR.YELLOW + "Paths not calculated: " + str(amount_fail) + " / " + str(path_number) + CLR.DEFAULT)
+        print(CLR.YELLOW + str(round(amount_fail / path_number * 100, 2)) + "%" + CLR.DEFAULT)
+        print("")
+
+    def print_list(self):
+        '''
+        Print function for debugging
+        '''
+        print(self.list)
 
 class Path:
     """
     Path from A to B
-    :param: coordA:     first point on the board (list of Z, Y, X coordinates)
-    :param: coordB:     second point on the board (list of  Z, Y, X coordinates)
-    :param: aLabel:     the ID of this path
-    :param: aColor:     the color for plotting
+    :param coordA:     first point on the board (list of Z, Y, X coordinates)
+    :param coordB:     second point on the board (list of  Z, Y, X coordinates)
+    :param aLabel:     the ID of this path
+    :param aColor:     the color for plotting
     """
 
     def __init__(self, coordA, coordB, aLabel, aColor):
@@ -266,26 +243,16 @@ class Path:
         self.color = aColor
 
     def add_coordinate(self, coord):
-        # Adds a new coordinate (list) to self.path
+        '''
+        Adds a new coordinate to self.path
+        :param coord:       a list of [Z, Y, X]
+        '''
         self.path.append(coord)
-
-    def get_coords(self, axes):
-        coords = []
-
-        for coord in self.path:
-            if axes == 'z':
-                coords.append(coord[0])
-            if axes == 'y':
-                coords.append(coord[1])
-            if axes == 'x':
-                coords.append(coord[2])
-
-        return coords
 
     def calculate(self, algorithm, board):
         '''
-        Calculate route between two points with the A* algorithm
-        :param board:       a Numpy array
+        Calculate route between two points
+        :param board:       a threedimensional Numpy array
         :param algorithm:   algorithm to draw the path
         '''
 
@@ -296,6 +263,11 @@ class Path:
             return self.calculate_ASTAR(board)
 
     def calculate_ASTAR(self, board):
+        '''
+        Calculate route between two points with the A* algorithm
+        :param board: a threedimensional Numpy array
+        '''
+
         a_tpl = tuple(self.a)
         b_tpl = tuple(self.b)
 
@@ -338,17 +310,21 @@ class Path:
                 # Save its distance from the start
                 cost_neighbor = cost_archive[current_tpl] + 1;
 
+                # --------------- HEURISTICS ----------------
+
                 # Check if this coordinate is new or has a lower cost than before
                 if neighbor not in cost_archive \
                    or cost_neighbor < cost_archive[neighbor]:
-
+                
                     # Calculate the cost and add it to the queue
                     cost_archive[neighbor] = cost_neighbor
-                    prior = cost_neighbor + calculate_distance(neighbor, self.b)
+                    prior = cost_neighbor + board.calculate_distance(neighbor, b_tpl)
                     queue.push(neighbor, prior)
 
                     # Remember where this neighbor came from
                     path_archive[neighbor] = current
+
+                # -------------- / HEURISTICS ---------------
 
         # Backtracking the path        
         if found:
@@ -356,12 +332,9 @@ class Path:
             # Add destination to the path route
             self.add_coordinate(self.b)
 
-            # Set the cursor on the endpoint
             cursor = path_archive[b_tpl]
             
-            # Walk till A is found
             while cursor != a_tpl:
-
                 # Put the ID in the Numpy board
                 board.board[cursor[0], cursor[1], cursor[2]] = self.label
 
@@ -380,7 +353,7 @@ class Path:
 
     def calculate_DIJKSTRA(self, board):
         '''
-        Calculate route between two points
+        Calculate route between two points with the Dijkstra algorithm
         :param board: a Numpy array
         '''
 
@@ -553,11 +526,53 @@ class Path:
             return True
 
         else:
-            #print("Path " + str(self.label) + " ERROR. Could not be calculated.")
             return False
 
-def calculate_distance(a, b):
-    dx = (a[2] - b[2]) ** 2
-    dy = (a[1] - b[1]) ** 2
-    dz = (a[0] - b[0]) ** 2
-    return (dx + dy + dz) ** 0.5
+    def get_coords(self, axes):
+        coords = []
+
+        for coord in self.path:
+            if axes == 'z':
+                coords.append(coord[0])
+            if axes == 'y':
+                coords.append(coord[1])
+            if axes == 'x':
+                coords.append(coord[2])
+
+        return coords
+
+class Queue:
+    '''
+    Dequeue, append and count elements in a simple queue
+    :param: none
+    '''
+
+    def __init__(self):
+        self.elements = collections.deque()
+    
+    def empty(self):
+        return len(self.elements) == 0
+    
+    def pop(self):
+        return self.elements.popleft()
+    
+    def push(self, x):
+        self.elements.append(x)
+
+class QueuePriority:
+    '''
+    Dequeue, append and count elements in a priority queue
+    :param: none
+    '''
+
+    def __init__(self):
+        self.elements = []
+
+    def empty(self):
+        return len(self.elements) == 0
+
+    def pop(self):
+        return heapq.heappop(self.elements)[1]
+
+    def push(self, coord, prior):
+        heapq.heappush(self.elements, (prior, coord))

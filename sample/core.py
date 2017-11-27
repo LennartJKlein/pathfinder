@@ -27,16 +27,20 @@ def main():
     # Config NumPy
     np.set_printoptions(threshold=np.nan)
 
+    # Show chosen settings
+    print("Using netlist #" + str(settings.FILE_NETLIST))
+    print("Using gates file #" + str(settings.FILE_GATES))
+
     # Initiate a board with a specified size
     board = Board(settings.BOARD_WIDTH, settings.BOARD_HEIGHT, settings.BOARD_DEPTH)
 
     # Create a netlist and calculate path
     netlist = Netlist(settings.FILE_NETLIST)
 
+
     # Read a CSV file for gate tuples
     with open('data/gates'+ str(settings.FILE_GATES) + '.csv', 'r') as csvfile:
         reader = csv.reader(csvfile)
-        print("Using gates file #" + str(settings.FILE_GATES))
         print("")
 
         # Skip the header
