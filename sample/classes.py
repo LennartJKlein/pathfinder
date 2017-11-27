@@ -169,9 +169,9 @@ class Board:
             return False
 
         # Check if the new coord falls within the board
-        if coord >= self.width or \
-           coord >= self.height or \
-           coord >= self.depth:
+        if coord[2] >= self.width or \
+           coord[1] >= self.height or \
+           coord[0] >= self.depth:
             return False
         return True
 
@@ -234,7 +234,11 @@ class Queue:
         return self.elements.popleft()
 
 
+<<<<<<< HEAD
 def QueuePriority():
+=======
+class QueuePriority:
+>>>>>>> 33b027ddb44f35e458b93bcb929d0e0144ffeca1
 
     def __init__(self):
         self.elements = []
@@ -247,7 +251,6 @@ def QueuePriority():
 
     def pop(self):
         return heapq.heappop(self.elements)[1]
-
 
 class Path:
     """
@@ -299,29 +302,33 @@ class Path:
 
         # Create data structures
         queue = QueuePriority()
-        queue.push(self.a, 0)
+        queue.push(tuple(self.a), 0)
 
         cost_archive = {}
-        cost_archive[self.a] = 0
+        cost_archive[tuple(self.a)] = 0
         
         path = {}
-        path[self.a] = None
+        path[tuple(self.a)] = None
 
         # Keep searching till queue is empty or target is found
         while not queue.empty():
 
             # Pop first coordinate from queue
             current = queue.pop()
+            current_tpl = tuple(current)
 
             # Check if this is the target
-            if (current == self.b):
+            if (tuple(current) == tuple(self.b)):
                 break
 
             # Create all neighbors of this coordinate
-            for neighbor in board.get_neighbors(current, True):
+            for neighbor in board.get_neighbors(current):
+
+                # Create a tuple
+                neighbor = tuple(neighbor)
 
                 # Save its distance from the start
-                neighbor_cost = cost_archive[current] + 1;
+                cost_neighbor = cost_archive[current_tpl] + 1;
 
                 # Check if this coordinate is new or has a lower cost than before
                 if neighbor not in cost_archive \
@@ -330,7 +337,7 @@ class Path:
                     # Calculate the cost and add it to the queue
                     cost_archive[neighbor] = cost_neighbor
                     prior = cost_neighbor + calculate_distance(neighbor, self.b)
-                    queue.push(neighbor)
+                    queue.push(neighbor, prior)
 
                     # Remember where this neighbor came from
                     path[neighbor] = current
