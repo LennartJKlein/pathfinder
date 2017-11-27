@@ -11,8 +11,8 @@ import settings
 
 import numpy as np
 import matplotlib.pyplot as plt
-from ast import literal_eval
 from mpl_toolkits.mplot3d import Axes3D
+from ast import literal_eval
 import collections
 import heapq
 
@@ -134,30 +134,22 @@ class Gate:
         self.x = int(x)
         self.y = int(y)
         self.z = int(z)
-        self.spaces_free = 5
         self.spaces_needed = 0
 
         for connection in netlist.list:
-            # connection + 1 to match label
-            if ( connection[0] + 1 ) == label or ( connection[1] + 1 )== label:
+            # Connection + 1 to match label of gate
+            if (connection[0] + 1) == label or (connection[1] + 1) == label:
                 self.spaces_needed += 1
-
 
     def get_free_spaces(self, board, coord):
         counter = 0
 
-        for i, axes in enumerate(coord):
-            # Run twice for every axes
-            for j in range(-1, 2, 2):   # j=-1  &  j=1
-                coord = [self.z, self.y, self.x]
-                coord[i] += j
+        for neighbor in board.get_neighbors(coord):
+            # Count if neighbor is free on the board
+            if board.board[neighbor[0], neighbor[1], neighbor[2]] == 0:
+                counter += 1
 
-                if board.board[coord[0], coord[1], coord[2]] == 0:
-                    counter += 1
-
-        space_free = counter - self.spaces_needed
-
-        return space_free
+        return counter - self.spaces_needed
 
     def __str__(self):
         return self.label
@@ -183,20 +175,17 @@ class Netlist:
 
     def execute_connections(self, board):
         '''
-        Draw all the connections in this netlist
+        Draw all the connections in this netlist. Returns the amount of paths not calculated
         :param board:  a threedimensional Numpy array
         '''
         path_number = settings.SIGN_PATH_START
         amount_fail = 0
+        amount_paths = 0
 
         for connection in self.list:
             # Get the coordinates of the two gates in this connection
             a = connection[0]
-            b = connection[1]
-
-            #print("")
-            #print(str(connection[0]) + "  ->  "  + str(connection[1]))
-            
+            b = connection[1]            
             coordGateA = np.argwhere(board.gatesNumbers == a + 1)
             coordGateB = np.argwhere(board.gatesNumbers == b + 1)
 
@@ -215,10 +204,9 @@ class Netlist:
 
             # Set a new path_number for the next path
             path_number += 1
+            amount_paths += 1
 
-        print(CLR.YELLOW + "Paths not calculated: " + str(amount_fail) + " / " + str(path_number) + CLR.DEFAULT)
-        print(CLR.YELLOW + str(round(amount_fail / path_number * 100, 2)) + "%" + CLR.DEFAULT)
-        print("")
+        return amount_paths, amount_fail
 
     def print_list(self):
         '''
@@ -292,7 +280,6 @@ class Path:
 
             # Check if this is the target
             if (current_tpl == b_tpl):
-                print("Path #" + str(self.label) +  " IS FOUND")
                 found = True
                 break
 
@@ -302,6 +289,8 @@ class Path:
                 # Create a tuple
                 neighbor = tuple(neighbor)
 
+                # --------------- HEURISTICS ----------------
+
                 # Check if this coordinate on the board is empty
                 if board.board[neighbor[0], neighbor[1], neighbor[2]] != 0:
                     if neighbor != b_tpl:
@@ -310,7 +299,16 @@ class Path:
                 # Save its distance from the start
                 cost_neighbor = cost_archive[current_tpl] + 1;
 
-                # --------------- HEURISTICS ----------------
+                # Sum surrounding gates
+                for next_neighbor in board.get_neighbors(neighbor):
+
+                    # If next_neighbor is a gate
+                    gate = board.gatesObjects[next_neighbor[0], next_neighbor[1], next_neighbor[2]]
+                    if gate != None:
+
+                        # Make the cost higher if gate has more connections
+                        for i in range(gate.spaces_needed):
+                            cost_neighbor += settings.ASTAR_WEIGHT
 
                 # Check if this coordinate is new or has a lower cost than before
                 if neighbor not in cost_archive \
@@ -345,6 +343,10 @@ class Path:
             
             # Add A to the path
             self.add_coordinate(self.a)
+
+            # Reduce the needed spaces for gate A and B
+            board.gatesObjects[self.a[0], self.a[1], self.a[2]].spaces_needed -= 1
+            board.gatesObjects[self.b[0], self.b[1], self.b[2]].spaces_needed -= 1
 
             return True
         
@@ -456,10 +458,10 @@ class Path:
                                     coordNewerX == self.b[2]):
 
                                     # Get info from this gate
-                                    boardTemp = board.gatesObjects[coordNewerZ, coordNewerY, coordNewerX]
+                                    gate = board.gatesObjects[coordNewerZ, coordNewerY, coordNewerX]
 
                                     # See if the path may pass
-                                    if boardTemp.get_free_spaces(board, coordNewer) < 1:
+                                    if gate.get_free_spaces(board, coordNewer) < 1:
                                         continue
 
                     # -------------- / HEURISTICS ---------------

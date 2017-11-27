@@ -10,6 +10,7 @@ Pathfinder will find the most efficient path between two gates on a board.
 import settings
 
 import numpy as np
+import matplotlib.pyplot as plt
 import csv
 
 import classes
@@ -36,7 +37,6 @@ def main():
 
     # Create a netlist and calculate path
     netlist = Netlist(settings.FILE_NETLIST)
-
 
     # Read a CSV file for gate tuples
     with open('data/gates'+ str(settings.FILE_GATES) + '.csv', 'r') as csvfile:
@@ -66,11 +66,38 @@ def main():
                 board.gatesNumbers[gateZ, gateY, gateX] = gateLabel
                 board.board[gateZ, gateY, gateX] = settings.SIGN_GATE
 
-    # Calculate the connections in this netlist
-    netlist.execute_connections(board)
+    # Keep track of results on different weights
+    weights = []
+    score = []
+
+    for i in range(50):
+
+        # Calculate the connections in this netlist
+        amount_paths, amount_fail = netlist.execute_connections(board)
+
+        weights.append(settings.ASTAR_WEIGHT)
+        score.append(amount_paths - amount_fail)
+
+        settings.ASTAR_WEIGHT += 0.5
+
+    # Config graph plot
+    fig = plt.figure()
+    ax = fig.gca()
+    ax.set_xlim(0, 2.5)
+    ax.set_ylim(0, 30)
+    ax.set_xlabel("Weight")
+    ax.set_ylabel("Paths drawn")
+    ax.plot(weights, score)
+
+    plt.show()
+
+    # Print results of this execution
+    # print(CLR.YELLOW + "Paths not calculated: " + str(amount_fail) + " / " + str(path_number) + CLR.DEFAULT)
+    # print(CLR.YELLOW + str(round(amount_fail / path_number * 100, 2)) + "%" + CLR.DEFAULT)
+    # print("")
 
     # Print the board data
-    board.print_board()
+    # board.print_board()
 
     # Plot the board
     board.plot()
