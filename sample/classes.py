@@ -13,6 +13,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from ast import literal_eval
 from mpl_toolkits.mplot3d import Axes3D
+from scipy.spatial import distance as dist
 
 import colors as CLR
 
@@ -60,7 +61,7 @@ class Netlist:
             board.paths.append(new_path)
 
             # Calculate the route for this path
-            result = new_path.calculate_DIJKSTRA(board)
+            result = new_path.calculate_ASTAR(board)
 
             # Count the score
             if result == False:
@@ -229,56 +230,13 @@ class Path:
         :param board: a Numpy array
         '''
 
-        # Class for cells
-        class Cell:
-            def __init__(self, z, y, x, cost, steps, forecast):
-                self.z, self.y, self.x, self.cost, self.steps, self.forecast = z, y, x, cost, steps, forecast
+        # Initiate the dimantions of the board
+        boardDimensions = board.board.shape
+        boardDepth = boardDimensions[0]
+        boardHeight = boardDimensions[1]
+        boardWidth = boardDimensions[2]
 
-        a = Cell(self.a[0], self.a[1], self.a[2], 0, 0, 0);
-        b = Cell(self.b[0], self.b[1], self.b[2], 0, 0, 0);
-
-        # Initiate counters
-        loops = 0
-        found = False
-
-        # Initiate numpy data structures
-        queue = [a]
-        archive = np.empty((boardDepth, boardHeight, boardWidth), dtype=object)
-
-        # Algorithm core logic
-        while len(queue) > 0 and found == False:
-
-            steps += 1
-
-            q = queue.pop(0)
-
-            # Create all adjecent cells of q
-            q_adjecent = []
-            qn = Cell(q.z + 1, q.y, q.x, 0, steps, 0);
-            q_adjecent.append(qn)
-            qn = Cell(q.z - 1, q.y, q.x, 0, steps, 0);
-            q_adjecent.append(qn)
-            qn = Cell(q.z, q.y + 1, q.x, 0, steps, 0);
-            q_adjecent.append(qn)
-            qn = Cell(q.z, q.y - 1, q.x, 0, steps, 0);
-            q_adjecent.append(qn)
-            qn = Cell(q.z, q.y, q.x + 1, 0, steps, 0);
-            q_adjecent.append(qn)
-            qn = Cell(q.z, q.y, q.x - 1, 0, steps, 0);
-            q_adjecent.append(qn)
-
-            # Loop through adjecent cells of q
-            for qn in q_adjecent:
-
-                if qn.x == b.x and \
-                   qn.y == b.y and \
-                   qn.z == b.z:
-                    found = True
-                    break
-
-                
-
-
+        
 
 
 
@@ -327,7 +285,9 @@ class Path:
                     # --------------- HEURISTICS ----------------
 
                     # Check if this is the destination
-                    if coordNewZ == self.b:
+                    if (coordNewZ == self.b[0] and \
+                        coordNewY == self.b[1] and \
+                        coordNewX == self.b[2]):
                         found = True
                         break
 
@@ -372,8 +332,13 @@ class Path:
                             if board.gatesNumbers[coordNewerZ, coordNewerY, coordNewerX] > 0:
 
                                 # Don't look at the gates of A and B
-                                if not coordNewer == self.a \
-                                    or coordNewer == self.b:
+                                if not (coordNewerZ == self.a[0] and \
+                                        coordNewerY == self.a[1] and \
+                                        coordNewerX == self.a[2]) \
+                                        or \
+                                       (coordNewerZ == self.b[0] and \
+                                        coordNewerY == self.b[1] and \
+                                        coordNewerX == self.b[2]):
 
                                     # Get info from this gate
                                     boardTemp = board.gatesObjects[coordNewerZ, coordNewerY, coordNewerX]
