@@ -99,14 +99,14 @@ def main():
         # board.plot()
 
     # Config graph plot for iteration information
-    fig = plt.figure()
-    ax = fig.gca()
-    ax.set_xlim(0, 100)
-    ax.set_ylim(30, 80)
-    ax.set_xlabel("Weight")
-    ax.set_ylabel("Paths drawn")
-    ax.plot(weights, score)
-    plt.show()
+    # fig = plt.figure()
+    # ax = fig.gca()
+    # ax.set_xlim(0, 100)
+    # ax.set_ylim(30, 80)
+    # ax.set_xlabel("Weight")
+    # ax.set_ylabel("Paths drawn")
+    # ax.plot(weights, score)
+    # plt.show()
 
 if __name__ == '__main__':
     main()
