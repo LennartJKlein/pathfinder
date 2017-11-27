@@ -294,16 +294,17 @@ class Path:
             return self.calculate_ASTAR(board)
 
     def calculate_ASTAR(self, board):
+        a_tpl = tuple(self.a)
 
         # Create data structures
         queue = QueuePriority()
-        queue.push(tuple(self.a), 0)
+        queue.push(a_tpl, 0)
 
         cost_archive = {}
-        cost_archive[tuple(self.a)] = 0
+        cost_archive[a_tpl] = 0
         
         path = {}
-        path[tuple(self.a)] = None
+        path[a_tpl] = None
 
         # Keep searching till queue is empty or target is found
         while not queue.empty():
@@ -313,7 +314,8 @@ class Path:
             current_tpl = tuple(current)
 
             # Check if this is the target
-            if (tuple(current) == tuple(self.b)):
+            if (current_tpl == tuple(self.b)):
+                print("Path #" + str(self.label) +  " IS FOUND")
                 break
 
             # Create all neighbors of this coordinate
@@ -337,10 +339,11 @@ class Path:
                     # Remember where this neighbor came from
                     path[neighbor] = current
 
+        #print("Path #" + str(self.label) +  ": " + str(cost_archive))
+        
         # Return the sortest path
         return path, cost_archive
 
-        #print("Path #" + str(self.label) +  ": " + str(calculate_distance(self.a, self.b)))
 
     def calculate_DIJKSTRA(self, board):
         '''
