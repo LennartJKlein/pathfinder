@@ -87,9 +87,9 @@ class Board:
         :param height: How many rows the board uses
         :param depth: How many layers the board uses
         """
-        self.x = width
-        self.y = height
-        self.z = depth
+        self.width = width
+        self.height = height
+        self.depth = depth
         self.board = np.zeros((self.depth, self.height, self.width), dtype=int)
         self.paths = []
         self.gatesObjects = np.empty((self.depth, self.height, self.width), dtype=object)
@@ -234,7 +234,7 @@ class Queue:
         return self.elements.popleft()
 
 
-def QueuePriority:
+def QueuePriority():
 
     def __init__(self):
         self.elements = []
@@ -362,17 +362,17 @@ class Path:
         # Add destination to the path route
         self.add_coordinate(self.b)
 
-        frontier = Queue()
-        frontier.push(self.a)
+        queue = Queue()
+        queue.push(self.a)
 
         # Algorithm core logic
-        while not frontier.empty() and found == False:
+        while not queue.empty() and found == False:
 
             # Track the distance
             loops += 1
 
             # Pick first coordinate from the queue
-            current = frontier.pop()
+            current = queue.pop()
 
             # Create all the adjacent cells of this coord and perhaps add them
             # to the queue. First, loop through all the axes of this coord.
@@ -454,7 +454,7 @@ class Path:
                     # -------------- / HEURISTICS ---------------
 
                     # Add the coord to the queue
-                    frontier.put(coordNew)
+                    queue.put(coordNew)
 
                     # Save the iteration counter to this coordinate in the archive
                     archive[coordNewZ, coordNewY, coordNewX] = loops
