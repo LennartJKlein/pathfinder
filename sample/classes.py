@@ -24,19 +24,8 @@ class Netlist:
     :param: number:     number of the netlist used
     """
 
-    def __init__(self, number):
-        # Make file name used.
-        self.filename = "data/netlist"
-        self.filename += str(number)
-        self.filename += ".txt"
-
-        # Open netlist and read with literal evaluation.
-        with open(self.filename) as f:
-            self.list = f.read()
-
-        self.list = literal_eval(self.list)
-
-        print("Using netlist #" + str(number))
+    def __init__(self, netlist):
+        self.list = netlist
 
     # Switch the target item with item before
     def switch_back_one(self, target):
@@ -45,7 +34,7 @@ class Netlist:
         tmp = self.list[index - 1]
         self.list[index - 1] = self.list[index]
         self.list[index] = tmp
-
+        return self.list
 
     def execute_connections(self, board):
         path_number = settings.SIGN_PATH_START
@@ -77,14 +66,17 @@ class Netlist:
                 amount_fail += 1
 
                 i = self.list.index(connection)
-                false_result = [True, connection]
+                false_result = connection
+                print("false_result in classes:")
+                print(false_result)
                 return false_result
-
 
             # Set a new path_number for the next path
             path_number += 1
             progression_counter += 1
-            # return True
+
+            if progression_counter == len(self.list):
+                return True
 
         print(CLR.YELLOW + "Paths not calculated: " + str(amount_fail) + " / " + str(path_number) + CLR.DEFAULT)
         print(CLR.YELLOW + str(round(amount_fail / path_number * 100, 2)) + "%" + CLR.DEFAULT)
@@ -94,25 +86,41 @@ class Netlist:
         # Print function for debugging
         print(self.list)
 
-class Netlist_history():
+class Netlist_log:
     """
     :param fisrt_list: first list to be saved.
     Make a stack hostory of the used netlists
     """
-    def __init__(self, first_list):
-        self.used_lists = [first_list]
+    def __init__(self, number):
+        # Make file name used.
+        self.filename = "data/netlist"
+        self.filename += str(number)
+        self.filename += ".txt"
 
-    # Push en pop item to used_lists
-    def push_used_lists(self, netlist):
-        self.used_lists.insert(0, netlist)
+        # Open netlist and read with literal evaluation.
+        with open(self.filename) as f:
+            self.first_list = f.read()
 
-    def pop_user_lists(self):
-        poped_list = self.used_lists.pop(0)
+        self.first_list = literal_eval(self.first_list)
+
+        print("Using netlist #" + str(number))
+
+        self.lists_log = [self.first_list]
+
+    # Push en pop item to lists_log
+    def push_list(self, netlist):
+        self.lists_log.insert(0, netlist)
+
+    def pop_list(self):
+        poped_list = self.lists_log.pop(0)
         return poped_list
 
-    # Print compleet array of used_lists
-    def print_used_lists(self):
-        print(self.used_lists)
+    def get_list(self):
+        return self.lists_log[0]
+
+    # Print compleet array of lists_log
+    def print_lists_log(self):
+        print(self.lists_log)
 
 class Board:
 
