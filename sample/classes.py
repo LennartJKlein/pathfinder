@@ -40,6 +40,12 @@ class Board:
         dz = (a[0] - b[0]) ** 2
         return (dx + dy + dz) ** 0.5
 
+    def calculate_delta(self, a, b):
+        dx = abs(a[2] - b[2])
+        dy = abs(a[1] - b[1])
+        dz = abs(a[0] - b[0])
+        return dx + dy + dz
+
     def get_coords(self, axes, label):
         labels = np.argwhere(self.board == label)
         coords = []
@@ -323,7 +329,7 @@ class Path:
                 
                     # Calculate the cost and add it to the queue
                     cost_archive[neighbor] = cost_neighbor
-                    prior = cost_neighbor + board.calculate_distance(neighbor, b_tpl)
+                    prior = cost_neighbor + board.calculate_delta(neighbor, b_tpl)
                     queue.push(neighbor, prior)
 
                     # Remember where this neighbor came from
