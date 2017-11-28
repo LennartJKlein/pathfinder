@@ -38,6 +38,14 @@ class Netlist:
 
         print("Using netlist #" + str(number))
 
+    # Switch the target item with item before
+    def switch_back_one(self, target):
+        index = self.list.index(target)
+
+        tmp = self.list[index - 1]
+        self.list[index - 1] = self.list[index]
+        self.list[index] = tmp
+
 
     def execute_connections(self, board):
         path_number = settings.SIGN_PATH_START
@@ -69,12 +77,8 @@ class Netlist:
                 amount_fail += 1
 
                 i = self.list.index(connection)
-                tuple_before = self.list[i - 1]
-
-                self.list[i] = tuple_before
-                self.list[i - 1] = connection
-
-                # return False
+                false_result = [True, connection]
+                return false_result
 
 
             # Set a new path_number for the next path
@@ -89,6 +93,26 @@ class Netlist:
     def print_list(self):
         # Print function for debugging
         print(self.list)
+
+class Netlist_history():
+    """
+    :param fisrt_list: first list to be saved.
+    Make a stack hostory of the used netlists
+    """
+    def __init__(self, first_list):
+        self.used_lists = [first_list]
+
+    # Push en pop item to used_lists
+    def push_used_lists(self, netlist):
+        self.used_lists.insert(0, netlist)
+
+    def pop_user_lists(self):
+        poped_list = self.used_lists.pop(0)
+        return poped_list
+
+    # Print compleet array of used_lists
+    def print_used_lists(self):
+        print(self.used_lists)
 
 class Board:
 
@@ -409,5 +433,5 @@ class Path:
             return True
 
         else:
-            #print("Path " + str(self.label) + " ERROR. Could not be calculated.")
+            print("Path " + str(self.label) + " ERROR. Could not be calculated.")
             return False
