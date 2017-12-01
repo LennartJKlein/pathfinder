@@ -9,121 +9,15 @@ helpers.py
 
 import settings
 
+import colors as CLR
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from ast import literal_eval
 import collections
 import heapq
-
-import colors as CLR
-
-class Netlist:
-    """
-    Netlist are tuples reperesenting the contecion between two gates. Al conections
-    must be made to solve the case.
-
-    :param: number:     number of the netlist used
-    """
-
-    def __init__(self, netlist):
-        self.list = netlist
-
-    # Switch the target item with item before
-    def switch_back_one(self, target):
-        index = self.list.index(target)
-
-        tmp = self.list[index - 1]
-        self.list[index - 1] = self.list[index]
-        self.list[index] = tmp
-        return self.list
-
-    def execute_connections(self, board):
-        path_number = settings.SIGN_PATH_START
-        amount_fail = 0
-
-        for connection in self.list:
-            # Get the coordinates of the two gates in this connection
-            a = connection[0]
-            b = connection[1]
-            progression_counter = 1
-
-            # print("")
-            # print(str(connection[0]) + "  ->  "  + str(connection[1]))
-
-            coordGateA = np.argwhere(board.gatesNumbers == a + 1)
-            coordGateB = np.argwhere(board.gatesNumbers == b + 1)
-
-            # Create a new path object
-            new_path = Path(coordGateA[0], coordGateB[0], path_number, "grey")
-
-            # Add this path to the board object
-            board.paths.append(new_path)
-
-            # Calculate the route for this path
-            result = new_path.calculate_DIJKSTRA(board)
-
-            # Count the score
-            if result == False:
-                amount_fail += 1
-
-                i = self.list.index(connection)
-                false_result = connection
-                print("false_result in classes:")
-                print(false_result)
-                return false_result
-
-            # Set a new path_number for the next path
-            path_number += 1
-            progression_counter += 1
-
-            if progression_counter == len(self.list):
-                return True
-
-        print(CLR.YELLOW + "Paths not calculated: " + str(amount_fail) + " / " + str(path_number) + CLR.DEFAULT)
-        print(CLR.YELLOW + str(round(amount_fail / path_number * 100, 2)) + "%" + CLR.DEFAULT)
-        print("")
-
-    def print_list(self):
-        # Print function for debugging
-        print(self.list)
-
-class Netlist_log:
-    """
-    :param fisrt_list: first list to be saved.
-    Make a stack hostory of the used netlists
-    """
-    def __init__(self, number):
-        # Make file name used.
-        self.filename = "data/netlist"
-        self.filename += str(number)
-        self.filename += ".txt"
-
-        # Open netlist and read with literal evaluation.
-        with open(self.filename) as f:
-            self.first_list = f.read()
-
-        self.first_list = literal_eval(self.first_list)
-
-        print("Using netlist #" + str(number))
-
-        self.lists_log = [self.first_list]
-
-    # Push en pop item to lists_log
-    def push_list(self, netlist):
-        self.lists_log.insert(0, netlist)
-
-    def pop_list(self):
-        poped_list = self.lists_log.pop(0)
-        return poped_list
-
-    def get_list(self):
-        return self.lists_log[0]
-
-    # Print compleet array of lists_log
-    def print_lists_log(self):
-        print(self.lists_log)
-        
+import csv
+      
 class Board:
 
     def __init__(self, width, height, depth):
@@ -174,9 +68,13 @@ class Board:
             if self.valid_coord(neighbor):
                 is_valid.append(neighbor)
         return is_valid
-
+    
     def get_score(self):
         return len(np.argwhere(self.board >= settings.SIGN_PATH_START))
+
+    def print_score(self):
+        print(CLR.YELLOW + "Score: " + str(self.get_score()) + CLR.DEFAULT)
+        print("")
 
     def plot_paths(self, graph, ownColor):
         for path in self.paths:
@@ -224,6 +122,34 @@ class Board:
     def print_board(self):
         print(self.board)
 
+    def set_gates(self, netlist):
+        # Read a CSV file for gate tuples
+        with open('data/gates'+ str(settings.FILE_GATES) + '.csv', 'r') as csvfile:
+          reader = csv.reader(csvfile)
+
+          # Skip the header
+          next(reader, None)
+
+          for row in reader:
+              # Skip row if the data is commented
+              if row[0][:1] != '#':
+
+                  # Get the name of the gate
+                  gateLabel = int(row[0])
+
+                  # Fetch the coords X and Y
+                  gateX = int(row[1])
+                  gateY = int(row[2])
+                  gateZ = int(row[3])
+
+                  # Save gate object in gates list
+                  new_gate = Gate(netlist, gateLabel, gateX, gateY, gateZ)
+
+                  # Set a gate in the grid for every row in the file
+                  self.gatesObjects[gateZ, gateY, gateX] = new_gate
+                  self.gatesNumbers[gateZ, gateY, gateX] = gateLabel
+                  self.board[gateZ, gateY, gateX] = settings.SIGN_GATE
+
     def valid_coord(self, coord):
         # Check if the coord is positive
         if any(axes < 0 for axes in coord):
@@ -236,6 +162,77 @@ class Board:
             return False    
 
         return True
+
+class Experiment:
+
+    def __init__(self, iterations, show_results, show_data, show_plot):
+        """
+
+        """
+        self.boards = []
+        self.netlists = []
+        self.score_drawn_paths = []
+        self.scores = []
+
+        for i in range(iterations):
+
+            # Initiate a board with a specified size
+            board = Board(settings.BOARD_WIDTH, settings.BOARD_HEIGHT, settings.BOARD_DEPTH)
+            self.add_board(board)
+
+            # Create a netlist and calculate path
+            netlist = Netlist(settings.FILE_GATES)
+            self.add_netlist(netlist)
+
+            # Create a set of gates on the board
+            board.set_gates(netlist)
+
+            # Calculate the connections in this netlist
+            netlist.execute_connections(board)
+
+            # Get the scores of this iteration
+            self.score_drawn_paths.append(netlist.get_result("made"))
+            self.scores.append(board.get_score())
+
+            if show_results:
+                # Print results of this execution
+                print("------------ BOARD: " + str(i) + " --------------")
+                netlist.print_result()
+                board.print_score()
+
+            if show_data:
+                # Print the board data
+                board.print_board()
+
+            if show_plot:
+                # Plot the board
+                board.plot()
+
+    def add_board(self, board):
+        self.boards.append(board)
+
+    def add_netlist(self, netlist):
+        self.netlists.append(netlist)
+
+    def get_boards(self):
+        return self.boards
+
+    def get_netlists(self):
+        return self.netlists
+
+    def get_scores(self):
+        scores = []
+        for board in self.boards:
+            scores.append(board.score())
+        return scores
+
+    def plot_score(self):
+        fig = plt.figure()
+        ax = fig.gca()
+        ax.set_xlabel("Iteration")
+        ax.set_ylabel("Score")
+        ax.plot(self.scores)
+        plt.show()
 
 class Gate:
     """
@@ -281,6 +278,9 @@ class Netlist:
         self.filename = "data/netlist"
         self.filename += str(number)
         self.filename += ".txt"
+        self.connections = 0
+        self.connections_made = 0
+        self.connections_broken = 0
 
         # Open netlist and read with literal evaluation
         with open(self.filename) as f:
@@ -290,14 +290,14 @@ class Netlist:
 
     def execute_connections(self, board):
         '''
-        Draw all the connections in this netlist. Returns the amount of paths not calculated
+        Draw all the connections in this netlist. Saves the results of this execution
         :param board:  a threedimensional Numpy array
         '''
         path_number = settings.SIGN_PATH_START
-        amount_fail = 0
-        amount_paths = 0
 
         for connection in self.list:
+            self.connections += 1
+
             # Get the coordinates of the two gates in this connection
             a = connection[0]
             b = connection[1]            
@@ -313,23 +313,73 @@ class Netlist:
             # Calculate the route for this path
             result = new_path.calculate(settings.PATH_ALGORITHM, board)
 
-            # Count the score
-            if result == False:
-                amount_fail += 1
+            # Save the results of this execution
+            if result == True:
+                self.connections_made += 1
+            else:
+                self.connections_broken += 1
 
             # Set a new path_number for the next path
             path_number += 1
-            amount_paths += 1
 
-        amount_success = amount_paths - amount_fail
+    def get_result(self, type):
+        if type is "average":
+            return self.connections_made / self.connections
+        if type is "made":
+            return self.connections_made
+        if type is "broken":
+            return self.connections_broken
 
-        return amount_paths, amount_fail, amount_success
+    def print_result(self):
+        print(CLR.YELLOW + "Paths drawn: " + str(self.connections_made) + " / " + str(self.connections) + CLR.DEFAULT)
+        print(CLR.YELLOW + str(round(self.connections_made / self.connections * 100, 2)) + "%" + CLR.DEFAULT)
+        print("")
+    
+    def switch_back_one(self, target):
+        # Switch the target item with item before
+        index = self.list.index(target)
 
-    def print_list(self):
-        '''
-        Print function for debugging
-        '''
-        print(self.list)
+        tmp = self.list[index - 1]
+        self.list[index - 1] = self.list[index]
+        self.list[index] = tmp
+        return self.list
+
+
+class Netlist_log:
+    """
+    :param fisrt_list: first list to be saved.
+    Make a stack hostory of the used netlists
+    """
+    def __init__(self, number):
+        # Make file name used.
+        self.filename = "data/netlist"
+        self.filename += str(number)
+        self.filename += ".txt"
+
+        # Open netlist and read with literal evaluation.
+        with open(self.filename) as f:
+            self.first_list = f.read()
+
+        self.first_list = literal_eval(self.first_list)
+
+        print("Using netlist #" + str(number))
+
+        self.lists_log = [self.first_list]
+
+    # Push en pop item to lists_log
+    def push_list(self, netlist):
+        self.lists_log.insert(0, netlist)
+
+    def pop_list(self):
+        poped_list = self.lists_log.pop(0)
+        return poped_list
+
+    def get_list(self):
+        return self.lists_log[0]
+
+    # Print compleet array of lists_log
+    def print_lists_log(self):
+        print(self.lists_log)
 
 class Path:
     """
