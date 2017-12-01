@@ -38,7 +38,5 @@ def main():
     if settings.PLOT_SCORE:
         experiment.plot_score()
 
-    # netlist_log = Netlist_log(settings.FILE_NETLIST)
-
 if __name__ == '__main__':
     main()
