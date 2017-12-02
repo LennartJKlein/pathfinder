@@ -11,8 +11,10 @@ import settings
 
 import numpy as np
 import matplotlib.pyplot as plt
-from ast import literal_eval
 from mpl_toolkits.mplot3d import Axes3D
+from ast import literal_eval
+import collections
+import heapq
 
 import colors as CLR
 
@@ -33,6 +35,14 @@ class Netlist:
 
         tmp = self.list[index - 1]
         self.list[index - 1] = self.list[index]
+        self.list[index] = tmp
+        return self.list
+
+    def switch_back_front(self, target):
+        index = self.list.index(target)
+
+        tmp = self.list[0]
+        self.list[0] = self.list[index]
         self.list[index] = tmp
         return self.list
 
@@ -118,9 +128,12 @@ class Netlist_log:
     def get_list(self):
         return self.lists_log[0]
 
-    # Print compleet array of lists_log
-    def print_lists_log(self):
-        print(self.lists_log)
+    def look_for_loop(self):
+        if len(self.lists_log) > 3 and self.lists_log[0] == self.lists_log[2]:
+            print("----- DUBLE -----")
+            print(self.lists_log[0])
+            print(self.lists_log[2])
+
 
 class Board:
 

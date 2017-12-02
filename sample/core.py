@@ -11,7 +11,6 @@ import settings
 
 import numpy as np
 import csv
-
 import classes
 from classes import Board
 from classes import Netlist
@@ -24,7 +23,8 @@ def main():
     Initialise and draw a grid called Board
     Read gate locations from gates file
     '''
-
+    test_counter = 0
+    set_trace()
     # while connections_compleet == True:
 
     np.set_printoptions(threshold=np.nan)
@@ -33,9 +33,19 @@ def main():
     netlist_log = Netlist_log(1)
 
     complete_list_found = False
+    counter = 0
     while complete_list_found != True:
         # Create a netlist and calculate path
-        netlist = Netlist(netlist_log.get_list())
+        netlist = Netlist(netlist_log.lists_log[0])
+        print("--- Netlist used: ")
+        print(netlist_log.lists_log[0])
+        counter += 1
+
+        if counter > 5:
+            print("NETLIST LOG: ")
+            for items in netlist_log.lists_log:
+                print(items)
+            exit()
         # Initiate a board with a specified size
         board = Board(settings.BOARD_WIDTH, settings.BOARD_HEIGHT, settings.BOARD_DEPTH)
 
@@ -70,17 +80,12 @@ def main():
 
         # Calculate the connections in this netlist
         complete_list_found = netlist.execute_connections(board)
-        print("--- Complete list found: ")
-        print(complete_list_found)
 
-        netlist_log.push_list(netlist.switch_back_one(complete_list_found))
-        print("--- Netlist used: ")
-        print(netlist_log.get_list())
-
-        # Print the board data
-        # board.print_board()
-
-    print(netlist_log.get_list())
+        if complete_list_found != True:
+            new_netlist = netlist.switch_back_one(complete_list_found)
+            netlist_log.push_list(new_netlist)
+            # print(new_netlist)
+            # netlist_log.push_list(new_netlist)
     # Plot the board
     board.plot()
 
