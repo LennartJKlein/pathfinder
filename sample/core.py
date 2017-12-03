@@ -23,29 +23,19 @@ def main():
     Initialise and draw a grid called Board
     Read gate locations from gates file
     '''
-    test_counter = 0
-    set_trace()
-    # while connections_compleet == True:
 
     np.set_printoptions(threshold=np.nan)
 
     # Make history log for used netlists
     netlist_log = Netlist_log(1)
-
     complete_list_found = False
-    counter = 0
-    while complete_list_found != True:
-        # Create a netlist and calculate path
-        netlist = Netlist(netlist_log.lists_log[0])
-        print("--- Netlist used: ")
-        print(netlist_log.lists_log[0])
-        counter += 1
 
-        if counter > 5:
-            print("NETLIST LOG: ")
-            for items in netlist_log.lists_log:
-                print(items)
-            exit()
+    counter = 0
+
+    while complete_list_found != True:
+
+        # Create a netlist and calculate path
+        netlist = Netlist(netlist_log.return_list())
         # Initiate a board with a specified size
         board = Board(settings.BOARD_WIDTH, settings.BOARD_HEIGHT, settings.BOARD_DEPTH)
 
@@ -83,9 +73,11 @@ def main():
 
         if complete_list_found != True:
             new_netlist = netlist.switch_back_one(complete_list_found)
-            netlist_log.push_list(new_netlist)
-            # print(new_netlist)
-            # netlist_log.push_list(new_netlist)
+            netlist_log.push_list([new_netlist])
+
+            if netlist_log.look_for_loop(netlist.list) == True:
+                new_netlist = netlist.switch_back_front(complete_list_found)
+                netlist_log.push_list([new_netlist])
     # Plot the board
     board.plot()
 

@@ -115,25 +115,29 @@ class Netlist_log:
 
         print("Using netlist #" + str(number))
 
-        self.lists_log = [self.first_list]
+        self.lists_log = []
+        self.lists_log.extend([self.first_list])
 
     # Push en pop item to lists_log
     def push_list(self, netlist):
-        self.lists_log.insert(0, netlist)
+        # self.lists_log.insert(0, netlist)
+        self.lists_log.extend(netlist)
 
     def pop_list(self):
         poped_list = self.lists_log.pop(0)
         return poped_list
 
-    def get_list(self):
-        return self.lists_log[0]
+    def return_list(self):
+        return self.lists_log[-1][:]
 
-    def look_for_loop(self):
-        if len(self.lists_log) > 3 and self.lists_log[0] == self.lists_log[2]:
-            print("----- DUBLE -----")
-            print(self.lists_log[0])
-            print(self.lists_log[2])
-
+    def look_for_loop(self, input_list):
+        amount = 0
+        for lists in self.lists_log:
+            if amount > 2:
+                return True
+            
+            if lists == input_list:
+                amount += 1
 
 class Board:
 
