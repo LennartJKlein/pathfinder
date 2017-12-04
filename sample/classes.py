@@ -201,39 +201,18 @@ class Board:
         """
         print(self.board)
 
-    def set_gates(self, netlist):
+    def set_gates(self, gates):
         """
         Args:
             netlist(obj): Give the selected netlist in settings.py
         """
 
-        # Read a CSV file for gate tuples
-        with open('data/gates'+ str(settings.FILE_GATES) + '.csv', 'r') as csvfile:
-          reader = csv.reader(csvfile)
+        # Set very gate in this board
+        for gate in gates.gates:
 
-          # Skip the header
-          next(reader, None)
-
-          for row in reader:
-
-              # Skip row if the data is commented
-              if row[0][:1] != '#':
-
-                  # Get the name of the gate
-                  gateLabel = int(row[0])
-
-                  # Fetch the coords X and Y
-                  gateX = int(row[1])
-                  gateY = int(row[2])
-                  gateZ = int(row[3])
-
-                  # Save gate object in gates list
-                  new_gate = Gate(netlist, gateLabel, gateX, gateY, gateZ)
-
-                  # Set a gate in the grid for every row in the file
-                  self.gates_objects[gateZ, gateY, gateX] = new_gate
-                  self.gates_numbers[gateZ, gateY, gateX] = gateLabel
-                  self.board[gateZ, gateY, gateX] = settings.SIGN_GATE
+          self.gates_objects[gate.z, gate.y, gate.x] = gate
+          self.gates_numbers[gate.z, gate.y, gate.x] = gate.label
+          self.board[gate.z, gate.y, gate.x] = gates.sign_gate
 
     def valid_coord(self, coord):
         """
@@ -256,122 +235,12 @@ class Board:
 
         return True
 
-class Experiment:
-    """
-    Sum:
-        
-        
-    Attributes:
-
-    """
-
-    def __init__(self, iterations, show_results, show_data, show_plot):
-        """
-        :param iterations: The amount of iterations of the board
-        :param show_results: Boolean option to print with the board number and the corresponding score
-        :param show_data: Boolean option to print the ASCII board
-        :param: show_plot: Boolean option to print the Numpy plot
-
-        :return: list of boards, netlists and scores
-        """
-        self.boards = []
-        self.netlists = []
-        self.score_drawn_paths = []
-        self.scores = []
-
-        for i in range(iterations):
-
-            # Initiate a board with a specified size
-            board = Board(settings.BOARD_WIDTH, settings.BOARD_HEIGHT, settings.BOARD_DEPTH)
-            self.add_board(board)
-
-            # Create a netlist and calculate path
-            netlist = Netlist(settings.FILE_GATES)
-            self.add_netlist(netlist)
-
-            # Create a set of gates on the board
-            board.set_gates(netlist)
-
-            # Calculate the connections in this netlist
-            netlist.execute_connections(board)
-
-            # Get the scores of this iteration
-            self.score_drawn_paths.append(netlist.get_result("made"))
-            self.scores.append(board.get_score())
-
-            if show_results:
-                # Print results of this execution
-                print("------------ BOARD: " + str(i) + " --------------")
-                netlist.print_result()
-                board.print_score()
-
-            if show_data:
-                # Print the board data
-                board.print_board()
-
-            if show_plot:
-                # Plot the board
-                board.plot()
-
-    def add_board(self, board):
-        """
-        :param board: State of current board
-
-        :retrun: Add a board to the board list 
-        """
-
-        self.boards.append(board)
-
-    def add_netlist(self, netlist):
-        """
-        :param netlist: State of current netlist
-
-        :retrun: Add a netlist to the netlist list
-        """
-
-        self.netlists.append(netlist)
-
-    def get_boards(self):
-        """
-        return: Get all boards in the board list
-        """
-
-        return self.boards
-
-    def get_netlists(self):
-        """
-        :return: Get all netlists in the netlist list
-        """
-
-        return self.netlists
-
-    def get_scores(self):
-        """
-        return: Get all scores in the scores list
-        """
-
-        scores = []
-        for board in self.boards:
-            scores.append(board.score())
-        return scores
-
-    def plot_score(self):
-        """
-        :return: Plot a graph to show the scores over the different iterations
-        """
-
-        fig = plt.figure()
-        ax = fig.gca()
-        ax.set_xlabel("Iteration")
-        ax.set_ylabel("Score")
-        ax.plot(self.scores)
-        plt.show()
 
 class Gate:
     """
     PLACEHOLDER
     """
-    def __init__(self, netlist, label, x, y, z):
+    def __init__(self, label, x, y, z, spaces_needed):
         """
         :param netlist: Give the selected netlist in settings.py 
         :param label: Label for a gate
@@ -384,14 +253,9 @@ class Gate:
         self.x = int(x)
         self.y = int(y)
         self.z = int(z)
-        self.spaces_needed = 0
+        self.spaces_needed = spaces_needed
 
-        for connection in netlist.list:
-            # Connection + 1 to match label of gate
-            if (connection[0] + 1) == label or (connection[1] + 1) == label:
-                self.spaces_needed += 1
-
-    def get_free_spaces(self, board, coord):
+    def get_free_spaces(self, netlist, board, coord):
         """
         :return: Interger with the amount of free spaces
         """
@@ -407,6 +271,46 @@ class Gate:
 
     def __str__(self):
         return self.label
+
+class Gates:
+
+    def __init__(self, number, sign, netlist):
+
+        self.gates = []
+        self.sign_gate = sign
+
+        # Read a CSV file for gate tuples
+        with open('data/gates'+ str(number) + '.csv', 'r') as csvfile:
+            reader = csv.reader(csvfile)
+
+            # Skip the header
+            next(reader, None)
+
+            for row in reader:
+
+                # Skip row if the data is commented
+                if row[0][:1] != '#':
+
+                    # Get the name of the gate
+                    gateLabel = int(row[0])
+
+                    # Fetch the coords X and Y
+                    gateX = int(row[1])
+                    gateY = int(row[2])
+                    gateZ = int(row[3])
+
+                    # Get information on this gate from the netlist
+                    spaces_needed = 0
+                    for connection in netlist.list:
+                        if (connection[0] + 1) == gateLabel or (connection[1] + 1) == gateLabel:
+                            spaces_needed += 1
+
+                    # Save gate object in gates list
+                    new_gate = Gate(gateLabel, gateX, gateY, gateZ, spaces_needed)
+                    self.gates.append(new_gate)
+    
+    def get_gates(self):
+        return self.gates
 
 class Netlist:
     """
@@ -485,43 +389,6 @@ class Netlist:
         self.list[index - 1] = self.list[index]
         self.list[index] = tmp
         return self.list
-
-
-class Netlist_log:
-    """
-    :param fisrt_list: first list to be saved.
-    Make a stack hostory of the used netlists
-    """
-    def __init__(self, number):
-        # Make file name used.
-        self.filename = "data/netlist"
-        self.filename += str(number)
-        self.filename += ".txt"
-
-        # Open netlist and read with literal evaluation.
-        with open(self.filename) as f:
-            self.first_list = f.read()
-
-        self.first_list = literal_eval(self.first_list)
-
-        print("Using netlist #" + str(number))
-
-        self.lists_log = [self.first_list]
-
-    # Push en pop item to lists_log
-    def push_list(self, netlist):
-        self.lists_log.insert(0, netlist)
-
-    def pop_list(self):
-        poped_list = self.lists_log.pop(0)
-        return poped_list
-
-    def get_list(self):
-        return self.lists_log[0]
-
-    # Print compleet array of lists_log
-    def print_lists_log(self):
-        print(self.lists_log)
 
 class Path:
     """
@@ -797,6 +664,122 @@ class Path:
 
         return coords
 
+class Solution:
+    """
+    Sum:
+        
+        
+    Attributes:
+
+    """
+
+    def __init__(self):
+        """
+        :param 
+        :param 
+        :param 
+        :param
+
+        :return: 
+        """
+        self.best_board = None
+        self.best_netlist = None
+        self.best_score = 0
+        self.best_result = 0
+
+        self.boards = []
+        self.netlists = []
+        self.scores = []
+        self.results = []
+
+    def get_boards(self):
+        """
+        return: Get all boards in the board list
+        """
+
+        return self.boards
+
+    def get_netlists(self):
+        """
+        :return: Get all netlists in the netlist list
+        """
+
+        return self.netlists
+
+    def get_scores(self):
+        """
+        return: Get all scores in the scores list
+        """
+
+        return self.scores
+
+    def plot_scores(self):
+        """
+        :return: Plot a graph to show the scores over the different iterations
+        """
+
+        fig = plt.figure()
+        ax = fig.gca()
+        ax.set_xlabel("Iteration")
+        ax.set_ylabel("Score")
+        ax.plot(self.scores)
+        plt.show()
+
+    def run(self, gates, netlist):
+        
+        count_no_improvements = 0
+
+        while count_no_improvements < settings.MAX_NO_IMPROVE:
+
+            # Remember this netlist
+            self.netlists.append(netlist)
+
+            # Create and remember a new board
+            board = Board(settings.BOARD_WIDTH, settings.BOARD_HEIGHT, settings.BOARD_DEPTH)
+            self.boards.append(board)
+
+            # Place gates on this board
+            board.set_gates(gates)
+
+            # RUN EXECUTE MULTIPLE TIMES
+
+            # Calculate the connections in this netlist
+            netlist.execute_connections(board)
+
+            # // RUN EXECUTE MULTIPLE TIMES
+
+            # Save the scores and result of this iteration
+            self.results.append(netlist.get_result("made"))
+            self.scores.append(board.get_score())
+
+
+            # See if this board has better scores
+            if self.best_result < netlist.get_result("made") \
+               and self.best_score < board.get_score():
+
+                self.best_score = board.get_score()
+                self.best_result = netlist.get_result("made")
+                self.best_board = board
+                self.best_netlist = netlist
+
+            else:
+                count_no_improvements += 1
+
+            # ADAPT NETLIST HERE
+
+
+            # # Print results of this execution
+            # if show_results:
+            #     print("------------ BOARD: " + str(len(self.boards)) + " --------------")
+            #     print(netlist.get_result())
+            #     print(board.get_score())
+
+            # if show_data:
+            #     board.print_board()
+
+            # if show_plot:
+            #     board.plot()
+
 class Queue:
     '''
     Dequeue, append and count elements in a simple queue
@@ -830,5 +813,5 @@ class QueuePriority:
     def pop(self):
         return heapq.heappop(self.elements)[1]
 
-    def push(self, coord, prior):
-        heapq.heappush(self.elements, (prior, coord))
+    def push(self, data, prior):
+        heapq.heappush(self.elements, (prior, data))

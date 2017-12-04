@@ -9,14 +9,9 @@ Pathfinder will find the most efficient path between two gates on a board.
 
 import settings
 
-import colors as CLR
-import numpy as np
-import matplotlib.pyplot as plt
-
-from classes import Board
-from classes import Experiment
+from classes import Solution
+from classes import Gates
 from classes import Netlist
-from classes import Gate
 
 def main():
     """" 
@@ -24,19 +19,29 @@ def main():
     Read gate locations from gates file
     """
     
-    # Set and show chosen settings
-    np.set_printoptions(threshold=np.nan)
-
+    # Print program settings
     print("Using netlist #" + str(settings.FILE_NETLIST))
     print("Using gates file #" + str(settings.FILE_GATES))
+    print("Using pathfinding algorithm " + str(settings.PATH_ALGORITHM))
     print("")
 
-    # Initiate a new experiment
-    experiment = Experiment(settings.ITERATIONS, settings.SHOW_EACH_RESULT, settings.SHOW_EACH_DATA, settings.SHOW_EACH_PLOT);
+    # Initiate a new netlist
+    netlist = Netlist(settings.FILE_NETLIST)
 
-    # Plot experiment information
-    if settings.PLOT_SCORE:
-        experiment.plot_score()
+    # Initiate the gates
+    gates = Gates(settings.FILE_GATES, settings.SIGN_GATE, netlist)
+
+    # 
+    # COMMANDS TO OPTIMIZE NETLIST HERE
+    # 
+
+    # Initiate a new solution
+    solution = Solution()
+    solution.run(gates, netlist)
+
+    # Plot solution information
+    if settings.PLOT_SCORES:
+        solution.plot_scores()
 
 if __name__ == '__main__':
     main()
