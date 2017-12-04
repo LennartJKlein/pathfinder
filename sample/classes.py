@@ -19,6 +19,7 @@ import collections
 import heapq
 import csv
 import helpers
+from collections import Counter
 
       
 class Board:
@@ -369,6 +370,7 @@ class Netlist:
 
         # Return the sorted array based on the items in revered order.
         return sorted(sorted_dict, key=sorted_dict.__getitem__, reverse=True)
+        self.list = sorted(sorted_dict, key=sorted_dict.__getitem__, reverse=True)
 
 
 class Netlist_log:
