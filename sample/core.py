@@ -21,6 +21,7 @@ def main():
     """
     
     # Print program settings
+    print("")
     print("Using netlist: " + CLR.GREEN + str(settings.FILE_NETLIST) + CLR.DEFAULT)
     print("Using gates file: " + CLR.GREEN + str(settings.FILE_GATES) + CLR.DEFAULT)
     print("Using pathfinding algorithm: " + CLR.GREEN + str(settings.PATH_ALGORITHM) + CLR.DEFAULT)

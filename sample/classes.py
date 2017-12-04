@@ -9,6 +9,7 @@ helpers.py
 
 import settings
 
+import sys
 import colors as CLR
 import numpy as np
 import matplotlib.pyplot as plt
@@ -684,7 +685,7 @@ class Solution:
         plt.show()
 
     def run(self, gates, netlist):
-        
+
         no_netlist_improvements = 0
 
         while no_netlist_improvements <= settings.MAX_NO_IMPROVE:
@@ -692,7 +693,6 @@ class Solution:
             # Remember this netlist
             self.netlists.append(netlist)
 
-            # Calculate the connections in this netlist
             no_board_improvements = 0
             board_iteration = 0
 
@@ -707,7 +707,6 @@ class Solution:
 
                 # Draw the paths
                 netlist.execute_connections(board)
-
 
                 # Save the scores and result of this iteration
                 self.results.append(netlist.get_result("average"))
@@ -734,6 +733,11 @@ class Solution:
                 
                 # Reset gate variables
                 gates.reset_spaces_needed(netlist)
+                
+                # Show progress
+                if settings.SHOW_PROGRESS:
+                    sys.stdout.flush()
+                    print("·", end="")
 
             # See if this netlist led to improvements
             if board_iteration - 1 <= settings.MAX_NO_IMPROVE:
@@ -741,7 +745,8 @@ class Solution:
 
             # Print results of this execution
             if settings.SHOW_EACH_RESULT:
-                print("-------------------- BOARD: " + str(len(self.boards)) + " ----------------------")
+                print("")
+                print("------------- NETLIST GENERATION: " + str(len(self.netlists)) + " ---------------")
                 print("Paths drawn: " + CLR.YELLOW + str(round(netlist.get_result("average") * 100, 2)) + "%" + CLR.DEFAULT)
                 print("Score: " + CLR.YELLOW + str(board.get_score()) + CLR.DEFAULT)
                 print("")
@@ -751,13 +756,14 @@ class Solution:
 
             if settings.SHOW_EACH_PLOT:
                 board.plot()
-
+            
             #
             # ADAPT NETLIST HERE
             #
 
         # Print result
-        print("-------------- BEST RESULT out of " + str(len(self.boards)) + " ----------------")
+        print("")
+        print("----------- BEST RESULT out of " + str(len(self.boards)) + " boards --------------")
         print("Paths drawn: " + CLR.GREEN + str(round(self.best_result * 100, 2)) + "%" + CLR.DEFAULT)
         print("Score: " + CLR.GREEN + str(self.best_score) + CLR.DEFAULT)
         print("Order of that netlist:")
