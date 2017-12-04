@@ -17,6 +17,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from ast import literal_eval
 import heapq
 import collections
+from collections import Counter
 import heapq
 import csv
 import helpers
@@ -276,6 +277,7 @@ class Netlist:
     """
 
     def __init__(self, number):
+        self.number = number
         self.filename = "data/netlist"
         self.filename += str(number)
         self.filename += ".txt"
@@ -337,13 +339,12 @@ class Netlist:
         print("")
     
     def switch_back_one(self, target):
-        # Switch the target item with item before
+        # Switch the target item with item before it
         index = self.list.index(target)
+        self.list[index - 1], self.list[index] = self.list[index], self.list[index - 1]
 
-        tmp = self.list[index - 1]
-        self.list[index - 1] = self.list[index]
-        self.list[index] = tmp
-        return self.list
+    def first_to_back(self):
+        self.list.append(self.list.pop(0))
 
 class Path:
     """
@@ -693,6 +694,7 @@ class Solution:
             # Remember this netlist
             self.netlists.append(netlist)
 
+            # Set temporary counters
             no_board_improvements = 0
             board_iteration = 0
 
@@ -727,8 +729,8 @@ class Solution:
                     no_board_improvements += 1
 
                 # Change heuristics for next loop
-                board.cost_depth = settings.HEURISTIC_STEP * board_iteration
-                board.cost_passing_gate = settings.HEURISTIC_STEP * board_iteration
+                board.cost_depth = settings.STEP_COST_DEPTH * board_iteration
+                board.cost_passing_gate = settings.STEP_COST_PASSING_GATE * board_iteration
                 board_iteration += 1
                 
                 # Reset gate variables
@@ -752,14 +754,30 @@ class Solution:
                 print("")
 
             if settings.SHOW_EACH_DATA:
-                board.print_board()
+                print("Netlist: " + CLR.YELLOW + str(netlist.list) + CLR.DEFAULT)
 
             if settings.SHOW_EACH_PLOT:
                 board.plot()
             
-            #
-            # ADAPT NETLIST HERE
-            #
+            # Make next generation of netlist
+            new_netlist = Netlist(netlist.number)
+
+            # Check if this netlist is new
+            netlist_is_unique = False
+            while netlist_is_unique == False:
+
+                # Mutate the order
+                new_netlist.first_to_back()
+
+                # Check for uniqueness
+                netlist_is_unique = True
+                for earlier_netlist in self.netlists:
+                    if new_netlist.list == earlier_netlist.list:
+                        netlist_is_unique = False
+                        break
+                        
+            # Set netlist for next iteration
+            netlist = new_netlist
 
         # Print result
         print("")
