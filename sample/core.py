@@ -45,5 +45,13 @@ def main():
     if settings.PLOT_SCORES:
         solution.plot_scores()
 
+    # Plot solution information
+    if settings.PLOT_RESULTS:
+        solution.plot_results()
+
+    # Plot solution board
+    if settings.PLOT_BEST:
+        solution.plot_best()
+
 if __name__ == '__main__':
     main()

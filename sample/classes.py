@@ -685,6 +685,22 @@ class Solution:
         ax.plot(self.scores)
         plt.show()
 
+    def plot_results(self):
+        """
+        :return: Plot a graph to show the results over the different iterations
+        """
+
+        fig = plt.figure()
+        ax = fig.gca()
+        ax.set_xlabel("Iteration")
+        ax.set_ylabel("Paths drawn (1 = all)")
+        ax.plot(self.results)
+        plt.show()
+
+    def plot_best(self):
+
+        self.best_board.plot()
+
     def run(self, gates, netlist):
 
         no_netlist_improvements = 0
@@ -775,7 +791,7 @@ class Solution:
                     if new_netlist.list == earlier_netlist.list:
                         netlist_is_unique = False
                         break
-                        
+
             # Set netlist for next iteration
             netlist = new_netlist
 
