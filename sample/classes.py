@@ -120,13 +120,13 @@ class Board:
 
             # Check if the coord is positive
             if any(axes < 0 for axes in neighbor):
-                return continue
+                continue
 
             # Check if the coord falls within the board
             if neighbor[2] >= settings.BOARD_WIDTH or \
                neighbor[1] >= settings.BOARD_HEIGHT or \
                neighbor[0] >= settings.BOARD_DEPTH:
-                return continue  
+                continue  
 
             # Add this neighbor to the output
             valid_coords.append(neighbor)
@@ -759,17 +759,17 @@ class Solution:
             # ADAPT NETLIST HERE
 
 
-            # # Print results of this execution
-            # if show_results:
-            #     print("------------ BOARD: " + str(len(self.boards)) + " --------------")
-            #     print(netlist.get_result())
-            #     print(board.get_score())
+            # Print results of this execution
+            if settings.SHOW_EACH_RESULT:
+                print("------------ BOARD: " + str(len(self.boards)) + " --------------")
+                print(netlist.get_result())
+                print(board.get_score())
 
-            # if show_data:
-            #     board.print_board()
+            if settings.SHOW_EACH_DATA:
+                board.print_board()
 
-            # if show_plot:
-            #     board.plot()
+            if settings.SHOW_EACH_PLOT:
+                board.plot()
 
 class Queue:
     '''
