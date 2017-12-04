@@ -79,19 +79,31 @@ class Board:
     def get_neighbors(self, coord):
         """
         Args:
-            coord(touple): Current coord in queue
+            coord(tuple): a coordinate on the board
 
         Return: 
-            All valid neighbors of the current coord
+            All valid neighbors of the given coordinate
         """
 
         (z, y, x) = coord
-        is_valid = []
+        valid_coords = []
         neighbors = [[z, y, x+1], [z, y, x-1], [z, y+1, x], [z, y-1, x], [z+1, y, x], [z-1, y, x]]
         for neighbor in neighbors:
-            if self.valid_coord(neighbor):
-                is_valid.append(neighbor)
-        return is_valid
+
+            # Check if the coord is positive
+            if any(axes < 0 for axes in neighbor):
+                return continue
+
+            # Check if the coord falls within the board
+            if neighbor[2] >= settings.BOARD_WIDTH or \
+               neighbor[1] >= settings.BOARD_HEIGHT or \
+               neighbor[0] >= settings.BOARD_DEPTH:
+                return continue  
+
+            # Add this neighbor to the output
+            valid_coords.append(neighbor)
+
+        return valid_coords
     
     def get_score(self):
         """
@@ -185,27 +197,6 @@ class Board:
           self.gates_objects[gate.z, gate.y, gate.x] = gate
           self.gates_numbers[gate.z, gate.y, gate.x] = gate.label
           self.board[gate.z, gate.y, gate.x] = gates.sign_gate
-
-    def valid_coord(self, coord):
-        """
-        Args:
-            coord(touple): Currend coord in board
-
-        Return: 
-            Checks if the coord is within the set boundaries
-        """
-
-        # Check if the coord is positive
-        if any(axes < 0 for axes in coord):
-            return False
-
-        # Check if the coord falls within the board
-        if coord[2] >= self.width or \
-           coord[1] >= self.height or \
-           coord[0] >= self.depth:
-            return False    
-
-        return True
 
 
 class Gate:
