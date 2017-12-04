@@ -251,7 +251,15 @@ class Gates:
                     # Save gate object in gates list
                     new_gate = Gate(gateLabel, gateX, gateY, gateZ, spaces_needed)
                     self.gates.append(new_gate)
-    
+
+    def reset_spaces_needed(self, netlist):
+        for gate in self.gates:
+
+            gate.spaces_needed = 0
+            for connection in netlist.list:
+                if (connection[0] + 1) == gate.label or (connection[1] + 1) == gate.label:
+                    gate.spaces_needed += 1        
+
     def get_gates(self):
         return self.gates
 
@@ -696,14 +704,15 @@ class Solution:
             self.scores.append(board.get_score())
 
             # See if this board has better scores
-            if netlist.get_result("made") > self.best_result \
-               and board.get_score() < self.best_score:
-                print("better!")
+            if self.best_score == 0 \
+               or (netlist.get_result("made") > self.best_result \
+               and board.get_score() < self.best_score):
 
                 self.best_score = board.get_score()
                 self.best_result = netlist.get_result("made")
                 self.best_board = board
                 self.best_netlist = netlist
+
             else:
                 count_no_improvements += 1
 
@@ -720,6 +729,11 @@ class Solution:
                 board.plot()
 
             # ADAPT NETLIST HERE
+            gates.reset_spaces_needed(netlist)
+
+        print("")
+        print("Best score after " + str(len(self.boards)) + " iterations is: " + str(self.best_score))
+        print("Order of that netlist: " + str(self.best_netlist.list))
 
 class Queue:
     '''
