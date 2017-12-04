@@ -19,13 +19,19 @@ import heapq
 import csv
       
 class Board:
+    """
+    PLACEHOLDER
+    """
 
     def __init__(self, width, height, depth):
         """
         :param width: How many columns the board uses
         :param height: How many rows the board uses
         :param depth: How many layers the board uses
+
+        :return: Numpyboard filled with 0's for empty paths, 1's for gates and >2 for paths
         """
+
         self.width = width
         self.height = height
         self.depth = depth
@@ -35,18 +41,39 @@ class Board:
         self.gatesNumbers = np.zeros((self.depth, self.height, self.width), dtype=int)
 
     def calculate_distance(self, a, b):
+        """
+        :param a: Starting coord
+        :param b: Goal coord
+
+        :return: The distance between two coords
+        """
+
         dx = (a[2] - b[2]) ** 2
         dy = (a[1] - b[1]) ** 2
         dz = (a[0] - b[0]) ** 2
         return (dx + dy + dz) ** 0.5
 
     def calculate_delta(self, a, b):
+        """
+        :param a: Starting coord
+        :param b: Goal coord
+
+        :return: The delta distance between two coords
+        """
+
         dx = abs(a[2] - b[2])
         dy = abs(a[1] - b[1])
         dz = abs(a[0] - b[0])
         return dx + dy + dz
 
     def get_coords(self, axes, label):
+        """
+        :param: axes: Devided coord into Z, Y, X
+        :param: label: Give a coord in board the corresponding label
+
+        :return: The current Z, Y, X of a coord in the numby board
+        """
+
         labels = np.argwhere(self.board == label)
         coords = []
 
@@ -61,6 +88,12 @@ class Board:
         return coords
 
     def get_neighbors(self, coord):
+        """
+        :param: Current coord in queue
+
+        :return: All valid neighbors of the current coord
+        """
+
         (z, y, x) = coord
         is_valid = []
         neighbors = [[z, y, x+1], [z, y, x-1], [z, y+1, x], [z, y-1, x], [z+1, y, x], [z-1, y, x]]
@@ -70,15 +103,30 @@ class Board:
         return is_valid
     
     def get_score(self):
+        """
+        :return: Accumulated length of all the paths
+        """
+
         return len(np.argwhere(self.board >= settings.SIGN_PATH_START))
 
     def print_score(self):
+        """
+        :return: Print the score
+        """
+
         print(CLR.YELLOW + "Score: " + str(self.get_score()) + CLR.DEFAULT)
         print("")
 
-    def plot_paths(self, graph, ownColor):
+    def plot_paths(self, graph, own_color):
+        """
+        :param graph: Plot a graph
+        :param own_color: Seperate the paths with a color
+
+        :return: Plot a graph with a score based on iterations
+        """
+
         for path in self.paths:
-            if ownColor:
+            if own_color:
                 graph.plot(
                   path.get_coords('x'),
                   path.get_coords('y'),
@@ -95,7 +143,10 @@ class Board:
                 )
 
     def plot(self):
-        # Config graph plot
+        """
+        :return: graph configurations
+        """
+
         fig = plt.figure()
         ax = fig.gca(projection='3d')
         ax.set_xlim(0, self.width)
@@ -120,9 +171,18 @@ class Board:
         plt.show()
 
     def print_board(self):
+        """
+        :return: Show the numpyboard in ASCII
+        """
         print(self.board)
 
     def set_gates(self, netlist):
+        """
+        :param netlist: Give the selected netlist in settings.py
+
+        :return: Set all gates in the board
+        """
+
         # Read a CSV file for gate tuples
         with open('data/gates'+ str(settings.FILE_GATES) + '.csv', 'r') as csvfile:
           reader = csv.reader(csvfile)
@@ -130,7 +190,9 @@ class Board:
           # Skip the header
           next(reader, None)
 
+
           for row in reader:
+
               # Skip row if the data is commented
               if row[0][:1] != '#':
 
@@ -151,6 +213,12 @@ class Board:
                   self.board[gateZ, gateY, gateX] = settings.SIGN_GATE
 
     def valid_coord(self, coord):
+        """
+        :param coord: Currend coord in board
+
+        :return: Checks if the coord is within the set boundaries
+        """
+
         # Check if the coord is positive
         if any(axes < 0 for axes in coord):
             return False
@@ -164,10 +232,18 @@ class Board:
         return True
 
 class Experiment:
+    """
+    PLACEHOLDER
+    """
 
     def __init__(self, iterations, show_results, show_data, show_plot):
         """
+        :param iterations: The amount of iterations of the board
+        :param show_results: Boolean option to print with the board number and the corresponding score
+        :param show_data: Boolean option to print the ASCII board
+        :param: show_plot: Boolean option to print the Numpy plot
 
+        :return: list of boards, netlists and scores
         """
         self.boards = []
         self.netlists = []
@@ -209,24 +285,52 @@ class Experiment:
                 board.plot()
 
     def add_board(self, board):
+        """
+        :param board: State of current board
+
+        :retrun: Add a board to the board list 
+        """
+
         self.boards.append(board)
 
     def add_netlist(self, netlist):
+        """
+        :param netlist: State of current netlist
+
+        :retrun: Add a netlist to the netlist list
+        """
+
         self.netlists.append(netlist)
 
     def get_boards(self):
+        """
+        return: Get all boards in the board list
+        """
+
         return self.boards
 
     def get_netlists(self):
+        """
+        :return: Get all netlists in the netlist list
+        """
+
         return self.netlists
 
     def get_scores(self):
+        """
+        return: Get all scores in the scores list
+        """
+
         scores = []
         for board in self.boards:
             scores.append(board.score())
         return scores
 
     def plot_score(self):
+        """
+        :return: Plot a graph to show the scores over the different iterations
+        """
+
         fig = plt.figure()
         ax = fig.gca()
         ax.set_xlabel("Iteration")
@@ -236,12 +340,17 @@ class Experiment:
 
 class Gate:
     """
-    :param x:     x-axis location
-    :param y:     y-axis location
-    :param y:     z-axis location
-    :param name:  label of the gate
+    PLACEHOLDER
     """
     def __init__(self, netlist, label, x, y, z):
+        """
+        :param netlist: Give the selected netlist in settings.py 
+        :param label: Label for a gate
+        :param x:     x-axis location
+        :param y:     y-axis location
+        :param y:     z-axis location 
+        """
+
         self.label = label
         self.x = int(x)
         self.y = int(y)
@@ -254,14 +363,18 @@ class Gate:
                 self.spaces_needed += 1
 
     def get_free_spaces(self, board, coord):
-        counter = 0
+        """
+        :return: Interger with the amount of free spaces
+        """
+
+        free_spaces = 0
 
         for neighbor in board.get_neighbors(coord):
             # Count if neighbor is free on the board
             if board.board[neighbor[0], neighbor[1], neighbor[2]] == 0:
                 counter += 1
 
-        return counter - self.spaces_needed
+        return free_spaces - self.spaces_needed
 
     def __str__(self):
         return self.label
