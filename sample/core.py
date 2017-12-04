@@ -8,6 +8,7 @@ Pathfinder will find the most efficient path between two gates on a board.
 """
 
 import settings
+import colors as CLR
 
 from classes import Solution
 from classes import Gates
@@ -20,9 +21,9 @@ def main():
     """
     
     # Print program settings
-    print("Using netlist #" + str(settings.FILE_NETLIST))
-    print("Using gates file #" + str(settings.FILE_GATES))
-    print("Using pathfinding algorithm " + str(settings.PATH_ALGORITHM))
+    print("Using netlist: " + CLR.GREEN + str(settings.FILE_NETLIST) + CLR.DEFAULT)
+    print("Using gates file: " + CLR.GREEN + str(settings.FILE_GATES) + CLR.DEFAULT)
+    print("Using pathfinding algorithm: " + CLR.GREEN + str(settings.PATH_ALGORITHM) + CLR.DEFAULT)
     print("")
 
     # Initiate a new netlist
