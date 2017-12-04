@@ -486,6 +486,35 @@ class Netlist:
         self.list[index] = tmp
         return self.list
 
+    def tuple_value(self,netlist_tuple):
+        # Retrun the combined value of the two items in the tuple
+        connection_list = []
+
+        # Loop through the netlist append all connections in to a new list
+        for tuples in self.list:
+            for connection in tuples:
+                connection_list.append(connection)
+
+        # Use the Counter class to count occurrences of a number and make a
+        # dict containing occurrences and number.
+        counter_dict = dict(Counter(connection_list))
+
+        # Return the value of the combination
+        return counter_dict[netlist_tuple[0]] + counter_dict[netlist_tuple[1]]
+
+    def sort_by_connection(self):
+        # Return a new sorted array containing the sorted array based on values
+        # calculated by tuple value
+        sorted_dict = {}
+
+        # Loop calculate the value of the tuple, make a dict containing the values
+        for tuples in self.list:
+            value = self.tuple_value(tuples)
+            sorted_dict[tuples] = value
+
+        # Return the sorted array based on the items in revered order.
+        return sorted(sorted_dict, key=sorted_dict.__getitem__, reverse=True)
+
 
 class Netlist_log:
     """
