@@ -122,33 +122,6 @@ class Board:
         print(CLR.YELLOW + "Score: " + str(self.get_score()) + CLR.DEFAULT)
         print("")
 
-    def plot_paths(self, graph, own_color):
-        """
-        Args:
-            graph(matplotlib): Plot a graph
-            color(matplotlib): Seperate the paths with a color
-
-        Return: 
-            Plot a graph with a score based on iterations
-        """
-
-        for path in self.paths:
-            if own_color:
-                graph.plot(
-                  path.get_coords('x'),
-                  path.get_coords('y'),
-                  path.get_coords('z'),
-                  zorder=-1,
-                  color=path.color
-                )
-            else:
-                graph.plot(
-                  path.get_coords('x'),
-                  path.get_coords('y'),
-                  path.get_coords('z'),
-                  zorder=-1
-                )
-
     def plot(self):
         """
         Return: 
@@ -164,8 +137,14 @@ class Board:
         ax.set_ylabel("Y")
         ax.set_zlabel("Z")
 
-        # Add paths to the graph
-        self.plot_paths(plt, False)
+
+        for path in self.paths:
+            ax.plot(
+              path.get_coords('x'),
+              path.get_coords('y'),
+              path.get_coords('z'),
+              zorder=-1
+            )
 
         # Add gates to the graph
         ax.scatter(
