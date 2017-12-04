@@ -9,6 +9,7 @@ helpers.py
 
 import settings
 
+import sys
 import colors as CLR
 import numpy as np
 import matplotlib.pyplot as plt
@@ -16,6 +17,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from ast import literal_eval
 import heapq
 import collections
+from collections import Counter
 import heapq
 import csv
 import helpers
@@ -53,6 +55,9 @@ class Board:
         self.paths = []
         self.gates_objects = np.empty((self.depth, self.height, self.width), dtype=object)
         self.gates_numbers = np.zeros((self.depth, self.height, self.width), dtype=int)
+
+        self.cost_depth = 0
+        self.cost_passing_gate = 0
 
     def get_coords(self, axes, label):
         """
@@ -273,6 +278,7 @@ class Netlist:
     """
 
     def __init__(self, number):
+        self.number = number
         self.filename = "data/netlist"
         self.filename += str(number)
         self.filename += ".txt"
@@ -334,13 +340,12 @@ class Netlist:
         print("")
     
     def switch_back_one(self, target):
-        # Switch the target item with item before
+        # Switch the target item with item before it
         index = self.list.index(target)
+        self.list[index - 1], self.list[index] = self.list[index], self.list[index - 1]
 
-        tmp = self.list[index - 1]
-        self.list[index - 1] = self.list[index]
-        self.list[index] = tmp
-        return self.list
+    def first_to_back(self):
+        self.list.append(self.list.pop(0))
 
     def tuple_value(self,netlist_tuple):
         # Retrun the combined value of the two items in the tuple
@@ -491,9 +496,13 @@ class Path:
                     if neighbor != b_tpl:
                         continue
 
-                # Save its distance from the start
-                cost_depth = 1 - neighbor[0] * 2
-                cost_neighbor = cost_archive[current_tpl] + 14 + cost_depth;
+                # Make it cheaper to go deeper
+                cost_neighbor = cost_archive[current_tpl]
+                cost_depth = neighbor[0] * board.cost_depth
+                if cost_neighbor - cost_depth >= 0:
+                    cost_neighbor -= cost_depth
+                else:
+                    cost_neighbor = 0
 
                 # Sum surrounding gates
                 if neighbor[0] < 2:
@@ -505,7 +514,7 @@ class Path:
 
                             # Make the cost higher if gate has more connections
                             for i in range(gate.spaces_needed):
-                                cost_neighbor += settings.ASTAR_WEIGHT
+                                cost_neighbor += board.cost_passing_gate
 
                 # Check if this coordinate is new or has a lower cost than before
                 if neighbor not in cost_archive \
@@ -745,63 +754,106 @@ class Solution:
         plt.show()
 
     def run(self, gates, netlist):
-        
-        count_no_improvements = 0
 
-        while count_no_improvements < settings.MAX_NO_IMPROVE:
+        no_netlist_improvements = 0
+
+        while no_netlist_improvements <= settings.MAX_NO_IMPROVE:
 
             # Remember this netlist
             self.netlists.append(netlist)
 
-            # Create and remember a new board
-            board = Board(settings.BOARD_WIDTH, settings.BOARD_HEIGHT, settings.BOARD_DEPTH)
-            self.boards.append(board)
+            # Set temporary counters
+            no_board_improvements = 0
+            board_iteration = 0
 
-            # Place gates on this board
-            board.set_gates(gates)
+            while no_board_improvements <= settings.MAX_NO_IMPROVE:
 
-            # RUN EXECUTE MULTIPLE TIMES
+                # Create and remember a new board
+                board = Board(settings.BOARD_WIDTH, settings.BOARD_HEIGHT, settings.BOARD_DEPTH)
+                self.boards.append(board)
 
-            # Calculate the connections in this netlist
-            netlist.execute_connections(board)
+                # Place gates on this board
+                board.set_gates(gates)
 
-            # // RUN EXECUTE MULTIPLE TIMES
+                # Draw the paths
+                netlist.execute_connections(board)
 
-            # Save the scores and result of this iteration
-            self.results.append(netlist.get_result("made"))
-            self.scores.append(board.get_score())
+                # Save the scores and result of this iteration
+                self.results.append(netlist.get_result("average"))
+                self.scores.append(board.get_score())
 
-            # See if this board has better scores
-            if self.best_score == 0 \
-               or (netlist.get_result("made") > self.best_result \
-               and board.get_score() < self.best_score):
+                # See if this board has better scores
+                if self.best_score == 0 \
+                   or (netlist.get_result("average") > self.best_result \
+                   and board.get_score() < self.best_score):
 
-                self.best_score = board.get_score()
-                self.best_result = netlist.get_result("made")
-                self.best_board = board
-                self.best_netlist = netlist
+                    self.best_score = board.get_score()
+                    self.best_result = netlist.get_result("average")
+                    self.best_board = board
+                    self.best_netlist = netlist
 
-            else:
-                count_no_improvements += 1
+                else:
+                    # New settings haven't improved the score
+                    no_board_improvements += 1
+
+                # Change heuristics for next loop
+                board.cost_depth = settings.STEP_COST_DEPTH * board_iteration
+                board.cost_passing_gate = settings.STEP_COST_PASSING_GATE * board_iteration
+                board_iteration += 1
+                
+                # Reset gate variables
+                gates.reset_spaces_needed(netlist)
+                
+                # Show progress
+                if settings.SHOW_PROGRESS:
+                    sys.stdout.flush()
+                    print("·", end="")
+
+            # See if this netlist led to improvements
+            if board_iteration - 1 <= settings.MAX_NO_IMPROVE:
+                no_netlist_improvements += 1
 
             # Print results of this execution
             if settings.SHOW_EACH_RESULT:
-                print("------------ BOARD: " + str(len(self.boards)) + " --------------")
-                print(netlist.get_result("average"))
-                print(board.get_score())
+                print("")
+                print("------------- NETLIST GENERATION: " + str(len(self.netlists)) + " ---------------")
+                print("Paths drawn: " + CLR.YELLOW + str(round(netlist.get_result("average") * 100, 2)) + "%" + CLR.DEFAULT)
+                print("Score: " + CLR.YELLOW + str(board.get_score()) + CLR.DEFAULT)
+                print("")
 
             if settings.SHOW_EACH_DATA:
-                board.print_board()
+                print("Netlist: " + CLR.YELLOW + str(netlist.list) + CLR.DEFAULT)
 
             if settings.SHOW_EACH_PLOT:
                 board.plot()
+            
+            # Make next generation of netlist
+            new_netlist = Netlist(netlist.number)
 
-            # ADAPT NETLIST HERE
-            gates.reset_spaces_needed(netlist)
+            # Check if this netlist is new
+            netlist_is_unique = False
+            while netlist_is_unique == False:
 
+                # Mutate the order
+                new_netlist.first_to_back()
+
+                # Check for uniqueness
+                netlist_is_unique = True
+                for earlier_netlist in self.netlists:
+                    if new_netlist.list == earlier_netlist.list:
+                        netlist_is_unique = False
+                        break
+                        
+            # Set netlist for next iteration
+            netlist = new_netlist
+
+        # Print result
         print("")
-        print("Best score after " + str(len(self.boards)) + " iterations is: " + str(self.best_score))
-        print("Order of that netlist: " + str(self.best_netlist.list))
+        print("----------- BEST RESULT out of " + str(len(self.boards)) + " boards --------------")
+        print("Paths drawn: " + CLR.GREEN + str(round(self.best_result * 100, 2)) + "%" + CLR.DEFAULT)
+        print("Score: " + CLR.GREEN + str(self.best_score) + CLR.DEFAULT)
+        print("Order of that netlist:")
+        print(CLR.GREEN + str(self.best_netlist.list) + CLR.DEFAULT)
 
 class Queue:
     '''
