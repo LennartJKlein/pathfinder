@@ -183,6 +183,7 @@ class Board:
         Return: 
             Show the numpyboard in ASCII
         """
+        np.set_printoptions(threshold=np.nan)
         print(self.board)
 
     def set_gates(self, gates):
@@ -715,26 +716,22 @@ class Solution:
             self.results.append(netlist.get_result("made"))
             self.scores.append(board.get_score())
 
-
             # See if this board has better scores
-            if self.best_result < netlist.get_result("made") \
-               and self.best_score < board.get_score():
+            if netlist.get_result("made") > self.best_result \
+               and board.get_score() < self.best_score:
+                print("better!")
 
                 self.best_score = board.get_score()
                 self.best_result = netlist.get_result("made")
                 self.best_board = board
                 self.best_netlist = netlist
-
             else:
                 count_no_improvements += 1
-
-            # ADAPT NETLIST HERE
-
 
             # Print results of this execution
             if settings.SHOW_EACH_RESULT:
                 print("------------ BOARD: " + str(len(self.boards)) + " --------------")
-                print(netlist.get_result())
+                print(netlist.get_result("average"))
                 print(board.get_score())
 
             if settings.SHOW_EACH_DATA:
@@ -742,6 +739,8 @@ class Solution:
 
             if settings.SHOW_EACH_PLOT:
                 board.plot()
+
+            # ADAPT NETLIST HERE
 
 class Queue:
     '''
