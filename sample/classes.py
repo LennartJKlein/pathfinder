@@ -18,6 +18,8 @@ import heapq
 import collections
 import heapq
 import csv
+import helpers
+
       
 class Board:
     """
@@ -50,36 +52,6 @@ class Board:
         self.paths = []
         self.gates_objects = np.empty((self.depth, self.height, self.width), dtype=object)
         self.gates_numbers = np.zeros((self.depth, self.height, self.width), dtype=int)
-
-    def calculate_distance(self, a, b):
-        """
-        Args:
-            a(touple): Starting coord
-            b(touple): Goal coord
-
-        Return:
-            Distance between two coords
-        """
-
-        dx = (a[2] - b[2]) ** 2
-        dy = (a[1] - b[1]) ** 2
-        dz = (a[0] - b[0]) ** 2
-        return (dx + dy + dz) ** 0.5
-
-    def calculate_delta(self, a, b):
-        """
-        Args:
-            a(touple): Starting coord
-            b(touple): Goal coord
-
-        Return:
-            Delta distance between two coords
-        """
-
-        dx = abs(a[2] - b[2])
-        dy = abs(a[1] - b[1])
-        dz = abs(a[0] - b[0])
-        return dx + dy + dz
 
     def get_coords(self, axes, label):
         """
@@ -494,7 +466,7 @@ class Path:
                 
                     # Calculate the cost and add it to the queue
                     cost_archive[neighbor] = cost_neighbor
-                    prior = cost_neighbor + board.calculate_delta(neighbor, b_tpl)
+                    prior = cost_neighbor + helpers.calculate_delta(neighbor, b_tpl)
                     queue.push(neighbor, prior)
 
                     # Remember where this neighbor came from
