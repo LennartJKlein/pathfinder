@@ -20,16 +20,26 @@ import csv
       
 class Board:
     """
-    PLACEHOLDER
+    Sum:
+        Create a numpy board filled with numpy zeros upon initialising
+
+    Attributes:
+        width(int): How many columns the board uses
+        height(int): How many rows the board uses
+        depth(int): How many layers the board uses
+        board(numpy): Multidimentional list
+        paths(list): Collective of the paths in the board
+        gate_objects(numpy): Ojects assigned to the board
+        gate_numbers(numpy): Zeros assigned to the board
+
     """
 
     def __init__(self, width, height, depth):
         """
-        :param width: How many columns the board uses
-        :param height: How many rows the board uses
-        :param depth: How many layers the board uses
-
-        :return: Numpyboard filled with 0's for empty paths, 1's for gates and >2 for paths
+        Args:
+            width(int): How many columns the board uses
+            height(int): How many rows the board uses
+            depth(int): How many layers the board uses
         """
 
         self.width = width
@@ -37,15 +47,17 @@ class Board:
         self.depth = depth
         self.board = np.zeros((self.depth, self.height, self.width), dtype=int)
         self.paths = []
-        self.gatesObjects = np.empty((self.depth, self.height, self.width), dtype=object)
-        self.gatesNumbers = np.zeros((self.depth, self.height, self.width), dtype=int)
+        self.gates_objects = np.empty((self.depth, self.height, self.width), dtype=object)
+        self.gates_numbers = np.zeros((self.depth, self.height, self.width), dtype=int)
 
     def calculate_distance(self, a, b):
         """
-        :param a: Starting coord
-        :param b: Goal coord
+        Args:
+            a(touple): Starting coord
+            b(touple): Goal coord
 
-        :return: The distance between two coords
+        Return:
+            Distance between two coords
         """
 
         dx = (a[2] - b[2]) ** 2
@@ -55,10 +67,12 @@ class Board:
 
     def calculate_delta(self, a, b):
         """
-        :param a: Starting coord
-        :param b: Goal coord
+        Args:
+            a(touple): Starting coord
+            b(touple): Goal coord
 
-        :return: The delta distance between two coords
+        Return:
+            Delta distance between two coords
         """
 
         dx = abs(a[2] - b[2])
@@ -68,10 +82,12 @@ class Board:
 
     def get_coords(self, axes, label):
         """
-        :param: axes: Devided coord into Z, Y, X
-        :param: label: Give a coord in board the corresponding label
+        Args:
+            axes(string): Devided coord into Z, Y, X
+            label(numpy): Get a coord in board the corresponding label
 
-        :return: The current Z, Y, X of a coord in the numby board
+        Return: 
+            The current Z, Y, X of a coord in the numby board
         """
 
         labels = np.argwhere(self.board == label)
@@ -89,9 +105,11 @@ class Board:
 
     def get_neighbors(self, coord):
         """
-        :param: Current coord in queue
+        Args:
+            coord(touple): Current coord in queue
 
-        :return: All valid neighbors of the current coord
+        Return: 
+            All valid neighbors of the current coord
         """
 
         (z, y, x) = coord
@@ -104,14 +122,16 @@ class Board:
     
     def get_score(self):
         """
-        :return: Accumulated length of all the paths
+        Return: 
+            Accumulated length of all the paths
         """
 
         return len(np.argwhere(self.board >= settings.SIGN_PATH_START))
 
     def print_score(self):
         """
-        :return: Print the score
+        Return: 
+            Print the score
         """
 
         print(CLR.YELLOW + "Score: " + str(self.get_score()) + CLR.DEFAULT)
@@ -119,10 +139,12 @@ class Board:
 
     def plot_paths(self, graph, own_color):
         """
-        :param graph: Plot a graph
-        :param own_color: Seperate the paths with a color
+        Args:
+            graph(matplotlib): Plot a graph
+            color(matplotlib): Seperate the paths with a color
 
-        :return: Plot a graph with a score based on iterations
+        Return: 
+            Plot a graph with a score based on iterations
         """
 
         for path in self.paths:
@@ -144,7 +166,8 @@ class Board:
 
     def plot(self):
         """
-        :return: graph configurations
+        Return: 
+            Graph configurations
         """
 
         fig = plt.figure()
@@ -172,15 +195,15 @@ class Board:
 
     def print_board(self):
         """
-        :return: Show the numpyboard in ASCII
+        Return: 
+            Show the numpyboard in ASCII
         """
         print(self.board)
 
     def set_gates(self, netlist):
         """
-        :param netlist: Give the selected netlist in settings.py
-
-        :return: Set all gates in the board
+        Args:
+            netlist(obj): Give the selected netlist in settings.py
         """
 
         # Read a CSV file for gate tuples
@@ -189,7 +212,6 @@ class Board:
 
           # Skip the header
           next(reader, None)
-
 
           for row in reader:
 
@@ -208,15 +230,17 @@ class Board:
                   new_gate = Gate(netlist, gateLabel, gateX, gateY, gateZ)
 
                   # Set a gate in the grid for every row in the file
-                  self.gatesObjects[gateZ, gateY, gateX] = new_gate
-                  self.gatesNumbers[gateZ, gateY, gateX] = gateLabel
+                  self.gates_objects[gateZ, gateY, gateX] = new_gate
+                  self.gates_numbers[gateZ, gateY, gateX] = gateLabel
                   self.board[gateZ, gateY, gateX] = settings.SIGN_GATE
 
     def valid_coord(self, coord):
         """
-        :param coord: Currend coord in board
+        Args:
+            coord(touple): Currend coord in board
 
-        :return: Checks if the coord is within the set boundaries
+        Return: 
+            Checks if the coord is within the set boundaries
         """
 
         # Check if the coord is positive
@@ -233,7 +257,11 @@ class Board:
 
 class Experiment:
     """
-    PLACEHOLDER
+    Sum:
+        
+        
+    Attributes:
+
     """
 
     def __init__(self, iterations, show_results, show_data, show_plot):
@@ -414,8 +442,8 @@ class Netlist:
             # Get the coordinates of the two gates in this connection
             a = connection[0]
             b = connection[1]            
-            coordGateA = np.argwhere(board.gatesNumbers == a + 1)
-            coordGateB = np.argwhere(board.gatesNumbers == b + 1)
+            coordGateA = np.argwhere(board.gates_numbers == a + 1)
+            coordGateB = np.argwhere(board.gates_numbers == b + 1)
 
             # Create a new path object
             new_path = Path(coordGateA[0], coordGateB[0], path_number, "grey")
@@ -585,7 +613,7 @@ class Path:
                     for next_neighbor in board.get_neighbors(neighbor):
 
                         # If next_neighbor is a gate
-                        gate = board.gatesObjects[next_neighbor[0], next_neighbor[1], next_neighbor[2]]
+                        gate = board.gates_objects[next_neighbor[0], next_neighbor[1], next_neighbor[2]]
                         if gate != None:
 
                             # Make the cost higher if gate has more connections
@@ -627,8 +655,8 @@ class Path:
             self.add_coordinate(self.a)
 
             # Reduce the needed spaces for gate A and B
-            board.gatesObjects[self.a[0], self.a[1], self.a[2]].spaces_needed -= 1
-            board.gatesObjects[self.b[0], self.b[1], self.b[2]].spaces_needed -= 1
+            board.gates_objects[self.a[0], self.a[1], self.a[2]].spaces_needed -= 1
+            board.gates_objects[self.b[0], self.b[1], self.b[2]].spaces_needed -= 1
 
             return True
         
@@ -696,13 +724,13 @@ class Path:
                     neighbor_next = tuple(neighbor_next)
 
                     # Check if this gate needs space around it
-                    if board.gatesObjects[neighbor_next[0], neighbor_next[1], neighbor_next[2]] != None:
+                    if board.gates_objects[neighbor_next[0], neighbor_next[1], neighbor_next[2]] != None:
 
                         # Don't look at the own gates
                         if not (neighbor_next == a_tpl) or (neighbor_next == b_tpl):
 
                             # Get info from this gate
-                            gate = board.gatesObjects[neighbor_next[0], neighbor_next[1], neighbor_next[2]]
+                            gate = board.gates_objects[neighbor_next[0], neighbor_next[1], neighbor_next[2]]
 
                             # See if the path may pass
                             if gate.get_free_spaces(board, neighbor_next) == 0:
@@ -745,8 +773,8 @@ class Path:
             self.add_coordinate(self.a)
 
             # Add 1 to the made connections for gate A and B
-            board.gatesObjects[self.a[0], self.a[1], self.a[2]].spaces_needed -= 1
-            board.gatesObjects[self.b[0], self.b[1], self.b[2]].spaces_needed -= 1
+            board.gates_objects[self.a[0], self.a[1], self.a[2]].spaces_needed -= 1
+            board.gates_objects[self.b[0], self.b[1], self.b[2]].spaces_needed -= 1
 
             return True
 

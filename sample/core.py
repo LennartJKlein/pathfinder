@@ -19,10 +19,10 @@ from classes import Netlist
 from classes import Gate
 
 def main():
-    '''
+    """" 
     Initialise and draw a grid called Board
     Read gate locations from gates file
-    '''
+    """
     
     # Set and show chosen settings
     np.set_printoptions(threshold=np.nan)
