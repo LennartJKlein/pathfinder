@@ -23,7 +23,7 @@ import csv
 import helpers
 from collections import Counter
 
-      
+
 class Board:
     """
     Sum:
@@ -65,7 +65,7 @@ class Board:
             axes(string): Devided coord into Z, Y, X
             label(numpy): Get a coord in board the corresponding label
 
-        Return: 
+        Return:
             The current Z, Y, X of a coord in the numby board
         """
 
@@ -87,7 +87,7 @@ class Board:
         Args:
             coord(tuple): a coordinate on the board
 
-        Return: 
+        Return:
             All valid neighbors of the given coordinate
         """
 
@@ -104,16 +104,16 @@ class Board:
             if neighbor[2] >= settings.BOARD_WIDTH or \
                neighbor[1] >= settings.BOARD_HEIGHT or \
                neighbor[0] >= settings.BOARD_DEPTH:
-                continue  
+                continue
 
             # Add this neighbor to the output
             valid_coords.append(neighbor)
 
         return valid_coords
-    
+
     def get_score(self):
         """
-        Return: 
+        Return:
             Accumulated length of all the paths
         """
 
@@ -121,7 +121,7 @@ class Board:
 
     def print_score(self):
         """
-        Return: 
+        Return:
             Print the score
         """
 
@@ -130,7 +130,7 @@ class Board:
 
     def plot(self):
         """
-        Return: 
+        Return:
             Graph configurations
         """
 
@@ -165,7 +165,7 @@ class Board:
 
     def print_board(self):
         """
-        Return: 
+        Return:
             Show the numpyboard in ASCII
         """
         np.set_printoptions(threshold=np.nan)
@@ -191,11 +191,11 @@ class Gate:
     """
     def __init__(self, label, x, y, z, spaces_needed):
         """
-        :param netlist: Give the selected netlist in settings.py 
+        :param netlist: Give the selected netlist in settings.py
         :param label: Label for a gate
         :param x:     x-axis location
         :param y:     y-axis location
-        :param y:     z-axis location 
+        :param y:     z-axis location
         """
 
         self.label = label
@@ -229,7 +229,7 @@ class Gates:
         self.sign_gate = sign
 
         # Read a CSV file for gate tuples
-        with open('data/gates'+ str(number) + '.csv', 'r') as csvfile:
+        with open('sample/data/gates'+ str(number) + '.csv', 'r') as csvfile:
             reader = csv.reader(csvfile)
 
             # Skip the header
@@ -264,7 +264,7 @@ class Gates:
             gate.spaces_needed = 0
             for connection in netlist.list:
                 if (connection[0] + 1) == gate.label or (connection[1] + 1) == gate.label:
-                    gate.spaces_needed += 1        
+                    gate.spaces_needed += 1
 
     def get_gates(self):
         return self.gates
@@ -279,7 +279,7 @@ class Netlist:
 
     def __init__(self, number):
         self.number = number
-        self.filename = "data/netlist"
+        self.filename = "sample/data/netlist"
         self.filename += str(number)
         self.filename += ".txt"
         self.connections = 0
@@ -307,7 +307,7 @@ class Netlist:
 
             # Get the coordinates of the two gates in this connection
             a = connection[0]
-            b = connection[1]            
+            b = connection[1]
             coordGateA = np.argwhere(board.gates_numbers == a + 1)
             coordGateB = np.argwhere(board.gates_numbers == b + 1)
 
@@ -325,7 +325,7 @@ class Netlist:
                 self.connections_made += 1
             else:
                 self.connections_broken += 1
-                
+
                 # Save this tuple for mutating the netlist
                 if self.tuple_error == None:
                     self.tuple_error = connection
@@ -345,7 +345,7 @@ class Netlist:
         print(CLR.YELLOW + "Paths drawn: " + str(self.connections_made) + " / " + str(self.connections) + CLR.DEFAULT)
         print(CLR.YELLOW + str(round(self.connections_made / self.connections * 100, 2)) + "%" + CLR.DEFAULT)
         print("")
-    
+
     def switch_back_one(self, target):
         """
         Return:
@@ -480,7 +480,7 @@ class Path:
 
         cost_archive = {}
         cost_archive[a_tpl] = 0
-        
+
         path_archive = {}
         path_archive[a_tpl] = None
 
@@ -545,7 +545,7 @@ class Path:
                 # -------------- / HEURISTICS ---------------
 
 
-        # Backtracking the path        
+        # Backtracking the path
         if found:
 
             # print(cost_archive)
@@ -555,17 +555,17 @@ class Path:
             self.add_coordinate(self.b)
 
             cursor = path_archive[b_tpl]
-            
+
             while cursor != a_tpl:
-                
+
                 # Put the ID in the Numpy board
                 board.board[cursor[0], cursor[1], cursor[2]] = self.label
 
                 # Remember this coord for this path
                 self.add_coordinate([cursor[0], cursor[1], cursor[2]])
-                
+
                 cursor = path_archive[cursor]
-            
+
             # Add A to the path
             self.add_coordinate(self.a)
 
@@ -575,7 +575,7 @@ class Path:
             board.gates_objects[self.b[0], self.b[1], self.b[2]].spaces_needed -= 1
 
             return True
-        
+
         else:
             return False
 
@@ -592,7 +592,7 @@ class Path:
         boardWidth = boardDimensions[2]
         a_tpl = tuple(self.a)
         b_tpl = tuple(self.b)
-        
+
         # Initiate counters
         loops = 0
         found = False
@@ -716,20 +716,20 @@ class Path:
 class Solution:
     """
     Sum:
-        
-        
+
+
     Attributes:
 
     """
 
     def __init__(self):
         """
-        :param 
-        :param 
-        :param 
+        :param
+        :param
+        :param
         :param
 
-        :return: 
+        :return:
         """
         self.best_board = None
         self.best_netlist = None
@@ -800,7 +800,7 @@ class Solution:
                 # Place gates on this board
                 board.set_gates(gates)
 
-                # Draw the paths             
+                # Draw the paths
                 netlist.execute_connections(board)
 
                 # Set heuristics pathfinding
@@ -859,10 +859,7 @@ class Solution:
 
             if settings.SHOW_EACH_PLOT:
                 board.plot()
-            
-            # Reset heurstic variables
-            settings.COST_DEPTH = cost_depth_start
-            settings.COST_PASSING_GATE = cost_passing_gate_start
+
 
             # Make next generation of netlist
             new_netlist = Netlist(netlist.number)
@@ -901,13 +898,13 @@ class Queue:
 
     def __init__(self):
         self.elements = collections.deque()
-    
+
     def empty(self):
         return len(self.elements) == 0
-    
+
     def pop(self):
         return self.elements.popleft()
-    
+
     def push(self, x):
         self.elements.append(x)
 
