@@ -21,6 +21,7 @@ from collections import Counter
 import heapq
 import csv
 import helpers
+from collections import Counter
 
       
 class Board:
@@ -345,6 +346,73 @@ class Netlist:
 
     def first_to_back(self):
         self.list.append(self.list.pop(0))
+
+    def tuple_value(self,netlist_tuple):
+        # Retrun the combined value of the two items in the tuple
+        connection_list = []
+
+        # Loop through the netlist append all connections in to a new list
+        for tuples in self.list:
+            for connection in tuples:
+                connection_list.append(connection)
+
+        # Use the Counter class to count occurrences of a number and make a
+        # dict containing occurrences and number.
+        counter_dict = dict(Counter(connection_list))
+
+        # Return the value of the combination
+        return counter_dict[netlist_tuple[0]] + counter_dict[netlist_tuple[1]]
+
+    def sort_by_connection(self):
+        # Return a new sorted array containing the sorted array based on values
+        # calculated by tuple value
+        sorted_dict = {}
+
+        # Loop calculate the value of the tuple, make a dict containing the values
+        for tuples in self.list:
+            value = self.tuple_value(tuples)
+            sorted_dict[tuples] = value
+
+        # Return the sorted array based on the items in revered order.
+        return sorted(sorted_dict, key=sorted_dict.__getitem__, reverse=True)
+        self.list = sorted(sorted_dict, key=sorted_dict.__getitem__, reverse=True)
+
+
+class Netlist_log:
+    """
+    :param fisrt_list: first list to be saved.
+    Make a stack hostory of the used netlists
+    """
+    def __init__(self, number):
+        # Make file name used.
+        self.filename = "data/netlist"
+        self.filename += str(number)
+        self.filename += ".txt"
+
+        # Open netlist and read with literal evaluation.
+        with open(self.filename) as f:
+            self.first_list = f.read()
+
+        self.first_list = literal_eval(self.first_list)
+
+        print("Using netlist #" + str(number))
+
+        self.lists_log = [self.first_list]
+
+    # Push en pop item to lists_log
+    def push_list(self, netlist):
+        self.lists_log.insert(0, netlist)
+
+    def pop_list(self):
+        poped_list = self.lists_log.pop(0)
+        return poped_list
+
+    def get_list(self):
+        return self.lists_log[0]
+
+    # Print compleet array of lists_log
+    def print_lists_log(self):
+        print(self.lists_log)
 
 class Path:
     """
