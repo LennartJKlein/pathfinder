@@ -285,6 +285,7 @@ class Netlist:
         self.connections = 0
         self.connections_made = 0
         self.connections_broken = 0
+        self.tuple_error = None
 
         # Open netlist and read with literal evaluation
         with open(self.filename) as f:
@@ -322,6 +323,10 @@ class Netlist:
                 self.connections_made += 1
             else:
                 self.connections_broken += 1
+                
+                # Save this tuple for mutating the netlist
+                if self.tuple_error == None:
+                    self.tuple_error = connection
 
             # Set a new path_number for the next path
             path_number += 1
@@ -340,16 +345,22 @@ class Netlist:
         print("")
     
     def switch_back_one(self, target):
-        # Switch the target item with item before it
+        """
+        Return:
+            Switch the target item with item before it
+        """
         index = self.list.index(target)
-        self.list[index - 1], self.list[index] = self.list[index], self.list[index - 1]
+        tmp = self.list[index - 1]
+        self.list[index - 1] = self.list[index]
+        self.list[index] = tmp
 
     def first_to_back(self):
         self.list.append(self.list.pop(0))
 
     def tuple_value(self, netlist_tuple):
         """
-        Return the combined value of the two items in the tuple
+        Return:
+            combined value of the two items in the tuple
         """
         connection_list = []
 
@@ -837,13 +848,14 @@ class Solution:
                 print("----------------- NETLIST GENERATION: " + str(len(self.netlists)) + " -------------------")
                 print("Paths drawn: " + CLR.YELLOW + str(round(netlist.get_result("average") * 100, 2)) + "%" + CLR.DEFAULT)
                 print("Score: " + CLR.YELLOW + str(board.get_score()) + CLR.DEFAULT)
-                print("")
 
-            if settings.SHOW_EACH_DATA:
+            if settings.SHOW_EACH_NETLIST:
                 print("Netlist: " + CLR.YELLOW + str(netlist.list) + CLR.DEFAULT)
+                print("")
 
             if settings.SHOW_EACH_PLOT:
                 board.plot()
+            
             
             # Make next generation of netlist
             new_netlist = Netlist(netlist.number)
@@ -853,7 +865,8 @@ class Solution:
             while netlist_is_unique == False:
 
                 # Mutate the order
-                new_netlist.first_to_back()
+                new_netlist.sort_by_connection()
+                new_netlist.switch_back_one(netlist.tuple_error)
 
                 # Check for uniqueness
                 netlist_is_unique = True
