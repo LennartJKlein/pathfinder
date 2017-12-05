@@ -347,29 +347,38 @@ class Netlist:
     def first_to_back(self):
         self.list.append(self.list.pop(0))
 
-    def sort_by_connection(self):
-        # Return a new sorted array containing the sorted array based on values
-        # calculated by tuple value
-        sorted_dict = {}
-        gate_list = []
+    def tuple_value(self, netlist_tuple):
+        """
+        Return the combined value of the two items in the tuple
+        """
+        connection_list = []
 
-        # Loop through the netlist and append all connections to a new list
-        for netlist_tuple in self.list:
-            for gate in netlist_tuple:
-                gate_list.append(gate)
+        # Loop through the netlist append all connections in to a new list
+        for tuples in self.list:
+            for connection in tuples:
+                connection_list.append(connection)
 
         # Use the Counter class to count occurrences of a number and make a
         # dict containing occurrences and number.
-        counter_gates = dict(Counter(gate_list))
-        
-        # Get the value of the tuple, and make a dict containing the values
-        for netlist_tuple in self.list:
-            value = counter_gates[netlist_tuple[0]] + counter_gates[netlist_tuple[1]]
-            sorted_dict[netlist_tuple] = value
+        counter_dict = dict(Counter(connection_list))
+
+        # Return the value of the combination
+        return counter_dict[netlist_tuple[0]] + counter_dict[netlist_tuple[1]]
+
+    def sort_by_connection(self):
+        """
+        Return a new sorted array containing the sorted array based on values
+        calculated by tuple value
+        """
+        sorted_dict = {}
+
+        # Loop calculate the value of the tuple, make a dict containing the values
+        for tuples in self.list:
+            value = self.tuple_value(tuples)
+            sorted_dict[tuples] = value
 
         # Return the sorted array based on the items in revered order.
         self.list = sorted(sorted_dict, key=sorted_dict.__getitem__, reverse=True)
-        return sorted(sorted_dict, key=sorted_dict.__getitem__, reverse=True)
 
 class Netlist_log:
     """
@@ -494,9 +503,8 @@ class Path:
                 cost_neighbor += helpers.calculate_delta(neighbor, b_tpl)
 
                 # Make it cheaper to go deeper
-                cost_neighbor += (board.depth - neighbor[0]) + settings.COST_DEPTH
+                cost_neighbor += (settings.COST_DEPTH + board.depth - neighbor[0])
 
-                # print(cost_neighbor)
                 # Make expensive if passing a gate
                 if neighbor[0] < 2:
                     for next_neighbor in board.get_neighbors(neighbor):
