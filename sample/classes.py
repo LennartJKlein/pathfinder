@@ -230,6 +230,7 @@ class Gates:
 
         # Read a CSV file for gate tuples
         with open('data/gates'+ str(number) + '.csv', 'r') as csvfile:
+        with open('sample/data/gates'+ str(number) + '.csv', 'r') as csvfile:
             reader = csv.reader(csvfile)
 
             # Skip the header
@@ -280,6 +281,7 @@ class Netlist:
     def __init__(self, number):
         self.number = number
         self.filename = "data/netlist"
+        self.filename = "sample/data/netlist"
         self.filename += str(number)
         self.filename += ".txt"
         self.connections = 0
