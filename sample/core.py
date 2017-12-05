@@ -29,7 +29,7 @@ def main():
 
     # Initiate a new netlist
     netlist = Netlist(settings.FILE_NETLIST)
-    print(netlist.sort_by_connection())
+    netlist.sort_by_connection()
 
     # Initiate the gates
     gates = Gates(settings.FILE_GATES, settings.SIGN_GATE, netlist)

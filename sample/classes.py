@@ -368,9 +368,8 @@ class Netlist:
             sorted_dict[netlist_tuple] = value
 
         # Return the sorted array based on the items in revered order.
-        return sorted(sorted_dict, key=sorted_dict.__getitem__, reverse=True)
         self.list = sorted(sorted_dict, key=sorted_dict.__getitem__, reverse=True)
-
+        return sorted(sorted_dict, key=sorted_dict.__getitem__, reverse=True)
 
 class Netlist_log:
     """
@@ -490,16 +489,15 @@ class Path:
                     if neighbor != b_tpl:
                         continue
 
-                # Make it cheaper to go deeper
-                # cost_neighbor = cost_archive[current_tpl] + 10
-                # cost_depth = neighbor[0] * board.cost_depth
-                # if cost_neighbor - cost_depth >= 0:
-                #     cost_neighbor -= cost_depth
-                # else:
-                #     cost_neighbor = 0
-                cost_neighbor = cost_archive[current_tpl] + 1;
+                # Calculate distance to goal
+                cost_neighbor = cost_archive[current_tpl] + 1
+                cost_neighbor += helpers.calculate_delta(neighbor, b_tpl)
 
-                # Sum surrounding gates
+                # Make it cheaper to go deeper
+                cost_neighbor += (board.depth - neighbor[0]) + settings.COST_DEPTH
+
+                # print(cost_neighbor)
+                # Make expensive if passing a gate
                 if neighbor[0] < 2:
                     for next_neighbor in board.get_neighbors(neighbor):
 
@@ -509,15 +507,15 @@ class Path:
 
                             # Make the cost higher if gate has more connections
                             for i in range(gate.spaces_needed):
-                                cost_neighbor += board.cost_passing_gate
+                                cost_neighbor += settings.COST_PASSING_GATE
 
                 # Check if this coordinate is new or has a lower cost than before
-                if neighbor not in cost_archive \
-                   or cost_neighbor < cost_archive[neighbor]:
-                
+                if neighbor not in path_archive \
+                   or (neighbor in cost_archive and cost_neighbor < cost_archive[neighbor]):
+
                     # Calculate the cost and add it to the queue
                     cost_archive[neighbor] = cost_neighbor
-                    prior = cost_neighbor + helpers.calculate_delta(neighbor, b_tpl)
+                    prior = cost_neighbor
                     queue.push(neighbor, prior)
 
                     # Remember where this neighbor came from
@@ -525,8 +523,12 @@ class Path:
 
                 # -------------- / HEURISTICS ---------------
 
+
         # Backtracking the path        
         if found:
+
+            # print(cost_archive)
+            # exit()
 
             # Add destination to the path route
             self.add_coordinate(self.b)
@@ -534,6 +536,7 @@ class Path:
             cursor = path_archive[b_tpl]
             
             while cursor != a_tpl:
+                
                 # Put the ID in the Numpy board
                 board.board[cursor[0], cursor[1], cursor[2]] = self.label
 
@@ -544,6 +547,7 @@ class Path:
             
             # Add A to the path
             self.add_coordinate(self.a)
+
 
             # Reduce the needed spaces for gate A and B
             board.gates_objects[self.a[0], self.a[1], self.a[2]].spaces_needed -= 1
@@ -670,7 +674,8 @@ class Path:
             return True
 
         else:
-            print("Path " + str(self.label) + " ERROR. Could not be calculated.")
+            #if settings.SHOW_EACH_RESULT
+                #print("Path " + str(self.label) + " ERROR. Could not be calculated.")
 
             return False
 
@@ -762,6 +767,8 @@ class Solution:
             # Set temporary counters
             no_board_improvements = 0
             board_iteration = 0
+            cost_depth_start = settings.COST_DEPTH
+            cost_passing_gate_start = settings.COST_PASSING_GATE
 
             while no_board_improvements <= settings.MAX_NO_IMPROVE:
 
@@ -772,12 +779,12 @@ class Solution:
                 # Place gates on this board
                 board.set_gates(gates)
 
-                # Set heuristics pathfinding
-                board.cost_depth = settings.START_COST_DEPTH + settings.STEP_COST_DEPTH * board_iteration
-                board.cost_passing_gate = settings.START_COST_PASSING_GATE + settings.STEP_COST_PASSING_GATE * board_iteration
-
-                # Draw the paths
+                # Draw the paths             
                 netlist.execute_connections(board)
+
+                # Set heuristics pathfinding
+                settings.COST_DEPTH += settings.STEP_COST_DEPTH
+                settings.COST_PASSING_GATE += settings.STEP_COST_PASSING_GATE
 
                 # Save the scores and result of this iteration
                 self.results.append(netlist.get_result("average"))
@@ -807,6 +814,10 @@ class Solution:
                 if settings.SHOW_PROGRESS:
                     sys.stdout.flush()
                     print("·", end="")
+
+            # Reset heurstic variables
+            settings.COST_DEPTH = cost_depth_start
+            settings.COST_PASSING_GATE = cost_passing_gate_start
 
             # See if this netlist led to improvements
             if board_iteration - 1 <= settings.MAX_NO_IMPROVE:
@@ -848,7 +859,7 @@ class Solution:
 
         # Print result
         print("")
-        print("----------- BEST RESULT out of " + str(self.boards) + " boards --------------")
+        print("------------ BEST RESULT out of " + str(self.boards) + " boards ---------------")
         print("Paths drawn: " + CLR.GREEN + str(round(self.best_result * 100, 2)) + "%" + CLR.DEFAULT)
         print("Score: " + CLR.GREEN + str(self.best_score) + CLR.DEFAULT)
         print("Order of that netlist:")
