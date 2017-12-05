@@ -834,11 +834,10 @@ class Solution:
                 # Show progress
                 if settings.SHOW_PROGRESS:
                     sys.stdout.flush()
-                    print("·", end="")
+                    print(netlist.get_result("average"))
+                    print(board.get_score())
+                    #print("·", end="")
 
-            # Reset heurstic variables
-            settings.COST_DEPTH = cost_depth_start
-            settings.COST_PASSING_GATE = cost_passing_gate_start
 
             # See if this netlist led to improvements
             if board_iteration - 1 <= settings.MAX_NO_IMPROVE:
@@ -850,6 +849,8 @@ class Solution:
                 print("----------------- NETLIST GENERATION: " + str(len(self.netlists)) + " -------------------")
                 print("Paths drawn: " + CLR.YELLOW + str(round(netlist.get_result("average") * 100, 2)) + "%" + CLR.DEFAULT)
                 print("Score: " + CLR.YELLOW + str(board.get_score()) + CLR.DEFAULT)
+                print("Cost depth: " + CLR.YELLOW + str(settings.COST_DEPTH) + CLR.DEFAULT)
+                print("Cost passing gate: " + CLR.YELLOW + str(settings.COST_PASSING_GATE) + CLR.DEFAULT)
 
             if settings.SHOW_EACH_NETLIST:
                 print("Netlist: " + CLR.YELLOW + str(netlist.list) + CLR.DEFAULT)
@@ -858,7 +859,10 @@ class Solution:
             if settings.SHOW_EACH_PLOT:
                 board.plot()
             
-            
+            # Reset heurstic variables
+            settings.COST_DEPTH = cost_depth_start
+            settings.COST_PASSING_GATE = cost_passing_gate_start
+
             # Make next generation of netlist
             new_netlist = Netlist(netlist.number)
 
