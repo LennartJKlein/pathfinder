@@ -204,11 +204,11 @@ class Gate:
         self.z = int(z)
         self.spaces_needed = spaces_needed
 
-    def get_free_spaces(self, netlist, board, coord):
+    def get_free_spaces(self, board, coord):
         """
         :return: Interger with the amount of free spaces
         """
-
+        counter = 0
         free_spaces = 0
 
         for neighbor in board.get_neighbors(coord):
@@ -347,31 +347,25 @@ class Netlist:
     def first_to_back(self):
         self.list.append(self.list.pop(0))
 
-    def tuple_value(self,netlist_tuple):
-        # Retrun the combined value of the two items in the tuple
-        connection_list = []
-
-        # Loop through the netlist append all connections in to a new list
-        for tuples in self.list:
-            for connection in tuples:
-                connection_list.append(connection)
-
-        # Use the Counter class to count occurrences of a number and make a
-        # dict containing occurrences and number.
-        counter_dict = dict(Counter(connection_list))
-
-        # Return the value of the combination
-        return counter_dict[netlist_tuple[0]] + counter_dict[netlist_tuple[1]]
-
     def sort_by_connection(self):
         # Return a new sorted array containing the sorted array based on values
         # calculated by tuple value
         sorted_dict = {}
+        gate_list = []
 
-        # Loop calculate the value of the tuple, make a dict containing the values
-        for tuples in self.list:
-            value = self.tuple_value(tuples)
-            sorted_dict[tuples] = value
+        # Loop through the netlist and append all connections to a new list
+        for netlist_tuple in self.list:
+            for gate in netlist_tuple:
+                gate_list.append(gate)
+
+        # Use the Counter class to count occurrences of a number and make a
+        # dict containing occurrences and number.
+        counter_gates = dict(Counter(gate_list))
+        
+        # Get the value of the tuple, and make a dict containing the values
+        for netlist_tuple in self.list:
+            value = counter_gates[netlist_tuple[0]] + counter_gates[netlist_tuple[1]]
+            sorted_dict[netlist_tuple] = value
 
         # Return the sorted array based on the items in revered order.
         return sorted(sorted_dict, key=sorted_dict.__getitem__, reverse=True)
@@ -800,8 +794,8 @@ class Solution:
 
                 # See if this board has better scores
                 if self.best_score == 0 \
-                   or (netlist.get_result("average") > self.best_result \
-                   and board.get_score() < self.best_score):
+                   or netlist.get_result("average") > self.best_result \
+                   or (netlist.get_result("average") == self.best_result and board.get_score() < self.best_score):
 
                     self.best_score = board.get_score()
                     self.best_result = netlist.get_result("average")
@@ -832,7 +826,7 @@ class Solution:
             # Print results of this execution
             if settings.SHOW_EACH_RESULT:
                 print("")
-                print("------------- NETLIST GENERATION: " + str(len(self.netlists)) + " ---------------")
+                print("----------------- NETLIST GENERATION: " + str(len(self.netlists)) + " -------------------")
                 print("Paths drawn: " + CLR.YELLOW + str(round(netlist.get_result("average") * 100, 2)) + "%" + CLR.DEFAULT)
                 print("Score: " + CLR.YELLOW + str(board.get_score()) + CLR.DEFAULT)
                 print("")
