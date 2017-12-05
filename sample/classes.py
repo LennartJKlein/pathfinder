@@ -491,12 +491,13 @@ class Path:
                         continue
 
                 # Make it cheaper to go deeper
-                cost_neighbor = cost_archive[current_tpl]
-                cost_depth = neighbor[0] * board.cost_depth
-                if cost_neighbor - cost_depth >= 0:
-                    cost_neighbor -= cost_depth
-                else:
-                    cost_neighbor = 0
+                # cost_neighbor = cost_archive[current_tpl] + 10
+                # cost_depth = neighbor[0] * board.cost_depth
+                # if cost_neighbor - cost_depth >= 0:
+                #     cost_neighbor -= cost_depth
+                # else:
+                #     cost_neighbor = 0
+                cost_neighbor = cost_archive[current_tpl] + 1;
 
                 # Sum surrounding gates
                 if neighbor[0] < 2:
@@ -785,6 +786,10 @@ class Solution:
                 # Place gates on this board
                 board.set_gates(gates)
 
+                # Set heuristics pathfinding
+                board.cost_depth = settings.START_COST_DEPTH + settings.STEP_COST_DEPTH * board_iteration
+                board.cost_passing_gate = settings.START_COST_PASSING_GATE + settings.STEP_COST_PASSING_GATE * board_iteration
+
                 # Draw the paths
                 netlist.execute_connections(board)
 
@@ -806,14 +811,11 @@ class Solution:
                     # New settings haven't improved the score
                     no_board_improvements += 1
 
-                # Change heuristics for next loop
-                print(settings.START_COST_DEPTH + (settings.STEP_COST_DEPTH * board_iteration))
-                board.cost_depth = settings.START_COST_DEPTH + (settings.STEP_COST_DEPTH * board_iteration)
-                board.cost_passing_gate = settings.START_COST_PASSING_GATE + (settings.STEP_COST_PASSING_GATE * board_iteration)
-                board_iteration += 1
-                
                 # Reset gate variables
                 gates.reset_spaces_needed(netlist)
+                
+                # Count this iteration
+                board_iteration += 1
                 
                 # Show progress
                 if settings.SHOW_PROGRESS:
