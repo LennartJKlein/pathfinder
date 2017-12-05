@@ -335,7 +335,7 @@ class Netlist:
 
     def get_result(self, type):
         if type is "average":
-            return self.connections_made / self.connections
+            return round(self.connections_made / self.connections * 100, 2)
         if type is "made":
             return self.connections_made
         if type is "broken":
@@ -343,7 +343,7 @@ class Netlist:
 
     def print_result(self):
         print(CLR.YELLOW + "Paths drawn: " + str(self.connections_made) + " / " + str(self.connections) + CLR.DEFAULT)
-        print(CLR.YELLOW + str(round(self.connections_made / self.connections * 100, 2)) + "%" + CLR.DEFAULT)
+        print(CLR.YELLOW + str(round(self.connections_made / self.connections, 2)) + "%" + CLR.DEFAULT)
         print("")
 
     def switch_back_one(self, target):
@@ -768,7 +768,7 @@ class Solution:
         fig = plt.figure()
         ax = fig.gca()
         ax.set_xlabel("Iteration")
-        ax.set_ylabel("Paths drawn (1 = all)")
+        ax.set_ylabel("Paths drawn (percent)")
         ax.plot(self.results)
         plt.show()
 
@@ -828,9 +828,9 @@ class Solution:
                 # Show progress
                 if settings.SHOW_PROGRESS:
                     sys.stdout.flush()
-                    print("drawn: " + str(netlist.get_result("average")))
-                    print("score: " + str(board.get_score()))
                     print("")
+                    print("paths drawn: " + str(netlist.get_result("average")) + "%")
+                    print("this score: " + str(board.get_score()))
 
                 # Reset variables for board and netlist
                 gates.reset_spaces_needed(netlist)
@@ -848,8 +848,8 @@ class Solution:
             if settings.SHOW_EACH_RESULT:
                 print("")
                 print("----------------- NETLIST GENERATION: " + str(len(self.netlists)) + " -------------------")
-                print("Paths drawn: " + CLR.YELLOW + str(round(self.best_result * 100, 2)) + "%" + CLR.DEFAULT)
-                print("Score: " + CLR.YELLOW + str(board.get_score()) + CLR.DEFAULT)
+                print("Paths drawn: " + CLR.YELLOW + str(round(self.best_result, 2)) + "%" + CLR.DEFAULT)
+                print("Score: " + CLR.YELLOW + str(self.best_board.get_score()) + CLR.DEFAULT)
                 print("Cost depth: " + CLR.YELLOW + str(settings.COST_DEPTH) + CLR.DEFAULT)
                 print("Cost passing gate: " + CLR.YELLOW + str(settings.COST_PASSING_GATE) + CLR.DEFAULT)
 
@@ -885,7 +885,7 @@ class Solution:
         # Print result
         print("")
         print("------------ BEST RESULT out of " + str(self.boards) + " boards ---------------")
-        print("Paths drawn: " + CLR.GREEN + str(round(self.best_result * 100, 2)) + "%" + CLR.DEFAULT)
+        print("Paths drawn: " + CLR.GREEN + str(round(self.best_result, 2)) + "%" + CLR.DEFAULT)
         print("Score: " + CLR.GREEN + str(self.best_score) + CLR.DEFAULT)
         print("Order of that netlist:")
         print(CLR.GREEN + str(self.best_netlist.list) + CLR.DEFAULT)
