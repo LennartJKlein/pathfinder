@@ -807,8 +807,8 @@ class Solution:
                     no_board_improvements += 1
 
                 # Change heuristics for next loop
-                board.cost_depth = settings.STEP_COST_DEPTH * board_iteration
-                board.cost_passing_gate = settings.STEP_COST_PASSING_GATE * board_iteration
+                board.cost_depth = settings.START_COST_DEPTH + (settings.STEP_COST_DEPTH * board_iteration)
+                board.cost_passing_gate = settings.START_COST_PASSING_GATE + (settings.STEP_COST_PASSING_GATE * board_iteration)
                 board_iteration += 1
                 
                 # Reset gate variables
