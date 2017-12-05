@@ -710,24 +710,10 @@ class Solution:
         self.best_score = 0
         self.best_result = 0
 
-        self.boards = []
+        self.boards = 0
         self.netlists = []
         self.scores = []
         self.results = []
-
-    def get_boards(self):
-        """
-        return: Get all boards in the board list
-        """
-
-        return self.boards
-
-    def get_netlists(self):
-        """
-        :return: Get all netlists in the netlist list
-        """
-
-        return self.netlists
 
     def get_scores(self):
         """
@@ -781,7 +767,7 @@ class Solution:
 
                 # Create and remember a new board
                 board = Board(settings.BOARD_WIDTH, settings.BOARD_HEIGHT, settings.BOARD_DEPTH)
-                self.boards.append(board)
+                self.boards += 1
 
                 # Place gates on this board
                 board.set_gates(gates)
@@ -862,7 +848,7 @@ class Solution:
 
         # Print result
         print("")
-        print("----------- BEST RESULT out of " + str(len(self.boards)) + " boards --------------")
+        print("----------- BEST RESULT out of " + str(self.boards) + " boards --------------")
         print("Paths drawn: " + CLR.GREEN + str(round(self.best_result * 100, 2)) + "%" + CLR.DEFAULT)
         print("Score: " + CLR.GREEN + str(self.best_score) + CLR.DEFAULT)
         print("Order of that netlist:")
