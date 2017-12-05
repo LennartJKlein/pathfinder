@@ -293,6 +293,9 @@ class Netlist:
 
         self.list = literal_eval(self.list)
 
+        # Count amount of needed connections in this netlist
+        self.connections = len(self.list)
+
     def execute_connections(self, board):
         '''
         Draw all the connections in this netlist. Saves the results of this execution
@@ -301,7 +304,6 @@ class Netlist:
         path_number = settings.SIGN_PATH_START
 
         for connection in self.list:
-            self.connections += 1
 
             # Get the coordinates of the two gates in this connection
             a = connection[0]
@@ -823,19 +825,20 @@ class Solution:
                     # New settings haven't improved the score
                     no_board_improvements += 1
 
-                # Reset gate variables
-                gates.reset_spaces_needed(netlist)
-                
-                # Count this iteration
-                board_iteration += 1
-                
                 # Show progress
                 if settings.SHOW_PROGRESS:
                     sys.stdout.flush()
-                    print(netlist.get_result("average"))
-                    print(board.get_score())
-                    #print("·", end="")
+                    print("drawn: " + str(netlist.get_result("average")))
+                    print("score: " + str(board.get_score()))
+                    print("")
 
+                # Reset variables for board and netlist
+                gates.reset_spaces_needed(netlist)
+                netlist.connections_made = 0
+                netlist.connections_broken = 0
+                
+                # Count this iteration
+                board_iteration += 1
 
             # See if this netlist led to improvements
             if board_iteration - 1 <= settings.MAX_NO_IMPROVE:
@@ -845,7 +848,7 @@ class Solution:
             if settings.SHOW_EACH_RESULT:
                 print("")
                 print("----------------- NETLIST GENERATION: " + str(len(self.netlists)) + " -------------------")
-                print("Paths drawn: " + CLR.YELLOW + str(round(netlist.get_result("average") * 100, 2)) + "%" + CLR.DEFAULT)
+                print("Paths drawn: " + CLR.YELLOW + str(round(self.best_result * 100, 2)) + "%" + CLR.DEFAULT)
                 print("Score: " + CLR.YELLOW + str(board.get_score()) + CLR.DEFAULT)
                 print("Cost depth: " + CLR.YELLOW + str(settings.COST_DEPTH) + CLR.DEFAULT)
                 print("Cost passing gate: " + CLR.YELLOW + str(settings.COST_PASSING_GATE) + CLR.DEFAULT)
