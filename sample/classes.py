@@ -779,6 +779,8 @@ class Solution:
     def run(self, gates, netlist):
 
         no_netlist_improvements = 0
+        cost_depth_start = settings.COST_DEPTH
+        cost_passing_gate_start = settings.COST_PASSING_GATE
 
         while no_netlist_improvements <= settings.MAX_NO_IMPROVE:
 
@@ -788,8 +790,6 @@ class Solution:
             # Set temporary counters
             no_board_improvements = 0
             board_iteration = 0
-            cost_depth_start = settings.COST_DEPTH
-            cost_passing_gate_start = settings.COST_PASSING_GATE
 
             while no_board_improvements <= settings.MAX_NO_IMPROVE:
 
@@ -803,9 +803,6 @@ class Solution:
                 # Draw the paths
                 netlist.execute_connections(board)
 
-                # Set heuristics pathfinding
-                settings.COST_DEPTH += settings.STEP_COST_DEPTH
-                settings.COST_PASSING_GATE += settings.STEP_COST_PASSING_GATE
 
                 # Save the scores and result of this iteration
                 self.results.append(netlist.get_result("average"))
@@ -831,6 +828,8 @@ class Solution:
                     print("")
                     print("paths drawn: " + str(netlist.get_result("average")) + "%")
                     print("this score: " + str(board.get_score()))
+                    print("cost depth: " + str(settings.COST_DEPTH))
+                    print("cost passing gate: " + str(settings.COST_PASSING_GATE))
 
                 # Reset variables for board and netlist
                 gates.reset_spaces_needed(netlist)
@@ -839,6 +838,10 @@ class Solution:
                 
                 # Count this iteration
                 board_iteration += 1
+                
+                # Set adapted heuristics for next board
+                settings.COST_DEPTH += settings.STEP_COST_DEPTH
+                settings.COST_PASSING_GATE += settings.STEP_COST_PASSING_GATE
 
             # See if this netlist led to improvements
             if board_iteration - 1 <= settings.MAX_NO_IMPROVE:
@@ -847,11 +850,10 @@ class Solution:
             # Print results of this execution
             if settings.SHOW_EACH_RESULT:
                 print("")
-                print("----------------- NETLIST GENERATION: " + str(len(self.netlists)) + " -------------------")
+                print("--------------- NETLIST GENERATION: " + str(len(self.netlists)) + " MADE ---------------")
+                print("")
                 print("Paths drawn: " + CLR.YELLOW + str(round(self.best_result, 2)) + "%" + CLR.DEFAULT)
                 print("Score: " + CLR.YELLOW + str(self.best_board.get_score()) + CLR.DEFAULT)
-                print("Cost depth: " + CLR.YELLOW + str(settings.COST_DEPTH) + CLR.DEFAULT)
-                print("Cost passing gate: " + CLR.YELLOW + str(settings.COST_PASSING_GATE) + CLR.DEFAULT)
 
             if settings.SHOW_EACH_NETLIST:
                 print("Netlist: " + CLR.YELLOW + str(netlist.list) + CLR.DEFAULT)
@@ -860,6 +862,9 @@ class Solution:
             if settings.SHOW_EACH_PLOT:
                 board.plot()
 
+            # Reset heuristics
+            settings.COST_DEPTH = cost_depth_start
+            settings.COST_PASSING_GATE = cost_passing_gate_start
 
             # Make next generation of netlist
             new_netlist = Netlist(netlist.number)
