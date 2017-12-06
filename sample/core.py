@@ -8,105 +8,51 @@ Pathfinder will find the most efficient path between two gates on a board.
 """
 
 import settings
-
-import numpy as np
-import matplotlib.pyplot as plt
-import csv
-
-import classes
-from classes import Board
-from classes import Netlist
-from classes import Gate
 import colors as CLR
 
+from classes import Solution
+from classes import Gates
+from classes import Netlist
+
 def main():
-    '''
+    """" 
     Initialise and draw a grid called Board
     Read gate locations from gates file
-    '''
-
-    # Config NumPy
-    np.set_printoptions(threshold=np.nan)
-
-    # Show chosen settings
-    print("Using netlist #" + str(settings.FILE_NETLIST))
-    print("Using gates file #" + str(settings.FILE_GATES))
+    """
+    
+    # Print program settings
+    print("")
+    print("Using netlist: " + CLR.GREEN + str(settings.FILE_NETLIST) + CLR.DEFAULT)
+    print("Using gates file: " + CLR.GREEN + str(settings.FILE_GATES) + CLR.DEFAULT)
+    print("Using pathfinding algorithm: " + CLR.GREEN + str(settings.PATH_ALGORITHM) + CLR.DEFAULT)
     print("")
 
-    # Keep track of results on different weights
-    weights = []
-    score = []
+    # Initiate a new netlist
+    netlist = Netlist(settings.FILE_NETLIST)
+    netlist.sort_by_connection()
 
-    # Experiment
-    for i in range(settings.AMOUNT_BOARDS):
+    # Initiate the gates
+    gates = Gates(settings.FILE_GATES, settings.SIGN_GATE, netlist)
 
-        # Initiate a board with a specified size
-        board = Board(settings.BOARD_WIDTH, settings.BOARD_HEIGHT, settings.BOARD_DEPTH)
+    # 
+    # COMMANDS TO OPTIMIZE NETLIST HERE
+    # 
 
-        # Create a netlist and calculate path
-        netlist = Netlist(settings.FILE_NETLIST)
+    # Initiate a new solution
+    solution = Solution()
+    solution.run(gates, netlist)
 
-        # Read a CSV file for gate tuples
-        with open('data/gates'+ str(settings.FILE_GATES) + '.csv', 'r') as csvfile:
-            reader = csv.reader(csvfile)
+    # Plot solution information
+    if settings.PLOT_SCORES:
+        solution.plot_scores()
 
-            # Skip the header
-            next(reader, None)
+    # Plot solution information
+    if settings.PLOT_RESULTS:
+        solution.plot_results()
 
-            for row in reader:
-                # Skip row if the data is commented
-                if row[0][:1] != '#':
-
-                    # Get the name of the gate
-                    gateLabel = int(row[0])
-
-                    # Fetch the coords X and Y
-                    gateX = int(row[1])
-                    gateY = int(row[2])
-                    gateZ = int(row[3])
-
-                    # Save gate object in gates list
-                    new_gate = Gate(netlist, gateLabel, gateX, gateY, gateZ)
-
-                    # Set a gate in the grid for every row in the file
-                    board.gatesObjects[gateZ, gateY, gateX] = new_gate
-                    board.gatesNumbers[gateZ, gateY, gateX] = gateLabel
-                    board.board[gateZ, gateY, gateX] = settings.SIGN_GATE
-
-        # Calculate the connections in this netlist
-        amount_paths, amount_fail, amount_success = netlist.execute_connections(board)
-
-        weights.append(settings.ASTAR_WEIGHT)
-        score.append(amount_success)
-
-        # APPEND SETTINGS
-        settings.ASTAR_WEIGHT += 2
-
-        # Print results of this execution
-        print("------------ BOARD: " + str(i) + " --------------")
-        print("Weight: " + str(settings.ASTAR_WEIGHT))
-        print(CLR.YELLOW + "Paths calculated: " + str(amount_success) + " / " + str(amount_paths) + CLR.DEFAULT)
-        # print(CLR.YELLOW + str(round(amount_success / amount_paths * 100, 2)) + "%" + CLR.DEFAULT)
-        # print("")
-        # print(CLR.YELLOW + "Score: " + str(board.get_score()) + CLR.DEFAULT)
-        # print("")
-        # print("")
-
-        # Print the board data
-        # board.print_board()
-
-        # Plot the board
-        # board.plot()
-
-    # Config graph plot for iteration information
-    # fig = plt.figure()
-    # ax = fig.gca()
-    # ax.set_xlim(0, 100)
-    # ax.set_ylim(30, 80)
-    # ax.set_xlabel("Weight")
-    # ax.set_ylabel("Paths drawn")
-    # ax.plot(weights, score)
-    # plt.show()
+    # Plot solution board
+    if settings.PLOT_BEST:
+        solution.plot_best()
 
 if __name__ == '__main__':
     main()
