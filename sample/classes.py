@@ -23,6 +23,7 @@ import csv
 import helpers
 from collections import Counter
 import random
+import copy
 
 
 class Board:
@@ -59,7 +60,7 @@ class Board:
 
         self.paths = []
         self.paths_broken = []
-        self.paths_made = []
+        self.paths_drawn = []
 
     def draw_paths(self):
         '''
@@ -68,26 +69,59 @@ class Board:
 
         # Calculate the route for this path
         for path in self.paths:
-            result = path.calculate(settings.PATH_ALGORITHM, self)
+            result = path.draw(settings.PATH_ALGORITHM, self)
 
             # Save the results of this execution
             if result == True:
-                self.paths_made.append(path)
+                self.paths_drawn.append(path)
             else:
                 self.paths_broken.append(path)
 
-    def redraw_broken_path(self, path):
-        drawn_path = random.choice(paths_made)
-        broken_path = paths_broken.pop(0)
-
+    def redraw_broken_path(self):        
+        # Get first broken path
+        broken_path = self.paths_broken.pop(0)
         broken_path.undraw(self)
 
+        amount_drawn_paths = len(self.paths_drawn)
+
+        # Undraw other paths one by one
+        for i in range(amount_drawn_paths):
+
+            # Get and undraw first path
+            drawn_path = self.paths_drawn.pop(0)
+            drawn_path.undraw(self)
+
+            # Try to draw broken path
+            if broken_path.draw(settings.PATH_ALGORITHM, self):
+                self.paths_drawn.append(broken_path)
+
+                # Try to draw the removed path again
+                if drawn_path.draw(settings.PATH_ALGORITHM, self):
+                    self.paths_drawn.append(drawn_path)
+                else:
+                    self.paths_broken.append(drawn_path)
+                
+                return True
+            else:
+                # Reset the removed path
+                drawn_path.draw(settings.PATH_ALGORITHM, self)
+                self.paths_drawn.append(drawn_path)
+
+        # Couldn't fix this broken path
+        self.paths_broken.append(broken_path)
+        return False
+        
+    def shorten_every_path(self):
+        # Redraw every path with DIJKSTRA pathfinding
+        for path in self.paths:
+            path.undraw(self)
+            path.draw("DIJKSTRA", self)
 
     def get_result(self, type):
         if type is "average":
-            return round(len(self.paths_made) / len(self.paths) * 100, 2)
+            return round(len(self.paths_drawn) / len(self.paths) * 100, 2)
         if type is "made":
-            return len(self.paths_made)
+            return len(self.paths_drawn)
         if type is "broken":
             return len(self.paths_broken)
 
@@ -113,6 +147,10 @@ class Board:
                 coords.append(coord[2])
 
         return coords
+
+    def reset_coordinate(self, z, y, x):
+
+        self.board[z, y, x] = 0
 
     def get_neighbors(self, coord):
         """
@@ -165,7 +203,6 @@ class Board:
         ax.set_xlabel("X")
         ax.set_ylabel("Y")
         ax.set_zlabel("Z")
-
 
         for path in self.paths:
             ax.plot(
@@ -399,17 +436,18 @@ class Path:
         
         # Add one to the needed connections for gate A and B
         board.gates_objects[self.a[0], self.a[1], self.a[2]].spaces_needed += 1
-        board.gates_objects[self.b[0], self.b[1], self.b[2]].spaces_needed += 1        
+        board.gates_objects[self.b[0], self.b[1], self.b[2]].spaces_needed += 1
 
         # Loop through every coord of the path
         for coord in self.path:
-            if board.board[coord[0], coord[1], coord[2]] != settigns.SIGN_GATE:
-                board.board[cursor[0], cursor[1], cursor[2]] = 0
-            self.path.remove(coord)
+            # Reset this coord on the board to 0
+            if board.board[coord[0], coord[1], coord[2]] != settings.SIGN_GATE:
+                board.reset_coordinate(coord[0], coord[1], coord[2])
 
-        print(self.path)
+        # Empty the path list
+        self.path = []
 
-    def calculate(self, algorithm, board):
+    def draw(self, algorithm, board):
         '''
         Calculate route between two points
         :param board:       a threedimensional Numpy array
@@ -417,12 +455,12 @@ class Path:
         '''
 
         if algorithm == "DIJKSTRA":
-            return self.calculate_DIJKSTRA(board)
+            return self.draw_DIJKSTRA(board)
 
         if algorithm == "ASTAR":
-            return self.calculate_ASTAR(board)
+            return self.draw_ASTAR(board)
 
-    def calculate_ASTAR(self, board):
+    def draw_ASTAR(self, board):
         '''
         Calculate route between two points with the A* algorithm
         :param board: a threedimensional Numpy array
@@ -505,9 +543,6 @@ class Path:
         # Backtracking the path
         if found:
 
-            # print(cost_archive)
-            # exit()
-
             # Add destination to the path route
             self.add_coordinate(self.b)
 
@@ -535,7 +570,7 @@ class Path:
         else:
             return False
 
-    def calculate_DIJKSTRA(self, board):
+    def draw_DIJKSTRA(self, board):
         '''
         Calculate route between two points with the Dijkstra algorithm
         :param board: a Numpy array
@@ -652,7 +687,7 @@ class Path:
 
         else:
             #if settings.SHOW_EACH_RESULT
-                #print("Path " + str(self.label) + " ERROR. Could not be calculated.")
+                #print("Path " + str(self.label) + " ERROR. Could not be drawn.")
 
             return False
 
@@ -739,7 +774,6 @@ class Solution:
             print("--------------------------------------------------------")
 
         # Set temporary counters
-        boards = 0
         no_path_improvements = 0
 
         # Create a new board
@@ -755,7 +789,7 @@ class Solution:
         while no_path_improvements <= settings.MAX_NO_IMPROVE:
                 
             # Count this iteration
-            boards += 1
+            self.boards += 1
 
             # Get the results of this board
             result = board.get_result("average")
@@ -764,6 +798,7 @@ class Solution:
             # Save the scores and result of this iteration
             self.results.append(result)
             self.scores.append(score)
+
 
             # Show progress
             if settings.SHOW_PROGRESS:
@@ -782,6 +817,21 @@ class Solution:
             if settings.SHOW_EACH_PLOT:
                 board.plot()
 
+            # Create a copy of this board for next iteration
+            board_new = copy.deepcopy(board)
+            board_new.paths = []
+            board_new.paths_drawn = []
+            board_new.paths_broken = []
+
+            for path in board.paths:
+                board_new.paths.append(copy.deepcopy(path))
+
+            for path in board.paths_drawn:
+                board_new.paths_drawn.append(copy.deepcopy(path))
+                
+            for path in board.paths_broken:
+                board_new.paths_broken.append(copy.deepcopy(path))
+
             # See if this board has better scores
             if self.best_score == 0 \
                or result > self.best_result \
@@ -792,12 +842,16 @@ class Solution:
                 self.best_board = board
 
             else:
-                # New settings haven't improved the score
+                # Count the no improvement on the score
                 no_path_improvements += 1
+                
+                # Delete this board
+                for path in board.paths:
+                    del path
+                del board
 
-            ## MUTATIONS FOR NEXT ITERATION
-
-            # CREATE COPY OF BOARD
+            # Fetch new board for next iteration
+            board = board_new
 
             # If not all paths are drawn
             if len(board.paths_broken) > 0:
