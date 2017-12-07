@@ -117,6 +117,29 @@ class Board:
             path.undraw(self)
             path.draw("DIJKSTRA", self)
 
+    def redraw_random_path(self):
+        # Pick three random paths
+        paths = []
+        index = random.randint(0, len(self.paths_drawn) - 1)
+        paths.append(self.paths_drawn.pop(0 + index))
+        paths.append(self.paths_drawn.pop(1 + index))
+
+        for path in paths:
+            # Undraw the path
+            path.undraw(self)
+
+        temp_cost = settings.COST_PASSING_GATE
+        settings.COST_PASSING_GATE = 0
+
+        for path in paths:
+            # Redraw the path
+            if path.draw("ASTAR", self):
+                self.paths_drawn.append(path)
+            else:
+                self.paths_broken.append(path)
+
+        settings.COST_PASSING_GATE = temp_cost
+
     def get_result(self, type):
         if type is "average":
             return round(len(self.paths_drawn) / len(self.paths) * 100, 2)
@@ -853,11 +876,13 @@ class Solution:
             # Fetch new board for next iteration
             board = board_new
 
-            # If not all paths are drawn
             if len(board.paths_broken) > 0:
+                # Try to repair the broken paths
                 board.redraw_broken_path()
             else:
+                # Make mutations on the paths
                 board.shorten_every_path()
+                board.redraw_random_path()
 
         # Print best result of this run
         print("")
