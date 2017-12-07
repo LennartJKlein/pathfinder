@@ -23,14 +23,9 @@ print("")
 
 # Initiate a new netlist
 netlist = Netlist(settings.FILE_NETLIST)
-netlist.sort_by_connection()
 
 # Initiate the gates
 gates = Gates(settings.FILE_GATES, settings.SIGN_GATE, netlist)
-
-# 
-# COMMANDS TO OPTIMIZE NETLIST HERE
-# 
 
 # Initiate a new solution
 solution = Solution()
