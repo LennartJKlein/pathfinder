@@ -22,6 +22,8 @@ import heapq
 import csv
 import helpers
 from collections import Counter
+import random
+import copy
 
 
 class Board:
@@ -52,12 +54,99 @@ class Board:
         self.height = height
         self.depth = depth
         self.board = np.zeros((self.depth, self.height, self.width), dtype=int)
-        self.paths = []
+        
         self.gates_objects = np.empty((self.depth, self.height, self.width), dtype=object)
         self.gates_numbers = np.zeros((self.depth, self.height, self.width), dtype=int)
 
-        self.cost_depth = 0
-        self.cost_passing_gate = 0
+        self.paths = []
+        self.paths_broken = []
+        self.paths_drawn = []
+
+    def draw_paths(self):
+        '''
+        Draw all the paths for this board (if possible)
+        '''
+
+        # Calculate the route for this path
+        for path in self.paths:
+            result = path.draw(settings.PATH_ALGORITHM, self)
+
+            # Save the results of this execution
+            if result == True:
+                self.paths_drawn.append(path)
+            else:
+                self.paths_broken.append(path)
+
+    def redraw_broken_path(self):        
+        # Get first broken path
+        broken_path = self.paths_broken.pop(0)
+        broken_path.undraw(self)
+
+        amount_drawn_paths = len(self.paths_drawn)
+
+        # Undraw other paths one by one
+        for i in range(amount_drawn_paths):
+
+            # Get and undraw first path
+            drawn_path = self.paths_drawn.pop(0)
+            drawn_path.undraw(self)
+
+            # Try to draw broken path
+            if broken_path.draw(settings.PATH_ALGORITHM, self):
+                self.paths_drawn.append(broken_path)
+
+                # Try to draw the removed path again
+                if drawn_path.draw(settings.PATH_ALGORITHM, self):
+                    self.paths_drawn.append(drawn_path)
+                else:
+                    self.paths_broken.append(drawn_path)
+                
+                return True
+            else:
+                # Reset the removed path
+                drawn_path.draw(settings.PATH_ALGORITHM, self)
+                self.paths_drawn.append(drawn_path)
+
+        # Couldn't fix this broken path
+        self.paths_broken.append(broken_path)
+        return False
+        
+    def shorten_every_path(self):
+        # Redraw every path with DIJKSTRA pathfinding
+        for path in self.paths:
+            path.undraw(self)
+            path.draw("DIJKSTRA", self)
+
+    def redraw_random_path(self):
+        # Pick three random paths
+        paths = []
+        index = random.randint(0, len(self.paths_drawn) - 1)
+        paths.append(self.paths_drawn.pop(0 + index))
+        paths.append(self.paths_drawn.pop(1 + index))
+
+        for path in paths:
+            # Undraw the path
+            path.undraw(self)
+
+        temp_cost = settings.COST_PASSING_GATE
+        settings.COST_PASSING_GATE = 0
+
+        for path in paths:
+            # Redraw the path
+            if path.draw("ASTAR", self):
+                self.paths_drawn.append(path)
+            else:
+                self.paths_broken.append(path)
+
+        settings.COST_PASSING_GATE = temp_cost
+
+    def get_result(self, type):
+        if type is "average":
+            return round(len(self.paths_drawn) / len(self.paths) * 100, 2)
+        if type is "made":
+            return len(self.paths_drawn)
+        if type is "broken":
+            return len(self.paths_broken)
 
     def get_coords(self, axes, label):
         """
@@ -81,6 +170,10 @@ class Board:
                 coords.append(coord[2])
 
         return coords
+
+    def reset_coordinate(self, z, y, x):
+
+        self.board[z, y, x] = 0
 
     def get_neighbors(self, coord):
         """
@@ -119,15 +212,6 @@ class Board:
 
         return len(np.argwhere(self.board >= settings.SIGN_PATH_START))
 
-    def print_score(self):
-        """
-        Return:
-            Print the score
-        """
-
-        print(CLR.YELLOW + "Score: " + str(self.get_score()) + CLR.DEFAULT)
-        print("")
-
     def plot(self):
         """
         Return:
@@ -142,7 +226,6 @@ class Board:
         ax.set_xlabel("X")
         ax.set_ylabel("Y")
         ax.set_zlabel("Z")
-
 
         for path in self.paths:
             ax.plot(
@@ -184,6 +267,25 @@ class Board:
           self.gates_numbers[gate.z, gate.y, gate.x] = gate.label
           self.board[gate.z, gate.y, gate.x] = gates.sign_gate
 
+    def set_paths(self, netlist):
+        path_number = settings.SIGN_PATH_START
+
+        for connection in netlist.list:
+
+            # Get the coordinates of the two gates in this connection
+            a = connection[0]
+            b = connection[1]
+            coordGateA = np.argwhere(self.gates_numbers == a + 1)
+            coordGateB = np.argwhere(self.gates_numbers == b + 1)
+
+            # Create a new path object
+            new_path = Path(coordGateA[0], coordGateB[0], path_number, "grey")
+
+            # Add this path to the board object
+            self.paths.append(new_path)
+
+            # Set a new path_number for the next path
+            path_number += 1
 
 class Gate:
     """
@@ -283,9 +385,6 @@ class Netlist:
         self.filename += str(number)
         self.filename += ".txt"
         self.connections = 0
-        self.connections_made = 0
-        self.connections_broken = 0
-        self.tuple_error = None
 
         # Open netlist and read with literal evaluation
         with open(self.filename) as f:
@@ -296,57 +395,10 @@ class Netlist:
         # Count amount of needed connections in this netlist
         self.connections = len(self.list)
 
-    def execute_connections(self, board):
-        '''
-        Draw all the connections in this netlist. Saves the results of this execution
-        :param board:  a threedimensional Numpy array
-        '''
-        path_number = settings.SIGN_PATH_START
+        # Order this list by importance of connections
+        self.sort_by_connection()
 
-        for connection in self.list:
-
-            # Get the coordinates of the two gates in this connection
-            a = connection[0]
-            b = connection[1]
-            coordGateA = np.argwhere(board.gates_numbers == a + 1)
-            coordGateB = np.argwhere(board.gates_numbers == b + 1)
-
-            # Create a new path object
-            new_path = Path(coordGateA[0], coordGateB[0], path_number, "grey")
-
-            # Add this path to the board object
-            board.paths.append(new_path)
-
-            # Calculate the route for this path
-            result = new_path.calculate(settings.PATH_ALGORITHM, board)
-
-            # Save the results of this execution
-            if result == True:
-                self.connections_made += 1
-            else:
-                self.connections_broken += 1
-
-                # Save this tuple for mutating the netlist
-                if self.tuple_error == None:
-                    self.tuple_error = connection
-
-            # Set a new path_number for the next path
-            path_number += 1
-
-    def get_result(self, type):
-        if type is "average":
-            return round(self.connections_made / self.connections * 100, 2)
-        if type is "made":
-            return self.connections_made
-        if type is "broken":
-            return self.connections_broken
-
-    def print_result(self):
-        print(CLR.YELLOW + "Paths drawn: " + str(self.connections_made) + " / " + str(self.connections) + CLR.DEFAULT)
-        print(CLR.YELLOW + str(round(self.connections_made / self.connections, 2)) + "%" + CLR.DEFAULT)
-        print("")
-
-    def switch_back_one(self, target):
+    def swap_back_one(self, target):
         """
         Return:
             Switch the target item with item before it
@@ -359,75 +411,26 @@ class Netlist:
     def first_to_back(self):
         self.list.append(self.list.pop(0))
 
-    def tuple_value(self, netlist_tuple):
-        """
-        Return:
-            combined value of the two items in the tuple
-        """
-        connection_list = []
-
-        # Loop through the netlist append all connections in to a new list
-        for tuples in self.list:
-            for connection in tuples:
-                connection_list.append(connection)
-
-        # Use the Counter class to count occurrences of a number and make a
-        # dict containing occurrences and number.
-        counter_dict = dict(Counter(connection_list))
-
-        # Return the value of the combination
-        return counter_dict[netlist_tuple[0]] + counter_dict[netlist_tuple[1]]
-
     def sort_by_connection(self):
         """
         Return a new sorted array containing the sorted array based on values
         calculated by tuple value
         """
-        sorted_dict = {}
-
+        gate_list = []
+        for connection in self.list:
+            for gate in connection:
+                gate_list.append(gate)
+        
+        counter_dict = dict(Counter(gate_list))
+        
         # Loop calculate the value of the tuple, make a dict containing the values
-        for tuples in self.list:
-            value = self.tuple_value(tuples)
-            sorted_dict[tuples] = value
+        sorted_dict = {}
+        for connection in self.list:
+            value = counter_dict[connection[0]] + counter_dict[connection[1]]
+            sorted_dict[connection] = value
 
         # Return the sorted array based on the items in revered order.
         self.list = sorted(sorted_dict, key=sorted_dict.__getitem__, reverse=True)
-
-class Netlist_log:
-    """
-    :param fisrt_list: first list to be saved.
-    Make a stack hostory of the used netlists
-    """
-    def __init__(self, number):
-        # Make file name used.
-        self.filename = "data/netlist"
-        self.filename += str(number)
-        self.filename += ".txt"
-
-        # Open netlist and read with literal evaluation.
-        with open(self.filename) as f:
-            self.first_list = f.read()
-
-        self.first_list = literal_eval(self.first_list)
-
-        print("Using netlist #" + str(number))
-
-        self.lists_log = [self.first_list]
-
-    # Push en pop item to lists_log
-    def push_list(self, netlist):
-        self.lists_log.insert(0, netlist)
-
-    def pop_list(self):
-        poped_list = self.lists_log.pop(0)
-        return poped_list
-
-    def get_list(self):
-        return self.lists_log[0]
-
-    # Print compleet array of lists_log
-    def print_lists_log(self):
-        print(self.lists_log)
 
 class Path:
     """
@@ -452,7 +455,22 @@ class Path:
         '''
         self.path.append(coord)
 
-    def calculate(self, algorithm, board):
+    def undraw(self, board):
+        
+        # Add one to the needed connections for gate A and B
+        board.gates_objects[self.a[0], self.a[1], self.a[2]].spaces_needed += 1
+        board.gates_objects[self.b[0], self.b[1], self.b[2]].spaces_needed += 1
+
+        # Loop through every coord of the path
+        for coord in self.path:
+            # Reset this coord on the board to 0
+            if board.board[coord[0], coord[1], coord[2]] != settings.SIGN_GATE:
+                board.reset_coordinate(coord[0], coord[1], coord[2])
+
+        # Empty the path list
+        self.path = []
+
+    def draw(self, algorithm, board):
         '''
         Calculate route between two points
         :param board:       a threedimensional Numpy array
@@ -460,12 +478,12 @@ class Path:
         '''
 
         if algorithm == "DIJKSTRA":
-            return self.calculate_DIJKSTRA(board)
+            return self.draw_DIJKSTRA(board)
 
         if algorithm == "ASTAR":
-            return self.calculate_ASTAR(board)
+            return self.draw_ASTAR(board)
 
-    def calculate_ASTAR(self, board):
+    def draw_ASTAR(self, board):
         '''
         Calculate route between two points with the A* algorithm
         :param board: a threedimensional Numpy array
@@ -516,7 +534,7 @@ class Path:
                 cost_neighbor += helpers.calculate_delta(neighbor, b_tpl)
 
                 # Make it cheaper to go deeper
-                cost_neighbor += (settings.COST_DEPTH + board.depth - neighbor[0])
+                cost_neighbor += ((board.depth - neighbor[0]) * 25)
 
                 # Make expensive if passing a gate
                 if neighbor[0] < 2:
@@ -548,9 +566,6 @@ class Path:
         # Backtracking the path
         if found:
 
-            # print(cost_archive)
-            # exit()
-
             # Add destination to the path route
             self.add_coordinate(self.b)
 
@@ -569,7 +584,6 @@ class Path:
             # Add A to the path
             self.add_coordinate(self.a)
 
-
             # Reduce the needed spaces for gate A and B
             board.gates_objects[self.a[0], self.a[1], self.a[2]].spaces_needed -= 1
             board.gates_objects[self.b[0], self.b[1], self.b[2]].spaces_needed -= 1
@@ -579,7 +593,7 @@ class Path:
         else:
             return False
 
-    def calculate_DIJKSTRA(self, board):
+    def draw_DIJKSTRA(self, board):
         '''
         Calculate route between two points with the Dijkstra algorithm
         :param board: a Numpy array
@@ -696,7 +710,7 @@ class Path:
 
         else:
             #if settings.SHOW_EACH_RESULT
-                #print("Path " + str(self.label) + " ERROR. Could not be calculated.")
+                #print("Path " + str(self.label) + " ERROR. Could not be drawn.")
 
             return False
 
@@ -737,7 +751,6 @@ class Solution:
         self.best_result = 0
 
         self.boards = 0
-        self.netlists = []
         self.scores = []
         self.results = []
 
@@ -778,122 +791,107 @@ class Solution:
 
     def run(self, gates, netlist):
 
-        no_netlist_improvements = 0
-        cost_depth_start = settings.COST_DEPTH
-        cost_passing_gate_start = settings.COST_PASSING_GATE
+        # Print inputted netlist
+        if settings.SHOW_NETLIST:
+            print("Netlist: " + CLR.GREEN + str(netlist.list) + CLR.DEFAULT)
+            print("--------------------------------------------------------")
 
-        while no_netlist_improvements <= settings.MAX_NO_IMPROVE:
+        # Set temporary counters
+        no_path_improvements = 0
 
-            # Remember this netlist
-            self.netlists.append(netlist)
+        # Create a new board
+        board = Board(settings.BOARD_WIDTH, settings.BOARD_HEIGHT, settings.BOARD_DEPTH)
+        
+        # Place gates and paths on this board
+        board.set_gates(gates)
+        board.set_paths(netlist)
+        
+        # Draw the paths
+        board.draw_paths()
 
-            # Set temporary counters
-            no_board_improvements = 0
-            board_iteration = 0
-
-            while no_board_improvements <= settings.MAX_NO_IMPROVE:
-
-                # Create and remember a new board
-                board = Board(settings.BOARD_WIDTH, settings.BOARD_HEIGHT, settings.BOARD_DEPTH)
-                self.boards += 1
-
-                # Place gates on this board
-                board.set_gates(gates)
-
-                # Draw the paths
-                netlist.execute_connections(board)
-
-
-                # Save the scores and result of this iteration
-                self.results.append(netlist.get_result("average"))
-                self.scores.append(board.get_score())
-
-                # See if this board has better scores
-                if self.best_score == 0 \
-                   or netlist.get_result("average") > self.best_result \
-                   or (netlist.get_result("average") == self.best_result and board.get_score() < self.best_score):
-
-                    self.best_score = board.get_score()
-                    self.best_result = netlist.get_result("average")
-                    self.best_board = board
-                    self.best_netlist = netlist
-
-                else:
-                    # New settings haven't improved the score
-                    no_board_improvements += 1
-
-                # Show progress
-                if settings.SHOW_PROGRESS:
-                    sys.stdout.flush()
-                    print("")
-                    print("paths drawn: " + str(netlist.get_result("average")) + "%")
-                    print("this score: " + str(board.get_score()))
-                    print("cost depth: " + str(settings.COST_DEPTH))
-                    print("cost passing gate: " + str(settings.COST_PASSING_GATE))
-
-                # Reset variables for board and netlist
-                gates.reset_spaces_needed(netlist)
-                netlist.connections_made = 0
-                netlist.connections_broken = 0
+        while no_path_improvements <= settings.MAX_NO_IMPROVE:
                 
-                # Count this iteration
-                board_iteration += 1
-                
-                # Set adapted heuristics for next board
-                settings.COST_DEPTH += settings.STEP_COST_DEPTH
-                settings.COST_PASSING_GATE += settings.STEP_COST_PASSING_GATE
+            # Count this iteration
+            self.boards += 1
 
-            # See if this netlist led to improvements
-            if board_iteration - 1 <= settings.MAX_NO_IMPROVE:
-                no_netlist_improvements += 1
+            # Get the results of this board
+            result = board.get_result("average")
+            score = board.get_score()
 
-            # Print results of this execution
+            # Save the scores and result of this iteration
+            self.results.append(result)
+            self.scores.append(score)
+
+
+            # Show progress
+            if settings.SHOW_PROGRESS:
+                sys.stdout.flush()
+                print("*")
+
+            # Show result of the board
             if settings.SHOW_EACH_RESULT:
-                print("")
-                print("--------------- NETLIST GENERATION: " + str(len(self.netlists)) + " MADE ---------------")
-                print("")
-                print("Paths drawn: " + CLR.YELLOW + str(round(self.best_result, 2)) + "%" + CLR.DEFAULT)
-                print("Score: " + CLR.YELLOW + str(self.best_board.get_score()) + CLR.DEFAULT)
+                sys.stdout.flush()
+                print("Board " + CLR.YELLOW + "#" + str(self.boards) + CLR.DEFAULT, end=":  ")
+                print("Paths drawn: " + CLR.YELLOW + str(result) + "%" + CLR.DEFAULT, end="    ")
+                print("Score: " + CLR.YELLOW + str(score) + CLR.DEFAULT, end="    ")
+                print("Value 'passing gate': " + CLR.YELLOW + str(settings.COST_PASSING_GATE) + CLR.DEFAULT)
 
-            if settings.SHOW_EACH_NETLIST:
-                print("Netlist: " + CLR.YELLOW + str(netlist.list) + CLR.DEFAULT)
-                print("")
-
+            # Plot result of the board
             if settings.SHOW_EACH_PLOT:
                 board.plot()
 
-            # Reset heuristics
-            settings.COST_DEPTH = cost_depth_start
-            settings.COST_PASSING_GATE = cost_passing_gate_start
+            # Create a copy of this board for next iteration
+            board_new = copy.deepcopy(board)
+            board_new.paths = []
+            board_new.paths_drawn = []
+            board_new.paths_broken = []
 
-            # Make next generation of netlist
-            new_netlist = Netlist(netlist.number)
+            for path in board.paths:
+                board_new.paths.append(copy.deepcopy(path))
 
-            # Check if this netlist is new
-            netlist_is_unique = False
-            while netlist_is_unique == False:
+            for path in board.paths_drawn:
+                board_new.paths_drawn.append(copy.deepcopy(path))
+                
+            for path in board.paths_broken:
+                board_new.paths_broken.append(copy.deepcopy(path))
 
-                # Mutate the order
-                new_netlist.sort_by_connection()
-                new_netlist.switch_back_one(netlist.tuple_error)
+            # See if this board has better scores
+            if self.best_score == 0 \
+               or result > self.best_result \
+               or (result == self.best_result and score < self.best_score):
 
-                # Check for uniqueness
-                netlist_is_unique = True
-                for earlier_netlist in self.netlists:
-                    if new_netlist.list == earlier_netlist.list:
-                        netlist_is_unique = False
-                        break
+                self.best_score = score
+                self.best_result = result
+                self.best_board = board
 
-            # Set netlist for next iteration
-            netlist = new_netlist
+            else:
+                # Count the no improvement on the score
+                no_path_improvements += 1
+                
+                # Delete this board
+                for path in board.paths:
+                    del path
+                del board
 
-        # Print result
+            # Fetch new board for next iteration
+            board = board_new
+
+            if len(board.paths_broken) > 0:
+                # Try to repair the broken paths
+                board.redraw_broken_path()
+            else:
+                # Make mutations on the paths
+                board.shorten_every_path()
+                board.redraw_random_path()
+
+        # Print best result of this run
         print("")
         print("------------ BEST RESULT out of " + str(self.boards) + " boards ---------------")
-        print("Paths drawn: " + CLR.GREEN + str(round(self.best_result, 2)) + "%" + CLR.DEFAULT)
+        print("Paths drawn: " + CLR.GREEN + str(self.best_result) + "%" + CLR.DEFAULT)
         print("Score: " + CLR.GREEN + str(self.best_score) + CLR.DEFAULT)
-        print("Order of that netlist:")
-        print(CLR.GREEN + str(self.best_netlist.list) + CLR.DEFAULT)
+
+        # Set adapted heuristics for next run
+        settings.COST_PASSING_GATE += settings.STEP_COST_PASSING_GATE
 
 class Queue:
     '''
