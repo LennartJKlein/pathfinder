@@ -1,4 +1,5 @@
-# Log settings
+"""Settings to be used by the classes.py."""
+
 PLOT_BEST = True
 PLOT_SCORES = True
 PLOT_RESULTS = False

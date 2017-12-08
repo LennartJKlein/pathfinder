@@ -7,29 +7,26 @@ helpers.py
 - Calculate path
 """
 
-import settings
-
-import sys
-import colors as CLR
-import numpy as np
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-from ast import literal_eval
-import heapq
 import collections
-from collections import Counter
-import heapq
-import csv
-import helpers
-from collections import Counter
-import random
 import copy
+import csv
+import heapq
+import random
+import sys
+from ast import literal_eval
+from collections import Counter
+
+import numpy as np
+
+import colors as CLR
+import helpers
+import matplotlib.pyplot as plt
+import settings
+from mpl_toolkits.mplot3d import Axes3D
 
 
 class Board:
-    """
-    Sum:
-        Create a numpy board filled with numpy zeros upon initialising
+    """Create a numpy board filled with numpy zeros upon initialising
 
     Attributes:
         width(int): How many columns the board uses
@@ -39,11 +36,12 @@ class Board:
         paths(list): Collective of the paths in the board
         gate_objects(numpy): Ojects assigned to the board
         gate_numbers(numpy): Zeros assigned to the board
-
     """
 
+
     def __init__(self, width, height, depth):
-        """
+        """Initialing the varables.
+
         Args:
             width(int): How many columns the board uses
             height(int): How many rows the board uses
@@ -54,7 +52,7 @@ class Board:
         self.height = height
         self.depth = depth
         self.board = np.zeros((self.depth, self.height, self.width), dtype=int)
-        
+
         self.gates_objects = np.empty((self.depth, self.height, self.width), dtype=object)
         self.gates_numbers = np.zeros((self.depth, self.height, self.width), dtype=int)
 
@@ -62,23 +60,23 @@ class Board:
         self.paths_broken = []
         self.paths_drawn = []
 
+
     def draw_paths(self):
-        '''
-        Draw all the paths for this board (if possible)
-        '''
+        """Draw all the paths for this board (if possible)."""
 
         # Calculate the route for this path
         for path in self.paths:
             result = path.draw(settings.PATH_ALGORITHM, self)
-
             # Save the results of this execution
             if result == True:
                 self.paths_drawn.append(path)
             else:
                 self.paths_broken.append(path)
 
-    def redraw_broken_path(self):        
-        # Get first broken path
+
+    def redraw_broken_path(self):
+        """Get first broken path."""
+
         broken_path = self.paths_broken.pop(0)
         broken_path.undraw(self)
 
@@ -100,7 +98,7 @@ class Board:
                     self.paths_drawn.append(drawn_path)
                 else:
                     self.paths_broken.append(drawn_path)
-                
+
                 return True
             else:
                 # Reset the removed path
@@ -110,15 +108,17 @@ class Board:
         # Couldn't fix this broken path
         self.paths_broken.append(broken_path)
         return False
-        
+
+
     def shorten_every_path(self):
-        # Redraw every path with DIJKSTRA pathfinding
+        """Redraw every path with DIJKSTRA pathfinding."""
         for path in self.paths:
             path.undraw(self)
             path.draw("DIJKSTRA", self)
 
+
     def redraw_random_path(self):
-        # Pick three random paths
+        """Pick three random paths."""
         paths = []
         index = random.randint(0, len(self.paths_drawn) - 1)
         paths.append(self.paths_drawn.pop(0 + index))
@@ -140,7 +140,9 @@ class Board:
 
         settings.COST_PASSING_GATE = temp_cost
 
+
     def get_result(self, type):
+        """Look at the path and analyze if it is commplete."""
         if type is "average":
             return round(len(self.paths_drawn) / len(self.paths) * 100, 2)
         if type is "made":
@@ -148,8 +150,10 @@ class Board:
         if type is "broken":
             return len(self.paths_broken)
 
+
     def get_coords(self, axes, label):
-        """
+        """Get the coordinate of a board with it's label.
+
         Args:
             axes(string): Devided coord into Z, Y, X
             label(numpy): Get a coord in board the corresponding label
@@ -157,7 +161,6 @@ class Board:
         Return:
             The current Z, Y, X of a coord in the numby board
         """
-
         labels = np.argwhere(self.board == label)
         coords = []
 
@@ -171,24 +174,28 @@ class Board:
 
         return coords
 
-    def reset_coordinate(self, z, y, x):
 
+    def reset_coordinate(self, z, y, x):
+        """Reset the coordinates of a board."""
         self.board[z, y, x] = 0
 
+
     def get_neighbors(self, coord):
-        """
+        """Get the neighbors of a given coordinate.
+
         Args:
             coord(tuple): a coordinate on the board
 
         Return:
             All valid neighbors of the given coordinate
         """
-
         (z, y, x) = coord
         valid_coords = []
-        neighbors = [[z, y, x+1], [z, y, x-1], [z, y+1, x], [z, y-1, x], [z+1, y, x], [z-1, y, x]]
-        for neighbor in neighbors:
 
+        neighbors = [[z, y, x+1], [z, y, x-1], [z, y+1, x],
+                     [z, y-1, x],[z+1, y, x], [z-1, y, x]]
+
+        for neighbor in neighbors:
             # Check if the coord is positive
             if any(axes < 0 for axes in neighbor):
                 continue
@@ -204,20 +211,14 @@ class Board:
 
         return valid_coords
 
-    def get_score(self):
-        """
-        Return:
-            Accumulated length of all the paths
-        """
 
+    def get_score(self):
+        """Accumulated length of all the paths."""
         return len(np.argwhere(self.board >= settings.SIGN_PATH_START))
 
-    def plot(self):
-        """
-        Return:
-            Graph configurations
-        """
 
+    def plot(self):
+        """Graph configurations."""
         fig = plt.figure()
         ax = fig.gca(projection='3d')
         ax.set_xlim(0, self.width)
@@ -246,20 +247,15 @@ class Board:
         # Show the graph
         plt.show()
 
+
     def print_board(self):
-        """
-        Return:
-            Show the numpyboard in ASCII
-        """
+        """Show the numpyboard in ASCII."""
         np.set_printoptions(threshold=np.nan)
         print(self.board)
 
-    def set_gates(self, gates):
-        """
-        Args:
-            netlist(obj): Give the selected netlist in settings.py
-        """
 
+    def set_gates(self, gates):
+        """netlist(obj): Give the selected netlist in settings.py."""
         # Set very gate in this board
         for gate in gates.gates:
 
@@ -268,6 +264,8 @@ class Board:
           self.board[gate.z, gate.y, gate.x] = gates.sign_gate
 
     def set_paths(self, netlist):
+        """Sets the value of the netlist and appends it to the numpyboard."""
+
         path_number = settings.SIGN_PATH_START
 
         for connection in netlist.list:
@@ -288,9 +286,8 @@ class Board:
             path_number += 1
 
 class Gate:
-    """
-    PLACEHOLDER
-    """
+    """Gate sets the gates in a board."""
+
     def __init__(self, label, x, y, z, spaces_needed):
         """
         :param netlist: Give the selected netlist in settings.py
@@ -306,10 +303,9 @@ class Gate:
         self.z = int(z)
         self.spaces_needed = spaces_needed
 
+
     def get_free_spaces(self, board, coord):
-        """
-        :return: Interger with the amount of free spaces
-        """
+        """Interger with the amount of free spaces."""
         counter = 0
         free_spaces = 0
 
@@ -372,9 +368,9 @@ class Gates:
         return self.gates
 
 class Netlist:
-    """
-    Netlist are tuples reperesenting the contecion between two gates. Al conections
-    must be made to solve the case.
+    """Netlist are tuples reperesenting the contecion between two gates.
+
+    All conections must be made to solve the case.
 
     :param: number:     id of the netlist
     """
@@ -398,31 +394,29 @@ class Netlist:
         # Order this list by importance of connections
         self.sort_by_connection()
 
+
     def swap_back_one(self, target):
-        """
-        Return:
-            Switch the target item with item before it
-        """
+        """Switch the target item with item before it."""
         index = self.list.index(target)
         tmp = self.list[index - 1]
         self.list[index - 1] = self.list[index]
         self.list[index] = tmp
 
+
     def first_to_back(self):
+        """Give back the first ellement with python pop."""
         self.list.append(self.list.pop(0))
 
+
     def sort_by_connection(self):
-        """
-        Return a new sorted array containing the sorted array based on values
-        calculated by tuple value
-        """
+        """Rearranges self.list to a new array based connectins needed."""
         gate_list = []
         for connection in self.list:
             for gate in connection:
                 gate_list.append(gate)
-        
+
         counter_dict = dict(Counter(gate_list))
-        
+
         # Loop calculate the value of the tuple, make a dict containing the values
         sorted_dict = {}
         for connection in self.list:
@@ -433,8 +427,8 @@ class Netlist:
         self.list = sorted(sorted_dict, key=sorted_dict.__getitem__, reverse=True)
 
 class Path:
-    """
-    Path from A to B
+    """Path from A to B.
+
     :param coordA:     first point on the board (list of Z, Y, X coordinates)
     :param coordB:     second point on the board (list of  Z, Y, X coordinates)
     :param aLabel:     the ID of this path
@@ -449,14 +443,15 @@ class Path:
         self.color = aColor
 
     def add_coordinate(self, coord):
-        '''
-        Adds a new coordinate to self.path
+        """Adds a new coordinate to self.path.
+
         :param coord:       a list of [Z, Y, X]
-        '''
+        """
         self.path.append(coord)
 
+
     def undraw(self, board):
-        
+        """Remove paths from the board."""
         # Add one to the needed connections for gate A and B
         board.gates_objects[self.a[0], self.a[1], self.a[2]].spaces_needed += 1
         board.gates_objects[self.b[0], self.b[1], self.b[2]].spaces_needed += 1
@@ -470,25 +465,25 @@ class Path:
         # Empty the path list
         self.path = []
 
+
     def draw(self, algorithm, board):
-        '''
-        Calculate route between two points
+        """Calculate route between two points.
+
         :param board:       a threedimensional Numpy array
         :param algorithm:   algorithm to draw the path
-        '''
-
+        """
         if algorithm == "DIJKSTRA":
             return self.draw_DIJKSTRA(board)
 
         if algorithm == "ASTAR":
             return self.draw_ASTAR(board)
 
-    def draw_ASTAR(self, board):
-        '''
-        Calculate route between two points with the A* algorithm
-        :param board: a threedimensional Numpy array
-        '''
 
+    def draw_ASTAR(self, board):
+        """Calculate route between two points with the A* algorithm.
+
+        :param board: a threedimensional Numpy array
+        """
         a_tpl = tuple(self.a)
         b_tpl = tuple(self.b)
 
@@ -594,11 +589,10 @@ class Path:
             return False
 
     def draw_DIJKSTRA(self, board):
-        '''
-        Calculate route between two points with the Dijkstra algorithm
-        :param board: a Numpy array
-        '''
+        """Calculate route between two points with the Dijkstra algorithm.
 
+        :param board: a Numpy array
+        """
         # Initiate the dimantions of the board
         boardDimensions = board.board.shape
         boardDepth = boardDimensions[0]
@@ -711,10 +705,11 @@ class Path:
         else:
             #if settings.SHOW_EACH_RESULT
                 #print("Path " + str(self.label) + " ERROR. Could not be drawn.")
-
             return False
 
+
     def get_coords(self, axes):
+        """Get coordinates of point with axes as input."""
         coords = []
 
         for coord in self.path:
@@ -724,8 +719,8 @@ class Path:
                 coords.append(coord[1])
             if axes == 'x':
                 coords.append(coord[2])
-
         return coords
+
 
 class Solution:
     """
@@ -755,17 +750,12 @@ class Solution:
         self.results = []
 
     def get_scores(self):
-        """
-        return: Get all scores in the scores list
-        """
-
+        """Get all scores in the scores list."""
         return self.scores
 
-    def plot_scores(self):
-        """
-        :return: Plot a graph to show the scores over the different iterations
-        """
 
+    def plot_scores(self):
+        """Plot a graph to show the scores over the different iterations."""
         fig = plt.figure()
         ax = fig.gca()
         ax.set_xlabel("Iteration")
@@ -773,11 +763,9 @@ class Solution:
         ax.plot(self.scores)
         plt.show()
 
-    def plot_results(self):
-        """
-        :return: Plot a graph to show the results over the different iterations
-        """
 
+    def plot_results(self):
+        """Plot a graph to show the results over the different iterations."""
         fig = plt.figure()
         ax = fig.gca()
         ax.set_xlabel("Iteration")
@@ -785,12 +773,14 @@ class Solution:
         ax.plot(self.results)
         plt.show()
 
-    def plot_best(self):
 
+    def plot_best(self):
+        """Plot the best result."""
         self.best_board.plot()
 
-    def run(self, gates, netlist):
 
+    def run(self, gates, netlist):
+        """Run the file used in __main.py."""
         # Print inputted netlist
         if settings.SHOW_NETLIST:
             print("Netlist: " + CLR.GREEN + str(netlist.list) + CLR.DEFAULT)
@@ -801,16 +791,16 @@ class Solution:
 
         # Create a new board
         board = Board(settings.BOARD_WIDTH, settings.BOARD_HEIGHT, settings.BOARD_DEPTH)
-        
+
         # Place gates and paths on this board
         board.set_gates(gates)
         board.set_paths(netlist)
-        
+
         # Draw the paths
         board.draw_paths()
 
         while no_path_improvements <= settings.MAX_NO_IMPROVE:
-                
+
             # Count this iteration
             self.boards += 1
 
@@ -851,7 +841,7 @@ class Solution:
 
             for path in board.paths_drawn:
                 board_new.paths_drawn.append(copy.deepcopy(path))
-                
+
             for path in board.paths_broken:
                 board_new.paths_broken.append(copy.deepcopy(path))
 
@@ -867,7 +857,7 @@ class Solution:
             else:
                 # Count the no improvement on the score
                 no_path_improvements += 1
-                
+
                 # Delete this board
                 for path in board.paths:
                     del path
@@ -893,11 +883,9 @@ class Solution:
         # Set adapted heuristics for next run
         settings.COST_PASSING_GATE += settings.STEP_COST_PASSING_GATE
 
+
 class Queue:
-    '''
-    Dequeue, append and count elements in a simple queue
-    :param: none
-    '''
+    """Dequeue, append and count elements in a simple queue."""
 
     def __init__(self):
         self.elements = collections.deque()
@@ -911,11 +899,9 @@ class Queue:
     def push(self, x):
         self.elements.append(x)
 
+
 class QueuePriority:
-    '''
-    Dequeue, append and count elements in a priority queue
-    :param: none
-    '''
+    """Dequeue, append and count elements in a priority queue."""
 
     def __init__(self):
         self.elements = []

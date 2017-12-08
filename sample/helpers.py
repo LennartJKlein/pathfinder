@@ -1,28 +1,24 @@
+"""Helper functions used in __main__."""
+
+
 def calculate_distance(a, b):
-    """
-    Args:
-        a(touple): Starting coord
-        b(touple): Goal coord
+    """Calculate the distance between two points on the board (manhatan).
 
-    Return:
-        Distance between two coords
+    a(touple): Starting coord
+    b(touple): Goal coord
     """
-
     dx = (a[2] - b[2]) ** 2
     dy = (a[1] - b[1]) ** 2
     dz = (a[0] - b[0]) ** 2
     return (dx + dy + dz) ** 0.5
 
+
 def calculate_delta(a, b):
-    """
-    Args:
-        a(touple): Starting coord
-        b(touple): Goal coord
+    """Delta distance between two coords.
 
-    Return:
-        Delta distance between two coords
+    a(touple): Starting coord
+    b(touple): Goal coord
     """
-
     dx = abs(a[2] - b[2])
     dy = abs(a[1] - b[1])
     dz = abs(a[0] - b[0])
