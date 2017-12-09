@@ -1,11 +1,26 @@
-"""Helper functions used in __main__."""
+"""Helper functions used in __main__.py.
+
+Name: heplers.py
+
+Authors:
+    - Jurre Brandsen
+    - Lennart Klein
+    - Thomas de Lange
+
+LICENSE: MIT
+"""
 
 
 def calculate_distance(a, b):
     """Calculate the distance between two points on the board (manhatan).
 
-    a(touple): Starting coord
-    b(touple): Goal coord
+    :type a: tuple
+    :param a: the first point on the board
+
+    :type b: tuple
+    :param b: the second point on the board
+
+    :rtype: interger
     """
     dx = (a[2] - b[2]) ** 2
     dy = (a[1] - b[1]) ** 2
@@ -16,8 +31,13 @@ def calculate_distance(a, b):
 def calculate_delta(a, b):
     """Delta distance between two coords.
 
-    a(touple): Starting coord
-    b(touple): Goal coord
+    :type a: tuple
+    :param a: starting coord
+
+    :type b: tuple
+    :param b: goal coord
+
+    :rtype: interger
     """
     dx = abs(a[2] - b[2])
     dy = abs(a[1] - b[1])

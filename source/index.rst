@@ -1,21 +1,54 @@
-Welcome to Chips and circuits's documentation!
+The Chips and circuits's documentation!
 ==============================================
+A program that uses wires to connect gates on a chip three-dimensionally and efficiently.
+Based on the case of `Chips & Circuits <http://heuristieken.nl/wiki/index.php?title=Chips_%26_Circuits>`_.
+
+Version: |version|
 
 Contents:
+---------
 
 .. toctree::
-  :maxdepth: 2
+ :maxdepth: 4
 
-.. automodule:: collections, copy ,csv, heapq, random, sys, ast, numpy
-.. automodule:: colors, helpers, mathplotlib.pyplot, settings, mpl_toolkits.mplot3d
-
-.. autoclass:: Counter, literal_eval, Axas3D
-
+ classes
+ colors
+ helpers
+ settings
 
 
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+
+Requirements
+------------
+To run this program, you need the following:
+
+* Python 3.6
+
+Installation
+------------
+
+Clone this repository (containing the pathfinder module) to a folder of your preference. And run the setup:
+
+```
+python setup.py install
+```
+
+Authors
+-------
+    - `Jurre Brandsen <http://www.jurrebrandsen.nl/>`_.
+    - `Lennart Klein <http://www.lennartklein.nl/>`_.
+    - `Thomas de Lange <http://www.long-coding.nl/>`_.
+
+Acknowledgments
+---------------
+* Thanks to Daan van den Berg for creating the "Chips and circuits" case (as specified on `this Wiki <http://heuristieken.nl/wiki/index.php?title=Chips_%26_Circuits>`_.).
+* Thanks to Westly White for his `initial grid design <https://stackoverflow.com/questions/41619600/numbering-rows-and-columns-in-a-grid-board>`_.) in board.py.
+
+This project is not open for contributing, for it being a school assignment.
