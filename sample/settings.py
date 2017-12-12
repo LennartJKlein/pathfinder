@@ -1,12 +1,12 @@
 """Settings to be used by the classes.py."""
 
-PLOT_BEST = True
-PLOT_SCORES = True
+PLOT_BEST = False
+PLOT_SCORES = False
 PLOT_RESULTS = False
 
 SHOW_NETLIST = True
 SHOW_EACH_RESULT = True
-SHOW_EACH_PLOT = False
+SHOW_EACH_PLOT = True
 SHOW_PROGRESS = False
 
 # Pathfinding

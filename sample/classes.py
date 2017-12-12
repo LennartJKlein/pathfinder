@@ -27,7 +27,6 @@ import colors as CLR
 import helpers
 import settings
 
-
 class Board(object):
     """Create a numpy board filled with numpy zeros upon initialising."""
 
@@ -217,31 +216,16 @@ class Board(object):
         """
         return len(np.argwhere(self.board >= settings.SIGN_PATH_START))
 
-    def plot(self):
+    def plot(self, graph):
         """Graph configurations uses plt from the ."""
-        fig = plt.figure()
-        ax = fig.gca(projection='3d')
-        ax.set_xlim(0, self.width)
-        ax.set_ylim(0, self.height)
-        ax.set_zlim(self.depth, 0)
-        ax.set_xlabel("X")
-        ax.set_ylabel("Y")
-        ax.set_zlabel("Z")
 
         for path in self.paths:
-            ax.plot(path.get_coords('x'),
-                    path.get_coords('y'),
-                    path.get_coords('z'),
-                    zorder=-1)
+            graph.field.plot(path.get_coords('x'),
+                             path.get_coords('y'),
+                             path.get_coords('z'),
+                             zorder=-1)
 
-        # Add gates to the graph
-        ax.scatter(self.get_coords('x', settings.SIGN_GATE),
-                   self.get_coords('y', settings.SIGN_GATE),
-                   self.get_coords('z', settings.SIGN_GATE),
-                   color="black")
-
-        # Show the graph
-        plt.show()
+        plt.pause(0.05)
 
     def print_board(self):
         """Show the numpyboard in ASCII."""
@@ -284,6 +268,32 @@ class Board(object):
             # Set a new path_number for the next path
             path_number += 1
 
+class Plot(object):
+
+    def __init__(self, width, height, depth):
+
+        # Make plot real-time
+        plt.ion()
+
+        self.fig = plt.figure()
+        self.field = self.fig.gca(projection='3d')
+        self.field.set_xlim(0, width)
+        self.field.set_ylim(0, height)
+        self.field.set_zlim(depth, 0)
+        self.field.set_xlabel("X")
+        self.field.set_ylabel("Y")
+        self.field.set_zlabel("Z")
+
+    def plot_gates(self, board):
+        # Add gates to the plot
+        self.field.scatter(board.get_coords('x', settings.SIGN_GATE),
+                            board.get_coords('y', settings.SIGN_GATE),
+                            board.get_coords('z', settings.SIGN_GATE),
+                            color="black")
+
+    def clear_lines(self):
+        for i in range(len(self.field.lines)):
+            self.field.lines.pop(0)
 
 class Gate(object):
     """Gate sets the gates in a board."""
@@ -857,6 +867,8 @@ class Solution(object):
         :type netlist: Netlist(object)
         :param netlist: a instanse of the Netlist class
         """
+
+
         # Print inputted netlist
         if settings.SHOW_NETLIST:
             print("Netlist: " + CLR.GREEN + str(netlist.list) + CLR.DEFAULT)
@@ -873,6 +885,12 @@ class Solution(object):
         # Place gates and paths on this board
         board.set_gates(gates)
         board.set_paths(netlist)
+
+        # Create a realtime plot
+        graph = Plot(settings.BOARD_WIDTH,
+                     settings.BOARD_HEIGHT,
+                     settings.BOARD_DEPTH)
+        graph.plot_gates(board)
 
         # Draw the paths
         board.draw_paths()
@@ -922,7 +940,8 @@ class Solution(object):
 
             # Plot result of the board
             if settings.SHOW_EACH_PLOT:
-                board.plot()
+                graph.clear_lines()
+                board.plot(graph)
 
             # Create a copy of this board for next iteration
             board_new = copy.deepcopy(board)
