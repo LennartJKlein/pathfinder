@@ -1,0 +1,1123 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>classes &#8212; Chips and circuits 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for classes</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;This file contains the logic to run the __main__.py body of the program.</span>
+
+<span class="sd">Name: classes.py</span>
+
+<span class="sd">Authors:</span>
+<span class="sd">- Jurre Brandsen</span>
+<span class="sd">- Lennart Klein</span>
+<span class="sd">- Thomas de Lange</span>
+
+<span class="sd">LICENSE: MIT</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">Counter</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">import</span> <span class="nn">heapq</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">ast</span> <span class="k">import</span> <span class="n">literal_eval</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="c1"># from mpl_toolkits.mplot3d import Axes3D</span>
+<span class="c1"># import matplotlib.pyplot as plt</span>
+
+<span class="kn">import</span> <span class="nn">colors</span> <span class="k">as</span> <span class="nn">CLR</span>
+<span class="kn">import</span> <span class="nn">helpers</span>
+<span class="kn">import</span> <span class="nn">settings</span>
+
+
+<div class="viewcode-block" id="Board"><a class="viewcode-back" href="../classes.html#classes.Board">[docs]</a><span class="k">class</span> <span class="nc">Board</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a numpy board filled with numpy zeros upon initialising.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">depth</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialing the varables of this class.</span>
+
+<span class="sd">        :type widht: interger</span>
+<span class="sd">        :param width: How many columns the board uses</span>
+
+<span class="sd">        :type height: interger</span>
+<span class="sd">        :param height: How many rows the board uses</span>
+
+<span class="sd">        :type depth: interger</span>
+<span class="sd">        :param depth: How many layers the board uses</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="n">width</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="n">height</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depth</span> <span class="o">=</span> <span class="n">depth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">board</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">depth</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">gates_objects</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">depth</span><span class="p">,</span>
+                                       <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span>
+                                       <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">gates_numbers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">depth</span><span class="p">,</span>
+                                       <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span>
+                                       <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">paths</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paths_broken</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paths_drawn</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="Board.draw_paths"><a class="viewcode-back" href="../classes.html#classes.Board.draw_paths">[docs]</a>    <span class="k">def</span> <span class="nf">draw_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Draw all the paths for this board (if possible).&quot;&quot;&quot;</span>
+        <span class="c1"># Calculate the route for this path</span>
+        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">PATH_ALGORITHM</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+            <span class="c1"># Save the results of this execution</span>
+            <span class="k">if</span> <span class="n">result</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">paths_drawn</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">paths_broken</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Board.redraw_broken_path"><a class="viewcode-back" href="../classes.html#classes.Board.redraw_broken_path">[docs]</a>    <span class="k">def</span> <span class="nf">redraw_broken_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get first broken path.&quot;&quot;&quot;</span>
+        <span class="n">broken_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths_broken</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">broken_path</span><span class="o">.</span><span class="n">undraw</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="n">amount_drawn_paths</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths_drawn</span><span class="p">)</span>
+
+        <span class="c1"># Undraw other paths one by one</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">amount_drawn_paths</span><span class="p">):</span>
+
+            <span class="c1"># Get and undraw first path</span>
+            <span class="n">drawn_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths_drawn</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">drawn_path</span><span class="o">.</span><span class="n">undraw</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+            <span class="c1"># Try to draw broken path</span>
+            <span class="k">if</span> <span class="n">broken_path</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">PATH_ALGORITHM</span><span class="p">,</span> <span class="bp">self</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">paths_drawn</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">broken_path</span><span class="p">)</span>
+
+                <span class="c1"># Try to draw the removed path again</span>
+                <span class="k">if</span> <span class="n">drawn_path</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">PATH_ALGORITHM</span><span class="p">,</span> <span class="bp">self</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">paths_drawn</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">drawn_path</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">paths_broken</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">drawn_path</span><span class="p">)</span>
+
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Reset the removed path</span>
+                <span class="n">drawn_path</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">PATH_ALGORITHM</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">paths_drawn</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">drawn_path</span><span class="p">)</span>
+
+        <span class="c1"># Couldn&#39;t fix this broken path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paths_broken</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">broken_path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="Board.shorten_every_path"><a class="viewcode-back" href="../classes.html#classes.Board.shorten_every_path">[docs]</a>    <span class="k">def</span> <span class="nf">shorten_every_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Redraw every path with DIJKSTRA pathfinding.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">:</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">undraw</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="s2">&quot;DIJKSTRA&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Board.redraw_random_path"><a class="viewcode-back" href="../classes.html#classes.Board.redraw_random_path">[docs]</a>    <span class="k">def</span> <span class="nf">redraw_random_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Pick three random paths.&quot;&quot;&quot;</span>
+        <span class="n">paths</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths_drawn</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths_drawn</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span> <span class="o">+</span> <span class="n">index</span><span class="p">))</span>
+        <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths_drawn</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">index</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">:</span>
+            <span class="c1"># Undraw the path</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">undraw</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="n">temp_cost</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">COST_PASSING_GATE</span>
+        <span class="n">settings</span><span class="o">.</span><span class="n">COST_PASSING_GATE</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">:</span>
+            <span class="c1"># Redraw the path</span>
+            <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="s2">&quot;ASTAR&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">paths_drawn</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">paths_broken</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="n">settings</span><span class="o">.</span><span class="n">COST_PASSING_GATE</span> <span class="o">=</span> <span class="n">temp_cost</span></div>
+
+<div class="viewcode-block" id="Board.get_result"><a class="viewcode-back" href="../classes.html#classes.Board.get_result">[docs]</a>    <span class="k">def</span> <span class="nf">get_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Look at the path and analyze if it is commplete.</span>
+
+<span class="sd">        :type type_: string</span>
+<span class="sd">        :param type_: Returned value of a drawn line.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">type_</span> <span class="o">==</span> <span class="s2">&quot;average&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">round</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths_drawn</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">type_</span> <span class="o">==</span> <span class="s2">&quot;made&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths_drawn</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">type_</span> <span class="o">==</span> <span class="s2">&quot;broken&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths_broken</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Board.get_coords"><a class="viewcode-back" href="../classes.html#classes.Board.get_coords">[docs]</a>    <span class="k">def</span> <span class="nf">get_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axes</span><span class="p">,</span> <span class="n">label</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the coordinate of a board with it&#39;s label.</span>
+
+<span class="sd">        :type axes: string</span>
+<span class="sd">        :param axes: Devided coord into Z, Y, X</span>
+
+<span class="sd">        :type label: numpy(object)</span>
+<span class="sd">        :param label: Get a coord in board the corresponding label</span>
+
+<span class="sd">        :rtype: tuple</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">board</span> <span class="o">==</span> <span class="n">label</span><span class="p">)</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">axes</span> <span class="o">==</span> <span class="s1">&#39;z&#39;</span><span class="p">:</span>
+                <span class="n">coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coord</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">axes</span> <span class="o">==</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span>
+                <span class="n">coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coord</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">axes</span> <span class="o">==</span> <span class="s1">&#39;x&#39;</span><span class="p">:</span>
+                <span class="n">coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coord</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">coords</span></div>
+
+<div class="viewcode-block" id="Board.reset_coordinate"><a class="viewcode-back" href="../classes.html#classes.Board.reset_coordinate">[docs]</a>    <span class="k">def</span> <span class="nf">reset_coordinate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reset the coordinates of a board to 0.</span>
+
+<span class="sd">        :type z: interger</span>
+<span class="sd">        :type y: interger</span>
+<span class="sd">        :type x: interger</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">[</span><span class="n">z</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="Board.get_neighbors"><a class="viewcode-back" href="../classes.html#classes.Board.get_neighbors">[docs]</a>    <span class="k">def</span> <span class="nf">get_neighbors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coord</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the neighbors of a given coordinate.</span>
+
+<span class="sd">        :type coord: coord(tuple)</span>
+<span class="sd">        :param coord: A coordinate on the board</span>
+
+<span class="sd">        :rtype: interger</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="n">coord</span>
+        <span class="n">valid_coords</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">neighbors</span> <span class="o">=</span> <span class="p">[[</span><span class="n">z</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="n">z</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="n">z</span><span class="p">,</span> <span class="n">y</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">x</span><span class="p">],</span>
+                     <span class="p">[</span><span class="n">z</span><span class="p">,</span> <span class="n">y</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">x</span><span class="p">],</span> <span class="p">[</span><span class="n">z</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">],</span> <span class="p">[</span><span class="n">z</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">]]</span>
+
+        <span class="k">for</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="p">:</span>
+            <span class="c1"># Check if the coord is positive</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">axes</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">axes</span> <span class="ow">in</span> <span class="n">neighbor</span><span class="p">):</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Check if the coord falls within the board</span>
+            <span class="k">if</span> <span class="n">neighbor</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">settings</span><span class="o">.</span><span class="n">BOARD_WIDTH</span> <span class="ow">or</span> \
+               <span class="n">neighbor</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">settings</span><span class="o">.</span><span class="n">BOARD_HEIGHT</span> <span class="ow">or</span> \
+               <span class="n">neighbor</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">settings</span><span class="o">.</span><span class="n">BOARD_DEPTH</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Add this neighbor to the output</span>
+            <span class="n">valid_coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">neighbor</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">valid_coords</span></div>
+
+<div class="viewcode-block" id="Board.get_score"><a class="viewcode-back" href="../classes.html#classes.Board.get_score">[docs]</a>    <span class="k">def</span> <span class="nf">get_score</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Accumulated length of all the paths.</span>
+
+<span class="sd">        :rtype: interger</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">board</span> <span class="o">&gt;=</span> <span class="n">settings</span><span class="o">.</span><span class="n">SIGN_PATH_START</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Board.plot"><a class="viewcode-back" href="../classes.html#classes.Board.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Graph configurations uses plt from the .&quot;&quot;&quot;</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="s1">&#39;3d&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_zlim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">depth</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;X&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Y&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_zlabel</span><span class="p">(</span><span class="s2">&quot;Z&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">get_coords</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">),</span>
+                    <span class="n">path</span><span class="o">.</span><span class="n">get_coords</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">),</span>
+                    <span class="n">path</span><span class="o">.</span><span class="n">get_coords</span><span class="p">(</span><span class="s1">&#39;z&#39;</span><span class="p">),</span>
+                    <span class="n">zorder</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Add gates to the graph</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_coords</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">settings</span><span class="o">.</span><span class="n">SIGN_GATE</span><span class="p">),</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">get_coords</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">settings</span><span class="o">.</span><span class="n">SIGN_GATE</span><span class="p">),</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">get_coords</span><span class="p">(</span><span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="n">settings</span><span class="o">.</span><span class="n">SIGN_GATE</span><span class="p">),</span>
+                   <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Show the graph</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Board.print_board"><a class="viewcode-back" href="../classes.html#classes.Board.print_board">[docs]</a>    <span class="k">def</span> <span class="nf">print_board</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Show the numpyboard in ASCII.&quot;&quot;&quot;</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">set_printoptions</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Board.set_gates"><a class="viewcode-back" href="../classes.html#classes.Board.set_gates">[docs]</a>    <span class="k">def</span> <span class="nf">set_gates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gates</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the gates on the board.</span>
+
+<span class="sd">        :type gates: Gate(object)</span>
+<span class="sd">        :param gates: Give the selected netlist in settings.py.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Set very gate in this board</span>
+        <span class="k">for</span> <span class="n">gate</span> <span class="ow">in</span> <span class="n">gates</span><span class="o">.</span><span class="n">gates</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gates_objects</span><span class="p">[</span><span class="n">gate</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="n">gate</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">gate</span><span class="o">.</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">gate</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gates_numbers</span><span class="p">[</span><span class="n">gate</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="n">gate</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">gate</span><span class="o">.</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">gate</span><span class="o">.</span><span class="n">label</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">board</span><span class="p">[</span><span class="n">gate</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="n">gate</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">gate</span><span class="o">.</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">sign_gate</span></div>
+
+<div class="viewcode-block" id="Board.set_paths"><a class="viewcode-back" href="../classes.html#classes.Board.set_paths">[docs]</a>    <span class="k">def</span> <span class="nf">set_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">netlist</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the value of the netlist and appends it to the numpyboard.</span>
+
+<span class="sd">        :type netlist: Netlist(object)</span>
+<span class="sd">        :param netlist: Get de netlist object and use it to set the paths</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">path_number</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">SIGN_PATH_START</span>
+
+        <span class="k">for</span> <span class="n">connection</span> <span class="ow">in</span> <span class="n">netlist</span><span class="o">.</span><span class="n">list</span><span class="p">:</span>
+            <span class="c1"># Get the coordinates of the two gates in this connection</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">connection</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">connection</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">coordGateA</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gates_numbers</span> <span class="o">==</span> <span class="n">a</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">coordGateB</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gates_numbers</span> <span class="o">==</span> <span class="n">b</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+            <span class="c1"># Create a new path object</span>
+            <span class="n">new_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">coordGateA</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">coordGateB</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">path_number</span><span class="p">,</span> <span class="s2">&quot;grey&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Add this path to the board object</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_path</span><span class="p">)</span>
+
+            <span class="c1"># Set a new path_number for the next path</span>
+            <span class="n">path_number</span> <span class="o">+=</span> <span class="mi">1</span></div></div>
+
+
+<div class="viewcode-block" id="Gate"><a class="viewcode-back" href="../classes.html#classes.Gate">[docs]</a><span class="k">class</span> <span class="nc">Gate</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Gate sets the gates in a board.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">spaces_needed</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initiate the varables used by Gate.</span>
+
+<span class="sd">        :type label: intergernt</span>
+<span class="sd">        :param label: Label for a gate</span>
+
+<span class="sd">        :type x: interger</span>
+<span class="sd">        :param x: x-axis location</span>
+
+<span class="sd">        :type y: interger</span>
+<span class="sd">        :param y: y-axis location</span>
+
+<span class="sd">        :type z: interger</span>
+<span class="sd">        :param z: z-axis location</span>
+
+<span class="sd">        :type spaces_needed: interger</span>
+<span class="sd">        :param spaces_needed: Spaces needed in the gate to connect all paths</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">label</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spaces_needed</span> <span class="o">=</span> <span class="n">spaces_needed</span>
+
+<div class="viewcode-block" id="Gate.get_free_spaces"><a class="viewcode-back" href="../classes.html#classes.Gate.get_free_spaces">[docs]</a>    <span class="k">def</span> <span class="nf">get_free_spaces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board</span><span class="p">,</span> <span class="n">coord</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Interger with the amount of free spaces.</span>
+
+<span class="sd">        :type board: numpy(object)</span>
+<span class="sd">        :param board: a threedimensional Numpy array</span>
+
+<span class="sd">        :type coord: interger</span>
+<span class="sd">        :param coord:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">free_spaces</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">for</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="n">board</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">coord</span><span class="p">):</span>
+            <span class="c1"># Count if neighbor is free on the board</span>
+            <span class="k">if</span> <span class="n">board</span><span class="o">.</span><span class="n">board</span><span class="p">[</span><span class="n">neighbor</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">neighbor</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">neighbor</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">free_spaces</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">spaces_needed</span></div>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;String return.</span>
+
+<span class="sd">        :rtype self: String</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span></div>
+
+
+<div class="viewcode-block" id="Gates"><a class="viewcode-back" href="../classes.html#classes.Gates">[docs]</a><span class="k">class</span> <span class="nc">Gates</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Gates Class that makes a board with gates.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">,</span> <span class="n">sign</span><span class="p">,</span> <span class="n">netlist</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initiate the Gates class.</span>
+
+<span class="sd">        :type number: interger</span>
+<span class="sd">        :param number: number of gates file used</span>
+
+<span class="sd">        :type sign: interger</span>
+<span class="sd">        :param sign: identifier of the gate</span>
+
+<span class="sd">        :type netlist: Netlist(object)</span>
+<span class="sd">        :param netlist: a netlist object to put in the Gates(object)</span>
+
+<span class="sd">        :type number: interger</span>
+<span class="sd">        :param number: identifier</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gates</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sign_gate</span> <span class="o">=</span> <span class="n">sign</span>
+
+        <span class="c1"># Read a CSV file for gate tuples</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;sample/data/gates&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">number</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.csv&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+            <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">csvfile</span><span class="p">)</span>
+
+            <span class="c1"># Skip the header</span>
+            <span class="nb">next</span><span class="p">(</span><span class="n">reader</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
+                <span class="c1"># Skip row if the data is commented</span>
+                <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">][:</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;#&#39;</span><span class="p">:</span>
+
+                    <span class="c1"># Get the name of the gate</span>
+                    <span class="n">gateLabel</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+                    <span class="c1"># Fetch the coords X and Y</span>
+                    <span class="n">gateX</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="n">gateY</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                    <span class="n">gateZ</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+
+                    <span class="c1"># Get information on this gate from the netlist</span>
+                    <span class="n">spaces_needed</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="k">for</span> <span class="n">connection</span> <span class="ow">in</span> <span class="n">netlist</span><span class="o">.</span><span class="n">list</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="n">connection</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="n">gateLabel</span> <span class="ow">or</span> <span class="p">(</span>
+                                <span class="n">connection</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="n">gateLabel</span><span class="p">:</span>
+                            <span class="n">spaces_needed</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                    <span class="c1"># Save gate object in gates list</span>
+                    <span class="n">new_gate</span> <span class="o">=</span> <span class="n">Gate</span><span class="p">(</span><span class="n">gateLabel</span><span class="p">,</span> <span class="n">gateX</span><span class="p">,</span> <span class="n">gateY</span><span class="p">,</span> <span class="n">gateZ</span><span class="p">,</span> <span class="n">spaces_needed</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">gates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_gate</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Gates.reset_spaces_needed"><a class="viewcode-back" href="../classes.html#classes.Gates.reset_spaces_needed">[docs]</a>    <span class="k">def</span> <span class="nf">reset_spaces_needed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">netlist</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Reset the amount of spaces needed.</span>
+
+<span class="sd">        :type netlist: Netlist(object)</span>
+<span class="sd">        :param number: the netlist object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">gate</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gates</span><span class="p">:</span>
+
+            <span class="n">gate</span><span class="o">.</span><span class="n">spaces_needed</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">connection</span> <span class="ow">in</span> <span class="n">netlist</span><span class="o">.</span><span class="n">list</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">connection</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="n">gate</span><span class="o">.</span><span class="n">label</span> <span class="ow">or</span> <span class="p">(</span>
+                        <span class="n">connection</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="n">gate</span><span class="o">.</span><span class="n">label</span><span class="p">:</span>
+                    <span class="n">gate</span><span class="o">.</span><span class="n">spaces_needed</span> <span class="o">+=</span> <span class="mi">1</span></div>
+
+<div class="viewcode-block" id="Gates.get_gates"><a class="viewcode-back" href="../classes.html#classes.Gates.get_gates">[docs]</a>    <span class="k">def</span> <span class="nf">get_gates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the own gates data.</span>
+
+<span class="sd">        :rtype: array</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">gates</span></div></div>
+
+
+<div class="viewcode-block" id="Netlist"><a class="viewcode-back" href="../classes.html#classes.Netlist">[docs]</a><span class="k">class</span> <span class="nc">Netlist</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Netlist are tuples reperesenting the contecion between two gates.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;All conections must be made to solve the case.</span>
+
+<span class="sd">        :type number: interger</span>
+<span class="sd">        :param number: id of the netlist</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">number</span> <span class="o">=</span> <span class="n">number</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="s2">&quot;sample/data/netlist&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">number</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">+=</span> <span class="s2">&quot;.txt&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connections</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># Open netlist and read with literal evaluation</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">list</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">list</span> <span class="o">=</span> <span class="n">literal_eval</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">)</span>
+
+        <span class="c1"># Count amount of needed connections in this netlist</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connections</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">)</span>
+
+        <span class="c1"># Order this list by importance of connections</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sort_by_connection</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Netlist.swap_back_one"><a class="viewcode-back" href="../classes.html#classes.Netlist.swap_back_one">[docs]</a>    <span class="k">def</span> <span class="nf">swap_back_one</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Switch the target item with item before it.</span>
+
+<span class="sd">        :type targer: tuple</span>
+<span class="sd">        :param number: the netlist combination that must be switched</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">[</span><span class="n">index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">[</span><span class="n">index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp</span></div>
+
+<div class="viewcode-block" id="Netlist.first_to_back"><a class="viewcode-back" href="../classes.html#classes.Netlist.first_to_back">[docs]</a>    <span class="k">def</span> <span class="nf">first_to_back</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Give back the first ellement with python pop.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Netlist.sort_by_connection"><a class="viewcode-back" href="../classes.html#classes.Netlist.sort_by_connection">[docs]</a>    <span class="k">def</span> <span class="nf">sort_by_connection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Rearrange self.list to a new array based connectins needed.&quot;&quot;&quot;</span>
+        <span class="n">gate_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">connection</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">gate</span> <span class="ow">in</span> <span class="n">connection</span><span class="p">:</span>
+                <span class="n">gate_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gate</span><span class="p">)</span>
+
+        <span class="n">counter_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">Counter</span><span class="p">(</span><span class="n">gate_list</span><span class="p">))</span>
+
+        <span class="c1"># Loop calculate the value of the tuple, make a</span>
+        <span class="c1"># dict containing the values</span>
+        <span class="n">sorted_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">connection</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">list</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">counter_dict</span><span class="p">[</span><span class="n">connection</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+</span> <span class="n">counter_dict</span><span class="p">[</span><span class="n">connection</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+            <span class="n">sorted_dict</span><span class="p">[</span><span class="n">connection</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="c1"># Return the sorted array based on the items in revered order.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">sorted_dict</span><span class="p">,</span>
+                           <span class="n">key</span><span class="o">=</span><span class="n">sorted_dict</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">,</span>
+                           <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="Path"><a class="viewcode-back" href="../classes.html#classes.Path">[docs]</a><span class="k">class</span> <span class="nc">Path</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Path from A to B.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordA</span><span class="p">,</span> <span class="n">coordB</span><span class="p">,</span> <span class="n">aLabel</span><span class="p">,</span> <span class="n">aColor</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initiate the path coordinates a label and the optional collor.</span>
+
+<span class="sd">        :type coordA: interger</span>
+<span class="sd">        :param coordA: first point on the board (list of Z, Y, X coordinates)</span>
+
+<span class="sd">        :type coordB: interger</span>
+<span class="sd">        :param coordB: second point on the board (list of  Z, Y, X coordinates)</span>
+
+<span class="sd">        :type aLabel: interger</span>
+<span class="sd">        :param aLabel: the ID of this path</span>
+
+<span class="sd">        :type aColor: hexodecimal value</span>
+<span class="sd">        :param aColor: the color for plotting</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">aLabel</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">coordA</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="n">coordB</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="n">aColor</span>
+
+<div class="viewcode-block" id="Path.add_coordinate"><a class="viewcode-back" href="../classes.html#classes.Path.add_coordinate">[docs]</a>    <span class="k">def</span> <span class="nf">add_coordinate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coord</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a new coordinate to self.path.</span>
+
+<span class="sd">        :type coord: tuple</span>
+<span class="sd">        :param coord:       a list of [Z, Y, X]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coord</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Path.undraw"><a class="viewcode-back" href="../classes.html#classes.Path.undraw">[docs]</a>    <span class="k">def</span> <span class="nf">undraw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Remove paths from the board.</span>
+
+<span class="sd">        :type board: Board(object)</span>
+<span class="sd">        :param board: a threedimensional Numpy array</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Add one to the needed connections for gate A and B</span>
+        <span class="n">board</span><span class="o">.</span><span class="n">gates_objects</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span><span class="o">.</span><span class="n">spaces_needed</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">board</span><span class="o">.</span><span class="n">gates_objects</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span><span class="o">.</span><span class="n">spaces_needed</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># Loop through every coord of the path</span>
+        <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+            <span class="c1"># Reset this coord on the board to 0</span>
+            <span class="k">if</span> <span class="n">board</span><span class="o">.</span><span class="n">board</span><span class="p">[</span><span class="n">coord</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">coord</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">coord</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="o">!=</span> <span class="n">settings</span><span class="o">.</span><span class="n">SIGN_GATE</span><span class="p">:</span>
+                <span class="n">board</span><span class="o">.</span><span class="n">reset_coordinate</span><span class="p">(</span><span class="n">coord</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">coord</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">coord</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+        <span class="c1"># Empty the path list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="p">[]</span></div>
+
+<div class="viewcode-block" id="Path.draw"><a class="viewcode-back" href="../classes.html#classes.Path.draw">[docs]</a>    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">,</span> <span class="n">board</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate route between two points.</span>
+
+<span class="sd">        :type board: Board(object)</span>
+<span class="sd">        :param board: a threedimensional Numpy array</span>
+
+<span class="sd">        :type algorithm: method</span>
+<span class="sd">        :param algorithm:  algorithm to draw the path</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">algorithm</span> <span class="o">==</span> <span class="s2">&quot;DIJKSTRA&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">draw_DIJKSTRA</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">algorithm</span> <span class="o">==</span> <span class="s2">&quot;ASTAR&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">draw_ASTAR</span><span class="p">(</span><span class="n">board</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Path.draw_ASTAR"><a class="viewcode-back" href="../classes.html#classes.Path.draw_ASTAR">[docs]</a>    <span class="k">def</span> <span class="nf">draw_ASTAR</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate route between two points with the A* algorithm.</span>
+
+<span class="sd">        :type board: Board(object)</span>
+<span class="sd">        :param board: a threedimensional Numpy array</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">a_tpl</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
+        <span class="n">b_tpl</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">)</span>
+
+        <span class="c1"># Create data structures</span>
+        <span class="n">queue</span> <span class="o">=</span> <span class="n">QueuePriority</span><span class="p">()</span>
+        <span class="n">queue</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">a_tpl</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">cost_archive</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">cost_archive</span><span class="p">[</span><span class="n">a_tpl</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">path_archive</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">path_archive</span><span class="p">[</span><span class="n">a_tpl</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># Keep searching till queue is empty or target is found</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">queue</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
+
+            <span class="c1"># Pop first coordinate from queue</span>
+            <span class="n">current</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="n">current_tpl</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
+
+            <span class="c1"># Check if this is the target</span>
+            <span class="k">if</span> <span class="n">current_tpl</span> <span class="o">==</span> <span class="n">b_tpl</span><span class="p">:</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">break</span>
+
+            <span class="c1"># Create all neighbors of this coordinate</span>
+            <span class="k">for</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="n">board</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">current</span><span class="p">):</span>
+
+                <span class="c1"># Create a tuple</span>
+                <span class="n">neighbor</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">neighbor</span><span class="p">)</span>
+
+                <span class="c1"># --------------- HEURISTICS ----------------</span>
+
+                <span class="c1"># Check if this coordinate on the board is empty</span>
+                <span class="k">if</span> <span class="n">board</span><span class="o">.</span><span class="n">board</span><span class="p">[</span><span class="n">neighbor</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">neighbor</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">neighbor</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">neighbor</span> <span class="o">!=</span> <span class="n">b_tpl</span><span class="p">:</span>
+                        <span class="k">continue</span>
+
+                <span class="c1"># Calculate distance to goal</span>
+                <span class="n">cost_neighbor</span> <span class="o">=</span> <span class="n">cost_archive</span><span class="p">[</span><span class="n">current_tpl</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">cost_neighbor</span> <span class="o">+=</span> <span class="n">helpers</span><span class="o">.</span><span class="n">calculate_delta</span><span class="p">(</span><span class="n">neighbor</span><span class="p">,</span> <span class="n">b_tpl</span><span class="p">)</span>
+
+                <span class="c1"># Make it cheaper to go deeper</span>
+                <span class="n">cost_neighbor</span> <span class="o">+=</span> <span class="p">((</span><span class="n">board</span><span class="o">.</span><span class="n">depth</span> <span class="o">-</span> <span class="n">neighbor</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="mi">25</span><span class="p">)</span>
+
+                <span class="c1"># Make expensive if passing a gate</span>
+                <span class="k">if</span> <span class="n">neighbor</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">next_neighbor</span> <span class="ow">in</span> <span class="n">board</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">neighbor</span><span class="p">):</span>
+
+                        <span class="c1"># If next_neighbor is a gate</span>
+                        <span class="n">gate</span> <span class="o">=</span> <span class="n">board</span><span class="o">.</span><span class="n">gates_objects</span><span class="p">[</span><span class="n">next_neighbor</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                                   <span class="n">next_neighbor</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                                   <span class="n">next_neighbor</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+                        <span class="k">if</span> <span class="n">gate</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+
+                            <span class="c1"># Make the cost higher if gate has more connections</span>
+                            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">gate</span><span class="o">.</span><span class="n">spaces_needed</span><span class="p">):</span>
+                                <span class="n">cost_neighbor</span> <span class="o">+=</span> <span class="n">settings</span><span class="o">.</span><span class="n">COST_PASSING_GATE</span>
+
+                <span class="c1"># Check if this coordinate is new or has a lower cost than before</span>
+                <span class="k">if</span> <span class="n">neighbor</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">path_archive</span> \
+                   <span class="ow">or</span> <span class="p">(</span><span class="n">neighbor</span> <span class="ow">in</span> <span class="n">cost_archive</span> <span class="ow">and</span> <span class="n">cost_neighbor</span> <span class="o">&lt;</span> <span class="n">cost_archive</span><span class="p">[</span><span class="n">neighbor</span><span class="p">]):</span>
+
+                    <span class="c1"># Calculate the cost and add it to the queue</span>
+                    <span class="n">cost_archive</span><span class="p">[</span><span class="n">neighbor</span><span class="p">]</span> <span class="o">=</span> <span class="n">cost_neighbor</span>
+                    <span class="n">prior</span> <span class="o">=</span> <span class="n">cost_neighbor</span>
+                    <span class="n">queue</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">neighbor</span><span class="p">,</span> <span class="n">prior</span><span class="p">)</span>
+
+                    <span class="c1"># Remember where this neighbor came from</span>
+                    <span class="n">path_archive</span><span class="p">[</span><span class="n">neighbor</span><span class="p">]</span> <span class="o">=</span> <span class="n">current</span>
+
+                <span class="c1"># -------------- / HEURISTICS ---------------</span>
+
+
+    <span class="c1"># Backtracking the path</span>
+        <span class="k">if</span> <span class="n">found</span><span class="p">:</span>
+
+            <span class="c1"># Add destination to the path route</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_coordinate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">)</span>
+
+            <span class="n">cursor</span> <span class="o">=</span> <span class="n">path_archive</span><span class="p">[</span><span class="n">b_tpl</span><span class="p">]</span>
+
+            <span class="k">while</span> <span class="n">cursor</span> <span class="o">!=</span> <span class="n">a_tpl</span><span class="p">:</span>
+
+                <span class="c1"># Put the ID in the Numpy board</span>
+                <span class="n">board</span><span class="o">.</span><span class="n">board</span><span class="p">[</span><span class="n">cursor</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cursor</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">cursor</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span>
+
+                <span class="c1"># Remember this coord for this path</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_coordinate</span><span class="p">([</span><span class="n">cursor</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cursor</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">cursor</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
+
+                <span class="n">cursor</span> <span class="o">=</span> <span class="n">path_archive</span><span class="p">[</span><span class="n">cursor</span><span class="p">]</span>
+
+            <span class="c1"># Add A to the path</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_coordinate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
+
+            <span class="c1"># Reduce the needed spaces for gate A and B</span>
+            <span class="n">board</span><span class="o">.</span><span class="n">gates_objects</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span><span class="o">.</span><span class="n">spaces_needed</span> <span class="o">-=</span> <span class="mi">1</span>
+
+            <span class="n">board</span><span class="o">.</span><span class="n">gates_objects</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span><span class="o">.</span><span class="n">spaces_needed</span> <span class="o">-=</span> <span class="mi">1</span>
+
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="Path.draw_DIJKSTRA"><a class="viewcode-back" href="../classes.html#classes.Path.draw_DIJKSTRA">[docs]</a>    <span class="k">def</span> <span class="nf">draw_DIJKSTRA</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate route between two points with the Dijkstra algorithm.</span>
+
+<span class="sd">        :type board: Board(object)</span>
+<span class="sd">        :param board: a threedimensional Numpy array</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Initiate the dimantions of the board</span>
+        <span class="n">boardDimensions</span> <span class="o">=</span> <span class="n">board</span><span class="o">.</span><span class="n">board</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">boardDepth</span> <span class="o">=</span> <span class="n">boardDimensions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">boardHeight</span> <span class="o">=</span> <span class="n">boardDimensions</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">boardWidth</span> <span class="o">=</span> <span class="n">boardDimensions</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">a_tpl</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
+        <span class="n">b_tpl</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">)</span>
+
+        <span class="c1"># Initiate counters</span>
+        <span class="n">loops</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># Initiate numpy data structures</span>
+        <span class="n">archive</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">boardDepth</span><span class="p">,</span> <span class="n">boardHeight</span><span class="p">,</span> <span class="n">boardWidth</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="c1"># Add destination to the path route</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_coordinate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">)</span>
+
+        <span class="n">queue</span> <span class="o">=</span> <span class="n">Queue</span><span class="p">()</span>
+        <span class="n">queue</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
+
+        <span class="c1"># Algorithm core logic</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">queue</span><span class="o">.</span><span class="n">empty</span><span class="p">()</span> <span class="ow">and</span> <span class="n">found</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="c1"># Track the distance</span>
+            <span class="n">loops</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="c1"># Pick first coordinate from the queue</span>
+            <span class="n">current</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="c1"># current_tpl = tuple(current)</span>
+
+            <span class="c1"># Create all neighbors of this coordinate</span>
+            <span class="k">for</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="n">board</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">current</span><span class="p">):</span>
+                <span class="n">neighbor</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">neighbor</span><span class="p">)</span>
+
+                <span class="c1"># Check if this is the target</span>
+                <span class="k">if</span> <span class="n">neighbor</span> <span class="o">==</span> <span class="n">b_tpl</span><span class="p">:</span>
+                    <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">break</span>
+
+                <span class="c1"># --------------- HEURISTICS ----------------</span>
+
+                <span class="c1"># Check if this coord is already in the archive</span>
+                <span class="k">if</span> <span class="n">archive</span><span class="p">[</span><span class="n">neighbor</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">neighbor</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">neighbor</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="c1"># Check if there are no obstacles on this coord</span>
+                <span class="k">if</span> <span class="n">board</span><span class="o">.</span><span class="n">board</span><span class="p">[</span><span class="n">neighbor</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">neighbor</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">neighbor</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="c1"># Check surrounding tiles for gates that need space</span>
+                <span class="k">for</span> <span class="n">neighbor_next</span> <span class="ow">in</span> <span class="n">board</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">neighbor</span><span class="p">):</span>
+                    <span class="n">neighbor_next</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">neighbor_next</span><span class="p">)</span>
+
+                    <span class="c1"># Check if this gate needs space around it</span>
+                    <span class="k">if</span> <span class="n">board</span><span class="o">.</span><span class="n">gates_objects</span><span class="p">[</span><span class="n">neighbor_next</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                           <span class="n">neighbor_next</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                           <span class="n">neighbor_next</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+
+                        <span class="c1"># Don&#39;t look at the own gates</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">neighbor_next</span> <span class="o">==</span> <span class="n">a_tpl</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">neighbor_next</span> <span class="o">==</span> <span class="n">b_tpl</span><span class="p">):</span>
+
+                            <span class="c1"># Get info from this gate</span>
+                            <span class="n">gate</span> <span class="o">=</span> <span class="n">board</span><span class="o">.</span><span class="n">gates_objects</span><span class="p">[</span><span class="n">neighbor_next</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                                       <span class="n">neighbor_next</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                                       <span class="n">neighbor_next</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+
+                            <span class="c1"># See if the path may pass</span>
+                            <span class="k">if</span> <span class="n">gate</span><span class="o">.</span><span class="n">get_free_spaces</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">neighbor_next</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                                <span class="k">continue</span>
+
+                <span class="c1"># -------------- / HEURISTICS ---------------</span>
+
+                <span class="c1"># Add the coord to the queue</span>
+                <span class="n">queue</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">neighbor</span><span class="p">))</span>
+
+                <span class="c1"># Save the iteration counter to this coordinate in the archive</span>
+                <span class="n">archive</span><span class="p">[</span><span class="n">neighbor</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">neighbor</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">neighbor</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="o">=</span> <span class="n">loops</span>
+
+        <span class="c1"># Backtracking the shortest route</span>
+        <span class="k">if</span> <span class="n">found</span><span class="p">:</span>
+            <span class="n">cursor</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">)</span>
+
+            <span class="c1"># Loop back the all the made steps</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">loops</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+
+                <span class="c1"># Loop through all the neighbors of this tile</span>
+                <span class="k">for</span> <span class="n">neighbor</span> <span class="ow">in</span> <span class="n">board</span><span class="o">.</span><span class="n">get_neighbors</span><span class="p">(</span><span class="n">cursor</span><span class="p">):</span>
+
+                    <span class="n">neighbor</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">neighbor</span><span class="p">)</span>
+
+                    <span class="c1"># Check if this cell is on the i&#39;th position in the shortest path</span>
+                    <span class="k">if</span> <span class="n">archive</span><span class="p">[</span><span class="n">neighbor</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">neighbor</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">neighbor</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="o">==</span> <span class="n">i</span><span class="p">:</span>
+
+                        <span class="c1"># Put the ID in the Numpy board</span>
+                        <span class="n">board</span><span class="o">.</span><span class="n">board</span><span class="p">[</span><span class="n">neighbor</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">neighbor</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">neighbor</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span>
+
+                        <span class="c1"># Remember this coord for this path</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">add_coordinate</span><span class="p">([</span><span class="n">neighbor</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">neighbor</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">neighbor</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
+
+                        <span class="c1"># Move the cursor</span>
+                        <span class="n">cursor</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">neighbor</span><span class="p">)</span>
+                        <span class="k">break</span>
+
+            <span class="c1"># Add the starting point to the end of the path-list</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_coordinate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
+
+            <span class="c1"># Add 1 to the made connections for gate A and B</span>
+            <span class="n">board</span><span class="o">.</span><span class="n">gates_objects</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span><span class="o">.</span><span class="n">spaces_needed</span> <span class="o">-=</span> <span class="mi">1</span>
+
+            <span class="n">board</span><span class="o">.</span><span class="n">gates_objects</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span><span class="o">.</span><span class="n">spaces_needed</span> <span class="o">-=</span> <span class="mi">1</span>
+
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1">#if settings.SHOW_EACH_RESULT</span>
+                <span class="c1">#print(&quot;Path &quot; + str(self.label) + &quot; ERROR. Could not be drawn.&quot;)</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="Path.get_coords"><a class="viewcode-back" href="../classes.html#classes.Path.get_coords">[docs]</a>    <span class="k">def</span> <span class="nf">get_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axes</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get coordinates of point with axes as input.</span>
+
+<span class="sd">        :type axes: tuple</span>
+<span class="sd">        :param number: tuple with value of x, y and z</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">axes</span> <span class="o">==</span> <span class="s1">&#39;z&#39;</span><span class="p">:</span>
+                <span class="n">coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coord</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">axes</span> <span class="o">==</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span>
+                <span class="n">coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coord</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">axes</span> <span class="o">==</span> <span class="s1">&#39;x&#39;</span><span class="p">:</span>
+                <span class="n">coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coord</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">coords</span></div></div>
+
+
+<div class="viewcode-block" id="Solution"><a class="viewcode-back" href="../classes.html#classes.Solution">[docs]</a><span class="k">class</span> <span class="nc">Solution</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Is a wraper class for all functions.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initiate the variables non needed as arguments.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">best_board</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">best_netlist</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">best_score</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">best_result</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">boards</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scores</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="Solution.get_scores"><a class="viewcode-back" href="../classes.html#classes.Solution.get_scores">[docs]</a>    <span class="k">def</span> <span class="nf">get_scores</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get all scores in the scores list.</span>
+
+<span class="sd">        :rtype: array</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">scores</span></div>
+
+<div class="viewcode-block" id="Solution.plot_scores"><a class="viewcode-back" href="../classes.html#classes.Solution.plot_scores">[docs]</a>    <span class="k">def</span> <span class="nf">plot_scores</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Plot a graph to show the scores over the different iterations.&quot;&quot;&quot;</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Iteration&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Score&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scores</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Solution.plot_results"><a class="viewcode-back" href="../classes.html#classes.Solution.plot_results">[docs]</a>    <span class="k">def</span> <span class="nf">plot_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Plot a graph to show the results over the different iterations.&quot;&quot;&quot;</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Iteration&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Paths drawn (percent)&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Solution.plot_best"><a class="viewcode-back" href="../classes.html#classes.Solution.plot_best">[docs]</a>    <span class="k">def</span> <span class="nf">plot_best</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Plot the best result.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">best_board</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Solution.run"><a class="viewcode-back" href="../classes.html#classes.Solution.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gates</span><span class="p">,</span> <span class="n">netlist</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Run the file used in __main.py.</span>
+
+<span class="sd">        :type gates: Gates(object)</span>
+<span class="sd">        :param gates: a instanse of the Gate class</span>
+
+<span class="sd">        :type netlist: Netlist(object)</span>
+<span class="sd">        :param netlist: a instanse of the Netlist class</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Print inputted netlist</span>
+        <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">SHOW_NETLIST</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Netlist: &quot;</span> <span class="o">+</span> <span class="n">CLR</span><span class="o">.</span><span class="n">GREEN</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">netlist</span><span class="o">.</span><span class="n">list</span><span class="p">)</span> <span class="o">+</span> <span class="n">CLR</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--------------------------------------------------------&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Set temporary counters</span>
+        <span class="n">no_path_improvements</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># Create a new board</span>
+        <span class="n">board</span> <span class="o">=</span> <span class="n">Board</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">BOARD_WIDTH</span><span class="p">,</span>
+                      <span class="n">settings</span><span class="o">.</span><span class="n">BOARD_HEIGHT</span><span class="p">,</span>
+                      <span class="n">settings</span><span class="o">.</span><span class="n">BOARD_DEPTH</span><span class="p">)</span>
+
+        <span class="c1"># Place gates and paths on this board</span>
+        <span class="n">board</span><span class="o">.</span><span class="n">set_gates</span><span class="p">(</span><span class="n">gates</span><span class="p">)</span>
+        <span class="n">board</span><span class="o">.</span><span class="n">set_paths</span><span class="p">(</span><span class="n">netlist</span><span class="p">)</span>
+
+        <span class="c1"># Draw the paths</span>
+        <span class="n">board</span><span class="o">.</span><span class="n">draw_paths</span><span class="p">()</span>
+
+        <span class="k">while</span> <span class="n">no_path_improvements</span> <span class="o">&lt;=</span> <span class="n">settings</span><span class="o">.</span><span class="n">MAX_NO_IMPROVE</span><span class="p">:</span>
+
+            <span class="c1"># Count this iteration</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">boards</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="c1"># Get the results of this board</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">board</span><span class="o">.</span><span class="n">get_result</span><span class="p">(</span><span class="s2">&quot;average&quot;</span><span class="p">)</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="n">board</span><span class="o">.</span><span class="n">get_score</span><span class="p">()</span>
+
+            <span class="c1"># Save the scores and result of this iteration</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+
+            <span class="c1"># Show progress</span>
+            <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">SHOW_PROGRESS</span><span class="p">:</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Show result of the board</span>
+            <span class="c1"># if settings.SHOW_EACH_RESULT:</span>
+            <span class="c1">#     sys.stdout.flush()</span>
+            <span class="c1">#     print(&quot;Board &quot;</span>
+            <span class="c1">#           + CLR.YELLOW + &quot;#&quot;</span>
+            <span class="c1">#           + str(self.boards)</span>
+            <span class="c1">#           + CLR.DEFAULT, end=&quot;:  &quot;)</span>
+            <span class="c1">#</span>
+            <span class="c1">#     print(&quot;Paths drawn: &quot;</span>
+            <span class="c1">#           + CLR.YELLOW</span>
+            <span class="c1">#           + str(result)</span>
+            <span class="c1">#           + &quot;%&quot;</span>
+            <span class="c1">#           + CLR.DEFAULT, end=&quot;    &quot;)</span>
+            <span class="c1">#</span>
+            <span class="c1">#     print(&quot;Score: &quot;</span>
+            <span class="c1">#           + CLR.YELLOW</span>
+            <span class="c1">#           + str(score)</span>
+            <span class="c1">#           + CLR.DEFAULT, end=&quot;    &quot;)</span>
+            <span class="c1">#</span>
+            <span class="c1">#     print(&quot;Value &#39;passing gate&#39;: &quot;</span>
+            <span class="c1">#           + CLR.YELLOW</span>
+            <span class="c1">#           + str(settings.COST_PASSING_GATE)</span>
+            <span class="c1">#           + CLR.DEFAULT)</span>
+
+            <span class="c1"># Plot result of the board</span>
+            <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">SHOW_EACH_PLOT</span><span class="p">:</span>
+                <span class="n">board</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+
+            <span class="c1"># Create a copy of this board for next iteration</span>
+            <span class="n">board_new</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+            <span class="n">board_new</span><span class="o">.</span><span class="n">paths</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">board_new</span><span class="o">.</span><span class="n">paths_drawn</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">board_new</span><span class="o">.</span><span class="n">paths_broken</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">board</span><span class="o">.</span><span class="n">paths</span><span class="p">:</span>
+                <span class="n">board_new</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+
+            <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">board</span><span class="o">.</span><span class="n">paths_drawn</span><span class="p">:</span>
+                <span class="n">board_new</span><span class="o">.</span><span class="n">paths_drawn</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+
+            <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">board</span><span class="o">.</span><span class="n">paths_broken</span><span class="p">:</span>
+                <span class="n">board_new</span><span class="o">.</span><span class="n">paths_broken</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+
+            <span class="c1"># See if this board has better scores</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_score</span> <span class="o">==</span> <span class="mi">0</span> \
+               <span class="ow">or</span> <span class="n">result</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_result</span> \
+               <span class="ow">or</span> <span class="p">(</span><span class="n">result</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_result</span> <span class="ow">and</span> <span class="n">score</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_score</span><span class="p">):</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">best_score</span> <span class="o">=</span> <span class="n">score</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">best_result</span> <span class="o">=</span> <span class="n">result</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">best_board</span> <span class="o">=</span> <span class="n">board</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Count the no improvement on the score</span>
+                <span class="n">no_path_improvements</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                <span class="c1"># Delete this board</span>
+                <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">board</span><span class="o">.</span><span class="n">paths</span><span class="p">:</span>
+                    <span class="k">del</span> <span class="n">path</span>
+                <span class="k">del</span> <span class="n">board</span>
+
+            <span class="c1"># Fetch new board for next iteration</span>
+            <span class="n">board</span> <span class="o">=</span> <span class="n">board_new</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">board</span><span class="o">.</span><span class="n">paths_broken</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># Try to repair the broken paths</span>
+                <span class="n">board</span><span class="o">.</span><span class="n">redraw_broken_path</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Make mutations on the paths</span>
+                <span class="n">board</span><span class="o">.</span><span class="n">shorten_every_path</span><span class="p">()</span>
+                <span class="n">board</span><span class="o">.</span><span class="n">redraw_random_path</span><span class="p">()</span>
+
+        <span class="c1"># Print best result of this run</span>
+        <span class="c1"># print(&quot;&quot;)</span>
+        <span class="c1"># print(&quot;------------ BEST RESULT out of &quot;</span>
+        <span class="c1">#       + str(self.boards)</span>
+        <span class="c1">#       + &quot; boards ---------------&quot;)</span>
+        <span class="c1">#</span>
+        <span class="c1"># print(&quot;Paths drawn: &quot;</span>
+        <span class="c1">#       + CLR.GREEN</span>
+        <span class="c1">#       + str(self.best_result)</span>
+        <span class="c1">#       + &quot;%&quot; + CLR.DEFAULT)</span>
+        <span class="c1">#</span>
+        <span class="c1"># print(&quot;Score: &quot;</span>
+        <span class="c1">#       + CLR.GREEN</span>
+        <span class="c1">#       + str(self.best_score)</span>
+        <span class="c1">#       + CLR.DEFAULT)</span>
+
+        <span class="c1"># Set adapted heuristics for next run</span>
+        <span class="n">settings</span><span class="o">.</span><span class="n">COST_PASSING_GATE</span> <span class="o">+=</span> <span class="n">settings</span><span class="o">.</span><span class="n">STEP_COST_PASSING_GATE</span></div></div>
+
+
+<div class="viewcode-block" id="Queue"><a class="viewcode-back" href="../classes.html#classes.Queue">[docs]</a><span class="k">class</span> <span class="nc">Queue</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Dequeue, append and count elements in a simple queue.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initiate the class with elements of the queue.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">deque</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Queue.empty"><a class="viewcode-back" href="../classes.html#classes.Queue.empty">[docs]</a>    <span class="k">def</span> <span class="nf">empty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Empty the queue.</span>
+
+<span class="sd">        :rtype: interger</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="Queue.pop"><a class="viewcode-back" href="../classes.html#classes.Queue.pop">[docs]</a>    <span class="k">def</span> <span class="nf">pop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Pop a queue item.</span>
+
+<span class="sd">        :rtype: Collections(object)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Queue.push"><a class="viewcode-back" href="../classes.html#classes.Queue.push">[docs]</a>    <span class="k">def</span> <span class="nf">push</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Push an element to the queue.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="QueuePriority"><a class="viewcode-back" href="../classes.html#classes.QueuePriority">[docs]</a><span class="k">class</span> <span class="nc">QueuePriority</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Dequeue, append and count elements in a priority queue.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initiate the elements array.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="QueuePriority.empty"><a class="viewcode-back" href="../classes.html#classes.QueuePriority.empty">[docs]</a>    <span class="k">def</span> <span class="nf">empty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Empty the array.</span>
+
+<span class="sd">        :rtype: interger</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="QueuePriority.pop"><a class="viewcode-back" href="../classes.html#classes.QueuePriority.pop">[docs]</a>    <span class="k">def</span> <span class="nf">pop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Pop elements from the queue.</span>
+
+<span class="sd">        :rtype: tuple</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">heapq</span><span class="o">.</span><span class="n">heappop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="QueuePriority.push"><a class="viewcode-back" href="../classes.html#classes.QueuePriority.push">[docs]</a>    <span class="k">def</span> <span class="nf">push</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Push an element on to the queue.&quot;&quot;&quot;</span>
+        <span class="n">heapq</span><span class="o">.</span><span class="n">heappush</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">,</span> <span class="p">(</span><span class="n">prior</span><span class="p">,</span> <span class="n">data</span><span class="p">))</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;MIT.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
