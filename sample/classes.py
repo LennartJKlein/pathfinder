@@ -1,84 +1,78 @@
-"""
-helpers.py
-- Cell
-- Board
-- Gate
-- Netlist
-- Calculate path
+"""This file contains the logic to run the __main__.py body of the program.
+
+Name: classes.py
+
+Authors:
+- Jurre Brandsen
+- Lennart Klein
+- Thomas de Lange
+
+LICENSE: MIT
 """
 
-import settings
-
-import sys
-import colors as CLR
-import numpy as np
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-from ast import literal_eval
-import heapq
 import collections
 from collections import Counter
-import heapq
-import csv
-import helpers
-from collections import Counter
-import random
 import copy
+import csv
+import heapq
+import random
+import sys
+from ast import literal_eval
+
+import numpy as np
+from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.pyplot as plt
+
+import colors as CLR
+import helpers
+import settings
 
 
-class Board:
-    """
-    Sum:
-        Create a numpy board filled with numpy zeros upon initialising
-
-    Attributes:
-        width(int): How many columns the board uses
-        height(int): How many rows the board uses
-        depth(int): How many layers the board uses
-        board(numpy): Multidimentional list
-        paths(list): Collective of the paths in the board
-        gate_objects(numpy): Ojects assigned to the board
-        gate_numbers(numpy): Zeros assigned to the board
-
-    """
+class Board(object):
+    """Create a numpy board filled with numpy zeros upon initialising."""
 
     def __init__(self, width, height, depth):
-        """
-        Args:
-            width(int): How many columns the board uses
-            height(int): How many rows the board uses
-            depth(int): How many layers the board uses
-        """
+        """Initialing the varables of this class.
 
+        :type widht: interger
+        :param width: How many columns the board uses
+
+        :type height: interger
+        :param height: How many rows the board uses
+
+        :type depth: interger
+        :param depth: How many layers the board uses
+        """
         self.width = width
         self.height = height
         self.depth = depth
         self.board = np.zeros((self.depth, self.height, self.width), dtype=int)
-        
-        self.gates_objects = np.empty((self.depth, self.height, self.width), dtype=object)
-        self.gates_numbers = np.zeros((self.depth, self.height, self.width), dtype=int)
+
+        self.gates_objects = np.empty((self.depth,
+                                       self.height,
+                                       self.width), dtype=object)
+
+        self.gates_numbers = np.zeros((self.depth,
+                                       self.height,
+                                       self.width), dtype=int)
 
         self.paths = []
         self.paths_broken = []
         self.paths_drawn = []
 
     def draw_paths(self):
-        '''
-        Draw all the paths for this board (if possible)
-        '''
-
+        """Draw all the paths for this board (if possible)."""
         # Calculate the route for this path
         for path in self.paths:
             result = path.draw(settings.PATH_ALGORITHM, self)
-
             # Save the results of this execution
-            if result == True:
+            if result:
                 self.paths_drawn.append(path)
             else:
                 self.paths_broken.append(path)
 
-    def redraw_broken_path(self):        
-        # Get first broken path
+    def redraw_broken_path(self):
+        """Get first broken path."""
         broken_path = self.paths_broken.pop(0)
         broken_path.undraw(self)
 
@@ -100,7 +94,7 @@ class Board:
                     self.paths_drawn.append(drawn_path)
                 else:
                     self.paths_broken.append(drawn_path)
-                
+
                 return True
             else:
                 # Reset the removed path
@@ -110,20 +104,20 @@ class Board:
         # Couldn't fix this broken path
         self.paths_broken.append(broken_path)
         return False
-        
+
     def shorten_every_path(self):
-        # Redraw every path with DIJKSTRA pathfinding
+        """Redraw every path with DIJKSTRA pathfinding."""
         for path in self.paths:
             path.undraw(self)
             path.draw("DIJKSTRA", self)
 
     def redraw_random_path(self):
-        # Pick three random paths
+        """Pick three random paths."""
         paths = []
-        index = random.randint(0, len(self.paths_drawn) - 1)
-        paths.append(self.paths_drawn.pop(0 + index))
-        paths.append(self.paths_drawn.pop(1 + index))
-
+        index = random.randint(1, len(self.paths_drawn) - 1)
+        paths.append(self.paths_drawn.pop(len(self.paths_drawn) - index))
+        paths.append(self.paths_drawn.pop(len(self.paths_drawn) - 1 - index))
+        
         for path in paths:
             # Undraw the path
             path.undraw(self)
@@ -140,24 +134,30 @@ class Board:
 
         settings.COST_PASSING_GATE = temp_cost
 
-    def get_result(self, type):
-        if type is "average":
+    def get_result(self, type_):
+        """Look at the path and analyze if it is commplete.
+
+        :type type_: string
+        :param type_: Returned value of a drawn line.
+        """
+        if type_ == "average":
             return round(len(self.paths_drawn) / len(self.paths) * 100, 2)
-        if type is "made":
+        if type_ == "made":
             return len(self.paths_drawn)
-        if type is "broken":
+        if type_ == "broken":
             return len(self.paths_broken)
 
     def get_coords(self, axes, label):
-        """
-        Args:
-            axes(string): Devided coord into Z, Y, X
-            label(numpy): Get a coord in board the corresponding label
+        """Get the coordinate of a board with it's label.
 
-        Return:
-            The current Z, Y, X of a coord in the numby board
-        """
+        :type axes: string
+        :param axes: Devided coord into Z, Y, X
 
+        :type label: numpy(object)
+        :param label: Get a coord in board the corresponding label
+
+        :rtype: tuple
+        """
         labels = np.argwhere(self.board == label)
         coords = []
 
@@ -172,23 +172,29 @@ class Board:
         return coords
 
     def reset_coordinate(self, z, y, x):
+        """Reset the coordinates of a board to 0.
 
+        :type z: interger
+        :type y: interger
+        :type x: interger
+        """
         self.board[z, y, x] = 0
 
     def get_neighbors(self, coord):
-        """
-        Args:
-            coord(tuple): a coordinate on the board
+        """Get the neighbors of a given coordinate.
 
-        Return:
-            All valid neighbors of the given coordinate
-        """
+        :type coord: coord(tuple)
+        :param coord: A coordinate on the board
 
+        :rtype: interger
+        """
         (z, y, x) = coord
         valid_coords = []
-        neighbors = [[z, y, x+1], [z, y, x-1], [z, y+1, x], [z, y-1, x], [z+1, y, x], [z-1, y, x]]
-        for neighbor in neighbors:
 
+        neighbors = [[z, y, x+1], [z, y, x-1], [z, y+1, x],
+                     [z, y-1, x], [z+1, y, x], [z-1, y, x]]
+
+        for neighbor in neighbors:
             # Check if the coord is positive
             if any(axes < 0 for axes in neighbor):
                 continue
@@ -205,19 +211,14 @@ class Board:
         return valid_coords
 
     def get_score(self):
-        """
-        Return:
-            Accumulated length of all the paths
-        """
+        """Accumulated length of all the paths.
 
+        :rtype: interger
+        """
         return len(np.argwhere(self.board >= settings.SIGN_PATH_START))
 
     def plot(self):
-        """
-        Return:
-            Graph configurations
-        """
-
+        """Graph configurations uses plt from the ."""
         fig = plt.figure()
         ax = fig.gca(projection='3d')
         ax.set_xlim(0, self.width)
@@ -228,50 +229,46 @@ class Board:
         ax.set_zlabel("Z")
 
         for path in self.paths:
-            ax.plot(
-              path.get_coords('x'),
-              path.get_coords('y'),
-              path.get_coords('z'),
-              zorder=-1
-            )
+            ax.plot(path.get_coords('x'),
+                    path.get_coords('y'),
+                    path.get_coords('z'),
+                    zorder=-1)
 
         # Add gates to the graph
-        ax.scatter(
-          self.get_coords('x', settings.SIGN_GATE),
-          self.get_coords('y', settings.SIGN_GATE),
-          self.get_coords('z', settings.SIGN_GATE),
-          color="black"
-        )
+        ax.scatter(self.get_coords('x', settings.SIGN_GATE),
+                   self.get_coords('y', settings.SIGN_GATE),
+                   self.get_coords('z', settings.SIGN_GATE),
+                   color="black")
 
         # Show the graph
         plt.show()
 
     def print_board(self):
-        """
-        Return:
-            Show the numpyboard in ASCII
-        """
+        """Show the numpyboard in ASCII."""
         np.set_printoptions(threshold=np.nan)
         print(self.board)
 
     def set_gates(self, gates):
-        """
-        Args:
-            netlist(obj): Give the selected netlist in settings.py
-        """
+        """Set the gates on the board.
 
+        :type gates: Gate(object)
+        :param gates: Give the selected netlist in settings.py.
+        """
         # Set very gate in this board
         for gate in gates.gates:
-
-          self.gates_objects[gate.z, gate.y, gate.x] = gate
-          self.gates_numbers[gate.z, gate.y, gate.x] = gate.label
-          self.board[gate.z, gate.y, gate.x] = gates.sign_gate
+            self.gates_objects[gate.z, gate.y, gate.x] = gate
+            self.gates_numbers[gate.z, gate.y, gate.x] = gate.label
+            self.board[gate.z, gate.y, gate.x] = gates.sign_gate
 
     def set_paths(self, netlist):
+        """Set the value of the netlist and appends it to the numpyboard.
+
+        :type netlist: Netlist(object)
+        :param netlist: Get de netlist object and use it to set the paths
+        """
         path_number = settings.SIGN_PATH_START
 
         for connection in netlist.list:
-
             # Get the coordinates of the two gates in this connection
             a = connection[0]
             b = connection[1]
@@ -287,19 +284,28 @@ class Board:
             # Set a new path_number for the next path
             path_number += 1
 
-class Gate:
-    """
-    PLACEHOLDER
-    """
-    def __init__(self, label, x, y, z, spaces_needed):
-        """
-        :param netlist: Give the selected netlist in settings.py
-        :param label: Label for a gate
-        :param x:     x-axis location
-        :param y:     y-axis location
-        :param y:     z-axis location
-        """
 
+class Gate(object):
+    """Gate sets the gates in a board."""
+
+    def __init__(self, label, x, y, z, spaces_needed):
+        """Initiate the varables used by Gate.
+
+        :type label: intergernt
+        :param label: Label for a gate
+
+        :type x: interger
+        :param x: x-axis location
+
+        :type y: interger
+        :param y: y-axis location
+
+        :type z: interger
+        :param z: z-axis location
+
+        :type spaces_needed: interger
+        :param spaces_needed: Spaces needed in the gate to connect all paths
+        """
         self.label = label
         self.x = int(x)
         self.y = int(y)
@@ -307,8 +313,13 @@ class Gate:
         self.spaces_needed = spaces_needed
 
     def get_free_spaces(self, board, coord):
-        """
-        :return: Interger with the amount of free spaces
+        """Interger with the amount of free spaces.
+
+        :type board: numpy(object)
+        :param board: a threedimensional Numpy array
+
+        :type coord: interger
+        :param coord:
         """
         counter = 0
         free_spaces = 0
@@ -321,24 +332,42 @@ class Gate:
         return free_spaces - self.spaces_needed
 
     def __str__(self):
+        """String return.
+
+        :rtype self: String
+        """
         return self.label
 
-class Gates:
+
+class Gates(object):
+    """Gates Class that makes a board with gates."""
 
     def __init__(self, number, sign, netlist):
+        """Initiate the Gates class.
 
+        :type number: interger
+        :param number: number of gates file used
+
+        :type sign: interger
+        :param sign: identifier of the gate
+
+        :type netlist: Netlist(object)
+        :param netlist: a netlist object to put in the Gates(object)
+
+        :type number: interger
+        :param number: identifier
+        """
         self.gates = []
         self.sign_gate = sign
 
         # Read a CSV file for gate tuples
-        with open('sample/data/gates'+ str(number) + '.csv', 'r') as csvfile:
+        with open('sample/data/gates' + str(number) + '.csv', 'r') as csvfile:
             reader = csv.reader(csvfile)
 
             # Skip the header
             next(reader, None)
 
             for row in reader:
-
                 # Skip row if the data is commented
                 if row[0][:1] != '#':
 
@@ -353,7 +382,8 @@ class Gates:
                     # Get information on this gate from the netlist
                     spaces_needed = 0
                     for connection in netlist.list:
-                        if (connection[0] + 1) == gateLabel or (connection[1] + 1) == gateLabel:
+                        if (connection[0] + 1) == gateLabel or (
+                                connection[1] + 1) == gateLabel:
                             spaces_needed += 1
 
                     # Save gate object in gates list
@@ -361,25 +391,36 @@ class Gates:
                     self.gates.append(new_gate)
 
     def reset_spaces_needed(self, netlist):
+        """Reset the amount of spaces needed.
+
+        :type netlist: Netlist(object)
+        :param number: the netlist object
+        """
         for gate in self.gates:
 
             gate.spaces_needed = 0
             for connection in netlist.list:
-                if (connection[0] + 1) == gate.label or (connection[1] + 1) == gate.label:
+                if (connection[0] + 1) == gate.label or (
+                        connection[1] + 1) == gate.label:
                     gate.spaces_needed += 1
 
     def get_gates(self):
+        """Return the own gates data.
+
+        :rtype: array
+        """
         return self.gates
 
-class Netlist:
-    """
-    Netlist are tuples reperesenting the contecion between two gates. Al conections
-    must be made to solve the case.
 
-    :param: number:     id of the netlist
-    """
+class Netlist(object):
+    """Netlist are tuples reperesenting the contecion between two gates."""
 
     def __init__(self, number):
+        """All conections must be made to solve the case.
+
+        :type number: interger
+        :param number: id of the netlist
+        """
         self.number = number
         self.filename = "sample/data/netlist"
         self.filename += str(number)
@@ -399,9 +440,10 @@ class Netlist:
         self.sort_by_connection()
 
     def swap_back_one(self, target):
-        """
-        Return:
-            Switch the target item with item before it
+        """Switch the target item with item before it.
+
+        :type targer: tuple
+        :param number: the netlist combination that must be switched
         """
         index = self.list.index(target)
         tmp = self.list[index - 1]
@@ -409,39 +451,49 @@ class Netlist:
         self.list[index] = tmp
 
     def first_to_back(self):
+        """Give back the first ellement with python pop."""
         self.list.append(self.list.pop(0))
 
     def sort_by_connection(self):
-        """
-        Return a new sorted array containing the sorted array based on values
-        calculated by tuple value
-        """
+        """Rearrange self.list to a new array based connectins needed."""
         gate_list = []
         for connection in self.list:
             for gate in connection:
                 gate_list.append(gate)
-        
+
         counter_dict = dict(Counter(gate_list))
-        
-        # Loop calculate the value of the tuple, make a dict containing the values
+
+        # Loop calculate the value of the tuple, make a
+        # dict containing the values
         sorted_dict = {}
         for connection in self.list:
             value = counter_dict[connection[0]] + counter_dict[connection[1]]
             sorted_dict[connection] = value
 
         # Return the sorted array based on the items in revered order.
-        self.list = sorted(sorted_dict, key=sorted_dict.__getitem__, reverse=True)
+        self.list = sorted(sorted_dict,
+                           key=sorted_dict.__getitem__,
+                           reverse=True)
 
-class Path:
-    """
-    Path from A to B
-    :param coordA:     first point on the board (list of Z, Y, X coordinates)
-    :param coordB:     second point on the board (list of  Z, Y, X coordinates)
-    :param aLabel:     the ID of this path
-    :param aColor:     the color for plotting
-    """
+
+class Path(object):
+    """Path from A to B."""
 
     def __init__(self, coordA, coordB, aLabel, aColor):
+        """Initiate the path coordinates a label and the optional collor.
+
+        :type coordA: interger
+        :param coordA: first point on the board (list of Z, Y, X coordinates)
+
+        :type coordB: interger
+        :param coordB: second point on the board (list of  Z, Y, X coordinates)
+
+        :type aLabel: interger
+        :param aLabel: the ID of this path
+
+        :type aColor: hexodecimal value
+        :param aColor: the color for plotting
+        """
         self.label = aLabel
         self.path = []
         self.a = coordA
@@ -449,14 +501,19 @@ class Path:
         self.color = aColor
 
     def add_coordinate(self, coord):
-        '''
-        Adds a new coordinate to self.path
+        """Add a new coordinate to self.path.
+
+        :type coord: tuple
         :param coord:       a list of [Z, Y, X]
-        '''
+        """
         self.path.append(coord)
 
     def undraw(self, board):
-        
+        """Remove paths from the board.
+
+        :type board: Board(object)
+        :param board: a threedimensional Numpy array
+        """
         # Add one to the needed connections for gate A and B
         board.gates_objects[self.a[0], self.a[1], self.a[2]].spaces_needed += 1
         board.gates_objects[self.b[0], self.b[1], self.b[2]].spaces_needed += 1
@@ -471,12 +528,14 @@ class Path:
         self.path = []
 
     def draw(self, algorithm, board):
-        '''
-        Calculate route between two points
-        :param board:       a threedimensional Numpy array
-        :param algorithm:   algorithm to draw the path
-        '''
+        """Calculate route between two points.
 
+        :type board: Board(object)
+        :param board: a threedimensional Numpy array
+
+        :type algorithm: method
+        :param algorithm:  algorithm to draw the path
+        """
         if algorithm == "DIJKSTRA":
             return self.draw_DIJKSTRA(board)
 
@@ -484,11 +543,11 @@ class Path:
             return self.draw_ASTAR(board)
 
     def draw_ASTAR(self, board):
-        '''
-        Calculate route between two points with the A* algorithm
-        :param board: a threedimensional Numpy array
-        '''
+        """Calculate route between two points with the A* algorithm.
 
+        :type board: Board(object)
+        :param board: a threedimensional Numpy array
+        """
         a_tpl = tuple(self.a)
         b_tpl = tuple(self.b)
 
@@ -541,7 +600,9 @@ class Path:
                     for next_neighbor in board.get_neighbors(neighbor):
 
                         # If next_neighbor is a gate
-                        gate = board.gates_objects[next_neighbor[0], next_neighbor[1], next_neighbor[2]]
+                        gate = board.gates_objects[next_neighbor[0],
+                                                   next_neighbor[1],
+                                                   next_neighbor[2]]
                         if gate != None:
 
                             # Make the cost higher if gate has more connections
@@ -563,7 +624,7 @@ class Path:
                 # -------------- / HEURISTICS ---------------
 
 
-        # Backtracking the path
+    # Backtracking the path
         if found:
 
             # Add destination to the path route
@@ -585,8 +646,13 @@ class Path:
             self.add_coordinate(self.a)
 
             # Reduce the needed spaces for gate A and B
-            board.gates_objects[self.a[0], self.a[1], self.a[2]].spaces_needed -= 1
-            board.gates_objects[self.b[0], self.b[1], self.b[2]].spaces_needed -= 1
+            board.gates_objects[self.a[0],
+                                self.a[1],
+                                self.a[2]].spaces_needed -= 1
+
+            board.gates_objects[self.b[0],
+                                self.b[1],
+                                self.b[2]].spaces_needed -= 1
 
             return True
 
@@ -594,11 +660,11 @@ class Path:
             return False
 
     def draw_DIJKSTRA(self, board):
-        '''
-        Calculate route between two points with the Dijkstra algorithm
-        :param board: a Numpy array
-        '''
+        """Calculate route between two points with the Dijkstra algorithm.
 
+        :type board: Board(object)
+        :param board: a threedimensional Numpy array
+        """
         # Initiate the dimantions of the board
         boardDimensions = board.board.shape
         boardDepth = boardDimensions[0]
@@ -622,13 +688,12 @@ class Path:
 
         # Algorithm core logic
         while not queue.empty() and found == False:
-
             # Track the distance
             loops += 1
 
             # Pick first coordinate from the queue
             current = queue.pop()
-            current_tpl = tuple(current)
+            # current_tpl = tuple(current)
 
             # Create all neighbors of this coordinate
             for neighbor in board.get_neighbors(current):
@@ -654,13 +719,17 @@ class Path:
                     neighbor_next = tuple(neighbor_next)
 
                     # Check if this gate needs space around it
-                    if board.gates_objects[neighbor_next[0], neighbor_next[1], neighbor_next[2]] != None:
+                    if board.gates_objects[neighbor_next[0],
+                                           neighbor_next[1],
+                                           neighbor_next[2]] != None:
 
                         # Don't look at the own gates
                         if not (neighbor_next == a_tpl) or (neighbor_next == b_tpl):
 
                             # Get info from this gate
-                            gate = board.gates_objects[neighbor_next[0], neighbor_next[1], neighbor_next[2]]
+                            gate = board.gates_objects[neighbor_next[0],
+                                                       neighbor_next[1],
+                                                       neighbor_next[2]]
 
                             # See if the path may pass
                             if gate.get_free_spaces(board, neighbor_next) == 0:
@@ -703,18 +772,27 @@ class Path:
             self.add_coordinate(self.a)
 
             # Add 1 to the made connections for gate A and B
-            board.gates_objects[self.a[0], self.a[1], self.a[2]].spaces_needed -= 1
-            board.gates_objects[self.b[0], self.b[1], self.b[2]].spaces_needed -= 1
+            board.gates_objects[self.a[0],
+                                self.a[1],
+                                self.a[2]].spaces_needed -= 1
+
+            board.gates_objects[self.b[0],
+                                self.b[1],
+                                self.b[2]].spaces_needed -= 1
 
             return True
 
         else:
             #if settings.SHOW_EACH_RESULT
                 #print("Path " + str(self.label) + " ERROR. Could not be drawn.")
-
             return False
 
     def get_coords(self, axes):
+        """Get coordinates of point with axes as input.
+
+        :type axes: tuple
+        :param number: tuple with value of x, y and z
+        """
         coords = []
 
         for coord in self.path:
@@ -724,27 +802,14 @@ class Path:
                 coords.append(coord[1])
             if axes == 'x':
                 coords.append(coord[2])
-
         return coords
 
-class Solution:
-    """
-    Sum:
 
-
-    Attributes:
-
-    """
+class Solution(object):
+    """Is a wraper class for all functions."""
 
     def __init__(self):
-        """
-        :param
-        :param
-        :param
-        :param
-
-        :return:
-        """
+        """Initiate the variables non needed as arguments."""
         self.best_board = None
         self.best_netlist = None
         self.best_score = 0
@@ -755,17 +820,14 @@ class Solution:
         self.results = []
 
     def get_scores(self):
-        """
-        return: Get all scores in the scores list
-        """
+        """Get all scores in the scores list.
 
+        :rtype: array
+        """
         return self.scores
 
     def plot_scores(self):
-        """
-        :return: Plot a graph to show the scores over the different iterations
-        """
-
+        """Plot a graph to show the scores over the different iterations."""
         fig = plt.figure()
         ax = fig.gca()
         ax.set_xlabel("Iteration")
@@ -774,10 +836,7 @@ class Solution:
         plt.show()
 
     def plot_results(self):
-        """
-        :return: Plot a graph to show the results over the different iterations
-        """
-
+        """Plot a graph to show the results over the different iterations."""
         fig = plt.figure()
         ax = fig.gca()
         ax.set_xlabel("Iteration")
@@ -786,11 +845,18 @@ class Solution:
         plt.show()
 
     def plot_best(self):
-
+        """Plot the best result."""
         self.best_board.plot()
 
     def run(self, gates, netlist):
+        """Run the file used in __main.py.
 
+        :type gates: Gates(object)
+        :param gates: a instanse of the Gate class
+
+        :type netlist: Netlist(object)
+        :param netlist: a instanse of the Netlist class
+        """
         # Print inputted netlist
         if settings.SHOW_NETLIST:
             print("Netlist: " + CLR.GREEN + str(netlist.list) + CLR.DEFAULT)
@@ -800,17 +866,19 @@ class Solution:
         no_path_improvements = 0
 
         # Create a new board
-        board = Board(settings.BOARD_WIDTH, settings.BOARD_HEIGHT, settings.BOARD_DEPTH)
-        
+        board = Board(settings.BOARD_WIDTH,
+                      settings.BOARD_HEIGHT,
+                      settings.BOARD_DEPTH)
+
         # Place gates and paths on this board
         board.set_gates(gates)
         board.set_paths(netlist)
-        
+
         # Draw the paths
         board.draw_paths()
 
         while no_path_improvements <= settings.MAX_NO_IMPROVE:
-                
+
             # Count this iteration
             self.boards += 1
 
@@ -822,7 +890,6 @@ class Solution:
             self.results.append(result)
             self.scores.append(score)
 
-
             # Show progress
             if settings.SHOW_PROGRESS:
                 sys.stdout.flush()
@@ -830,11 +897,28 @@ class Solution:
 
             # Show result of the board
             if settings.SHOW_EACH_RESULT:
+                # TODO eventueel ook in __main__.py
                 sys.stdout.flush()
-                print("Board " + CLR.YELLOW + "#" + str(self.boards) + CLR.DEFAULT, end=":  ")
-                print("Paths drawn: " + CLR.YELLOW + str(result) + "%" + CLR.DEFAULT, end="    ")
-                print("Score: " + CLR.YELLOW + str(score) + CLR.DEFAULT, end="    ")
-                print("Value 'passing gate': " + CLR.YELLOW + str(settings.COST_PASSING_GATE) + CLR.DEFAULT)
+                print("Board "
+                      + CLR.YELLOW + "#"
+                      + str(self.boards)
+                      + CLR.DEFAULT, end=":  ")
+
+                print("Paths drawn: "
+                      + CLR.YELLOW
+                      + str(result)
+                      + "%"
+                      + CLR.DEFAULT, end="    ")
+
+                print("Score: "
+                      + CLR.YELLOW
+                      + str(score)
+                      + CLR.DEFAULT, end="    ")
+
+                print("Value 'passing gate': "
+                      + CLR.YELLOW
+                      + str(settings.COST_PASSING_GATE)
+                      + CLR.DEFAULT)
 
             # Plot result of the board
             if settings.SHOW_EACH_PLOT:
@@ -851,7 +935,7 @@ class Solution:
 
             for path in board.paths_drawn:
                 board_new.paths_drawn.append(copy.deepcopy(path))
-                
+
             for path in board.paths_broken:
                 board_new.paths_broken.append(copy.deepcopy(path))
 
@@ -867,7 +951,7 @@ class Solution:
             else:
                 # Count the no improvement on the score
                 no_path_improvements += 1
-                
+
                 # Delete this board
                 for path in board.paths:
                     del path
@@ -884,47 +968,73 @@ class Solution:
                 board.shorten_every_path()
                 board.redraw_random_path()
 
-        # Print best result of this run
+        # Print best result of this run TODO: In __main__.py
         print("")
-        print("------------ BEST RESULT out of " + str(self.boards) + " boards ---------------")
-        print("Paths drawn: " + CLR.GREEN + str(self.best_result) + "%" + CLR.DEFAULT)
-        print("Score: " + CLR.GREEN + str(self.best_score) + CLR.DEFAULT)
+        print("------------ BEST RESULT out of "
+              + str(self.boards)
+              + " boards ---------------")
+
+        print("Paths drawn: "
+              + CLR.GREEN
+              + str(self.best_result)
+              + "%" + CLR.DEFAULT)
+
+        print("Score: "
+              + CLR.GREEN
+              + str(self.best_score)
+              + CLR.DEFAULT)
 
         # Set adapted heuristics for next run
         settings.COST_PASSING_GATE += settings.STEP_COST_PASSING_GATE
 
-class Queue:
-    '''
-    Dequeue, append and count elements in a simple queue
-    :param: none
-    '''
+
+class Queue(object):
+    """Dequeue, append and count elements in a simple queue."""
 
     def __init__(self):
+        """Initiate the class with elements of the queue."""
         self.elements = collections.deque()
 
     def empty(self):
+        """Empty the queue.
+
+        :rtype: interger
+        """
         return len(self.elements) == 0
 
     def pop(self):
+        """Pop a queue item.
+
+        :rtype: Collections(object)
+        """
         return self.elements.popleft()
 
     def push(self, x):
+        """Push an element to the queue."""
         self.elements.append(x)
 
-class QueuePriority:
-    '''
-    Dequeue, append and count elements in a priority queue
-    :param: none
-    '''
+
+class QueuePriority(object):
+    """Dequeue, append and count elements in a priority queue."""
 
     def __init__(self):
+        """Initiate the elements array."""
         self.elements = []
 
     def empty(self):
+        """Empty the array.
+
+        :rtype: interger
+        """
         return len(self.elements) == 0
 
     def pop(self):
+        """Pop elements from the queue.
+
+        :rtype: tuple
+        """
         return heapq.heappop(self.elements)[1]
 
     def push(self, data, prior):
+        """Push an element on to the queue."""
         heapq.heappush(self.elements, (prior, data))

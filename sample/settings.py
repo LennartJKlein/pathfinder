@@ -1,4 +1,5 @@
-# Log settings
+"""Settings to be used by the classes.py."""
+
 PLOT_BEST = True
 PLOT_SCORES = True
 PLOT_RESULTS = False
@@ -21,8 +22,8 @@ BOARD_WIDTH = 18
 BOARD_HEIGHT = 17
 BOARD_DEPTH = 8
 
-FILE_NETLIST = 6
-FILE_GATES = 2
+FILE_NETLIST = 1
+FILE_GATES = 1
 
 SIGN_PATH_START = 2
 SIGN_GATE = 1
