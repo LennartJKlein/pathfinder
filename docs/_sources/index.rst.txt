@@ -24,22 +24,6 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
-
-Requirements
-------------
-To run this program, you need the following:
-
-* Python 3.6
-
-Installation
-------------
-
-Clone this repository (containing the pathfinder module) to a folder of your preference. And run the setup:
-
-```
-python setup.py install
-```
-
 Authors
 -------
     - `Jurre Brandsen <http://www.jurrebrandsen.nl/>`_.
