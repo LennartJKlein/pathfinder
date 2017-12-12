@@ -155,9 +155,9 @@
 <div class="viewcode-block" id="Board.redraw_random_path"><a class="viewcode-back" href="../classes.html#classes.Board.redraw_random_path">[docs]</a>    <span class="k">def</span> <span class="nf">redraw_random_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Pick three random paths.&quot;&quot;&quot;</span>
         <span class="n">paths</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">index</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths_drawn</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths_drawn</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span> <span class="o">+</span> <span class="n">index</span><span class="p">))</span>
-        <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths_drawn</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">index</span><span class="p">))</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths_drawn</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths_drawn</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths_drawn</span><span class="p">)</span> <span class="o">-</span> <span class="n">index</span><span class="p">))</span>
+        <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths_drawn</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths_drawn</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">index</span><span class="p">))</span>
 
         <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">:</span>
             <span class="c1"># Undraw the path</span>
@@ -937,32 +937,33 @@
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">)</span>
 
             <span class="c1"># Show result of the board</span>
-            <span class="c1"># if settings.SHOW_EACH_RESULT:</span>
-            <span class="c1">#     sys.stdout.flush()</span>
-            <span class="c1">#     print(&quot;Board &quot;</span>
-            <span class="c1">#           + CLR.YELLOW + &quot;#&quot;</span>
-            <span class="c1">#           + str(self.boards)</span>
-            <span class="c1">#           + CLR.DEFAULT, end=&quot;:  &quot;)</span>
-            <span class="c1">#</span>
-            <span class="c1">#     print(&quot;Paths drawn: &quot;</span>
-            <span class="c1">#           + CLR.YELLOW</span>
-            <span class="c1">#           + str(result)</span>
-            <span class="c1">#           + &quot;%&quot;</span>
-            <span class="c1">#           + CLR.DEFAULT, end=&quot;    &quot;)</span>
-            <span class="c1">#</span>
-            <span class="c1">#     print(&quot;Score: &quot;</span>
-            <span class="c1">#           + CLR.YELLOW</span>
-            <span class="c1">#           + str(score)</span>
-            <span class="c1">#           + CLR.DEFAULT, end=&quot;    &quot;)</span>
-            <span class="c1">#</span>
-            <span class="c1">#     print(&quot;Value &#39;passing gate&#39;: &quot;</span>
-            <span class="c1">#           + CLR.YELLOW</span>
-            <span class="c1">#           + str(settings.COST_PASSING_GATE)</span>
-            <span class="c1">#           + CLR.DEFAULT)</span>
+            <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">SHOW_EACH_RESULT</span><span class="p">:</span>
+                <span class="c1"># TODO eventueel ook in __main__.py</span>
+                <span class="c1"># sys.stdout.flush()</span>
+                <span class="c1"># print(&quot;Board &quot;</span>
+                <span class="c1">#       + CLR.YELLOW + &quot;#&quot;</span>
+                <span class="c1">#       + str(self.boards)</span>
+                <span class="c1">#       + CLR.DEFAULT, end=&quot;:  &quot;)</span>
+                <span class="c1">#</span>
+                <span class="c1"># print(&quot;Paths drawn: &quot;</span>
+                <span class="c1">#       + CLR.YELLOW</span>
+                <span class="c1">#       + str(result)</span>
+                <span class="c1">#       + &quot;%&quot;</span>
+                <span class="c1">#       + CLR.DEFAULT, end=&quot;    &quot;)</span>
+                <span class="c1">#</span>
+                <span class="c1"># print(&quot;Score: &quot;</span>
+                <span class="c1">#       + CLR.YELLOW</span>
+                <span class="c1">#       + str(score)</span>
+                <span class="c1">#       + CLR.DEFAULT, end=&quot;    &quot;)</span>
+                <span class="c1">#</span>
+                <span class="c1"># print(&quot;Value &#39;passing gate&#39;: &quot;</span>
+                <span class="c1">#       + CLR.YELLOW</span>
+                <span class="c1">#       + str(settings.COST_PASSING_GATE)</span>
+                <span class="c1">#       + CLR.DEFAULT)</span>
 
             <span class="c1"># Plot result of the board</span>
-            <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">SHOW_EACH_PLOT</span><span class="p">:</span>
-                <span class="n">board</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">SHOW_EACH_PLOT</span><span class="p">:</span>
+                    <span class="n">board</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
 
             <span class="c1"># Create a copy of this board for next iteration</span>
             <span class="n">board_new</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
@@ -1008,21 +1009,21 @@
                 <span class="n">board</span><span class="o">.</span><span class="n">shorten_every_path</span><span class="p">()</span>
                 <span class="n">board</span><span class="o">.</span><span class="n">redraw_random_path</span><span class="p">()</span>
 
-        <span class="c1"># Print best result of this run</span>
-        <span class="c1"># print(&quot;&quot;)</span>
-        <span class="c1"># print(&quot;------------ BEST RESULT out of &quot;</span>
-        <span class="c1">#       + str(self.boards)</span>
-        <span class="c1">#       + &quot; boards ---------------&quot;)</span>
-        <span class="c1">#</span>
-        <span class="c1"># print(&quot;Paths drawn: &quot;</span>
-        <span class="c1">#       + CLR.GREEN</span>
-        <span class="c1">#       + str(self.best_result)</span>
-        <span class="c1">#       + &quot;%&quot; + CLR.DEFAULT)</span>
-        <span class="c1">#</span>
-        <span class="c1"># print(&quot;Score: &quot;</span>
-        <span class="c1">#       + CLR.GREEN</span>
-        <span class="c1">#       + str(self.best_score)</span>
-        <span class="c1">#       + CLR.DEFAULT)</span>
+        <span class="c1"># Print best result of this run TODO: In __main__.py</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;------------ BEST RESULT out of &quot;</span>
+              <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">boards</span><span class="p">)</span>
+              <span class="o">+</span> <span class="s2">&quot; boards ---------------&quot;</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Paths drawn: &quot;</span>
+              <span class="o">+</span> <span class="n">CLR</span><span class="o">.</span><span class="n">GREEN</span>
+              <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">best_result</span><span class="p">)</span>
+              <span class="o">+</span> <span class="s2">&quot;%&quot;</span> <span class="o">+</span> <span class="n">CLR</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Score: &quot;</span>
+              <span class="o">+</span> <span class="n">CLR</span><span class="o">.</span><span class="n">GREEN</span>
+              <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">best_score</span><span class="p">)</span>
+              <span class="o">+</span> <span class="n">CLR</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">)</span>
 
         <span class="c1"># Set adapted heuristics for next run</span>
         <span class="n">settings</span><span class="o">.</span><span class="n">COST_PASSING_GATE</span> <span class="o">+=</span> <span class="n">settings</span><span class="o">.</span><span class="n">STEP_COST_PASSING_GATE</span></div></div>
