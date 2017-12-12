@@ -17,7 +17,7 @@ python setup.py install
 ```
 
 ## Documentation
-Learn how to install, test, use and integrate this program that finds efficient paths in the [documentation](docs/index.md).
+Learn how to install, test, use and integrate this program that finds efficient paths in the [documentation](docs/index.html).
 
 ## Contributing
 
