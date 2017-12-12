@@ -1,6 +1,4 @@
 # Experiment findings
-This experiment is used to find the highest _random_ netlist length
-
 ## Assumptions
 * The board has a width of 18
 * The board has a height of 17
