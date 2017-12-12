@@ -421,11 +421,6 @@ class Netlist(object):
         :type number: interger
         :param number: id of the netlist
         """
-        self.number = number
-        self.filename = "sample/data/netlist"
-        self.filename += str(number)
-        self.filename += ".txt"
-        self.connections = 0
 
         if not randomised:
 
@@ -437,15 +432,23 @@ class Netlist(object):
 
         else:
             min_gate = 0
-            max_gate = 24
+            max_gate = 50
             netlist = []
+            counter = 1
 
 
-            for j in range(20):
+            for j in range(60):
                 netlist.append(tuple((random.sample(range(min_gate, max_gate), 2))))
                 set(netlist)
                 list(netlist)
                 self.list = netlist
+                counter =+ 1
+
+        self.number = counter
+        self.filename = "sample/data/netlist"
+        self.filename += str(number)
+        self.filename += ".txt"
+        self.connections = 0
 
         # Count amount of needed connections in this netlist
         self.connections = len(self.list)
