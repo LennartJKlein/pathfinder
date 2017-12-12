@@ -277,7 +277,7 @@ class Netlist:
     :param: number:     id of the netlist
     """
 
-    def __init__(self, number):
+    def __init__(self, number, randomised):
         self.number = number
         self.filename = "sample/data/netlist"
         self.filename += str(number)
@@ -287,11 +287,25 @@ class Netlist:
         self.connections_broken = 0
         self.tuple_error = None
 
-        # Open netlist and read with literal evaluation
-        with open(self.filename) as f:
-            self.list = f.read()
+        if not randomised:
 
-        self.list = literal_eval(self.list)
+            # Open netlist and read with literal evaluation
+            with open(self.filename) as f:
+                self.list = f.read()
+
+            self.list = literal_eval(self.list)
+
+        else:
+            min_gate = 0
+            max_gate = 24
+            netlist = []
+
+
+            for j in range(100):
+                netlist.append(tuple((random.sample(range(min_gate, max_gate), 2))))
+                set(netlist)
+                list(netlist)
+                self.list = netlist
 
         # Count amount of needed connections in this netlist
         self.connections = len(self.list)

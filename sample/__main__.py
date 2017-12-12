@@ -22,7 +22,7 @@ print("Using pathfinding algorithm: " + CLR.GREEN + str(settings.PATH_ALGORITHM)
 print("")
 
 # Initiate a new netlist
-netlist = Netlist(settings.FILE_NETLIST)
+netlist = Netlist(settings.FILE_NETLIST, True)
 netlist.sort_by_connection()
 
 # Initiate the gates
