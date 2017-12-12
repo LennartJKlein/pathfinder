@@ -7,17 +7,19 @@ A program that uses wires to connect gates on a chip three-dimensionally and eff
 To run this program, you need the following:
 
 * Python 3.6
+* [numpy](http://www.numpy.org/)
+* [matplotlib](https://matplotlib.org/index.html)
 
 ## Installation
 
-Clone this repository (containing the pathfinder module) to a folder of your preference. And run the setup:
-
+Clone or download this repository (containing the pathfinder module) to a folder of your preference. And make sure all requirements are installed.
+<!--
 ```
 python setup.py install
-```
+``` -->
 
 ## Documentation
-Learn how to install, test, use and integrate this program that finds efficient paths in the [documentation](docs/index.html).
+Learn about the classes and helper functions in the [documentation](https://lennartjklein.github.io/pathfinder/).
 
 ## Contributing
 
@@ -31,7 +33,7 @@ We use [SemVer](http://semver.org/) for semantic versioning. For the versions av
 
 * **Jurre Brandsen** - *Developer* - [www.jurrebrandsen.nl](http://www.jurrebrandsen.nl/)
 * **Lennart Klein** - *Webdeveloper and webdesigner* - [www.lennartklein.nl](http://www.lennartklein.nl/)
-* **Thomas de Lange** - *Initial work* - [www.long-coding.nl](http://www.long-coding.nl/)
+* **Thomas de Lange** - *Developer* - [www.long-coding.nl](http://www.long-coding.nl/)
 
 ## License
 
