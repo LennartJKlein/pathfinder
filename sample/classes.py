@@ -114,9 +114,9 @@ class Board(object):
     def redraw_random_path(self):
         """Pick three random paths."""
         paths = []
-        index = random.randint(0, len(self.paths_drawn) - 1)
-        paths.append(self.paths_drawn.pop(0 + index))
-        paths.append(self.paths_drawn.pop(1 + index))
+        index = random.randint(1, len(self.paths_drawn) - 1)
+        paths.append(self.paths_drawn.pop(len(self.paths_drawn) - index))
+        paths.append(self.paths_drawn.pop(len(self.paths_drawn) - 1 - index))
 
         for path in paths:
             # Undraw the path
@@ -441,7 +441,7 @@ class Netlist(object):
             netlist = []
 
 
-            for j in range(100):
+            for j in range(20):
                 netlist.append(tuple((random.sample(range(min_gate, max_gate), 2))))
                 set(netlist)
                 list(netlist)
