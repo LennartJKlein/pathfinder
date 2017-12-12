@@ -59,16 +59,22 @@ class Board(object):
         self.paths_broken = []
         self.paths_drawn = []
 
-    def draw_paths(self):
+    def draw_paths(self, graph):
         """Draw all the paths for this board (if possible)."""
         # Calculate the route for this path
         for path in self.paths:
             result = path.draw(settings.PATH_ALGORITHM, self)
+
             # Save the results of this execution
             if result:
                 self.paths_drawn.append(path)
             else:
                 self.paths_broken.append(path)
+
+            # Plot result of each line
+            if settings.SHOW_EACH_PLOT:
+                graph.clear_lines()
+                self.plot(graph)
 
     def redraw_broken_path(self):
         """Get first broken path."""
@@ -893,7 +899,7 @@ class Solution(object):
         graph.plot_gates(board)
 
         # Draw the paths
-        board.draw_paths()
+        board.draw_paths(graph)
 
         while no_path_improvements <= settings.MAX_NO_IMPROVE:
 
@@ -937,11 +943,6 @@ class Solution(object):
                       + CLR.YELLOW
                       + str(settings.COST_PASSING_GATE)
                       + CLR.DEFAULT)
-
-            # Plot result of the board
-            if settings.SHOW_EACH_PLOT:
-                graph.clear_lines()
-                board.plot(graph)
 
             # Create a copy of this board for next iteration
             board_new = copy.deepcopy(board)
