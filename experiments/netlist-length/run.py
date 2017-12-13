@@ -15,16 +15,15 @@ netlist_lengths = []
 
 # Netlist lengths (has to start at 2)
 for i in range(2, 30):
-    
+
     netlist_lengths.append(i)
     results = []
     scores = []
 
-
     # Amount of netlist files
-    for j in range(1,50):
+    for j in range(1, 50):
 
-        command = "python pathfinder 31 0 " + str(i) +  " " + str(j)
+        command = "python length30 31 0 " + str(i) +  " " + str(j)
         output = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True).strip()
 
         result = literal_eval(output.decode('ascii'))
