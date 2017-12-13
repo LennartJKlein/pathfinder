@@ -361,7 +361,7 @@ class Gates(object):
         self.sign_gate = sign
 
         # Read a CSV file for gate tuples
-        file = "pathfinder/gates/gates-"+amount+"/"+file_nr+".csv"
+        file = "gates/gates-"+amount+"/"+file_nr+".csv"
         with open(file, 'r') as csvfile:
             reader = csv.reader(csvfile)
 
@@ -424,7 +424,7 @@ class Netlist(object):
         """
 
         # Open netlist and read with literal evaluation
-        self.filename = "pathfinder/netlists/length30/netlists/netlists-"+length+"/"+file_nr+".txt"
+        self.filename = "length80/netlists/netlists-"+length+"/"+file_nr+".txt"
         with open(self.filename) as f:
             self.list = f.read()
 
