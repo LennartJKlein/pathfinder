@@ -129,7 +129,7 @@ class Board(object):
         index = random.randint(1, len(self.paths_drawn) - 1)
         paths.append(self.paths_drawn.pop(len(self.paths_drawn) - index))
         paths.append(self.paths_drawn.pop(len(self.paths_drawn) - 1 - index))
-        
+
         for path in paths:
             # Undraw the path
             path.undraw(self)
@@ -510,23 +510,40 @@ class Gates(object):
 class Netlist(object):
     """Netlist are tuples reperesenting the contecion between two gates."""
 
-    def __init__(self, number):
+    def __init__(self, number, randomised):
         """All conections must be made to solve the case.
 
         :type number: interger
         :param number: id of the netlist
         """
-        self.number = number
+
+        if not randomised:
+
+            # Open netlist and read with literal evaluation
+            with open(self.filename) as f:
+                self.list = f.read()
+
+            self.list = literal_eval(self.list)
+
+        else:
+            min_gate = 0
+            max_gate = 50
+            netlist = []
+            counter = 1
+
+
+            for j in range(60):
+                netlist.append(tuple((random.sample(range(min_gate, max_gate), 2))))
+                set(netlist)
+                list(netlist)
+                self.list = netlist
+                counter =+ 1
+
+        self.number = counter
         self.filename = "sample/data/netlist"
         self.filename += str(number)
         self.filename += ".txt"
         self.connections = 0
-
-        # Open netlist and read with literal evaluation
-        with open(self.filename) as f:
-            self.list = f.read()
-
-        self.list = literal_eval(self.list)
 
         # Count amount of needed connections in this netlist
         self.connections = len(self.list)
