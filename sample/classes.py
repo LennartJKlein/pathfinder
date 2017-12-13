@@ -20,13 +20,13 @@ import sys
 from ast import literal_eval
 
 import numpy as np
-from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+from mpl_toolkits.mplot3d import Axes3D
 
 import colors as CLR
 import helpers
 import settings
-
 
 class Board(object):
     """Create a numpy board filled with numpy zeros upon initialising."""
@@ -60,16 +60,21 @@ class Board(object):
         self.paths_broken = []
         self.paths_drawn = []
 
+        self.improved = False
+
     def draw_paths(self):
         """Draw all the paths for this board (if possible)."""
         # Calculate the route for this path
         for path in self.paths:
             result = path.draw(settings.PATH_ALGORITHM, self)
+
             # Save the results of this execution
             if result:
                 self.paths_drawn.append(path)
             else:
                 self.paths_broken.append(path)
+
+            self.update_plot("Drawing paths...")
 
     def redraw_broken_path(self):
         """Get first broken path."""
@@ -103,6 +108,10 @@ class Board(object):
 
         # Couldn't fix this broken path
         self.paths_broken.append(broken_path)
+
+        # Plot the change
+        self.update_plot("Redrawing broken path...")
+
         return False
 
     def shorten_every_path(self):
@@ -110,6 +119,9 @@ class Board(object):
         for path in self.paths:
             path.undraw(self)
             path.draw("DIJKSTRA", self)
+
+            # Plot the change
+            self.update_plot("Try to shorten every path...")
 
     def redraw_random_path(self):
         """Pick three random paths."""
@@ -122,6 +134,9 @@ class Board(object):
             # Undraw the path
             path.undraw(self)
 
+            # Plot the change
+            self.update_plot("Undrawing and redrawing...")
+
         temp_cost = settings.COST_PASSING_GATE
         settings.COST_PASSING_GATE = 0
 
@@ -133,6 +148,9 @@ class Board(object):
                 self.paths_broken.append(path)
 
         settings.COST_PASSING_GATE = temp_cost
+
+        # Plot the change
+        self.update_plot("Undrawing and redrawing...")
 
     def get_result(self, type_):
         """Look at the path and analyze if it is commplete.
@@ -217,8 +235,8 @@ class Board(object):
         """
         return len(np.argwhere(self.board >= settings.SIGN_PATH_START))
 
-    def plot(self):
-        """Graph configurations uses plt from the ."""
+    def plot(self, title):
+
         fig = plt.figure()
         ax = fig.gca(projection='3d')
         ax.set_xlim(0, self.width)
@@ -228,20 +246,67 @@ class Board(object):
         ax.set_ylabel("Y")
         ax.set_zlabel("Z")
 
+        # Set every path on the plot
         for path in self.paths:
             ax.plot(path.get_coords('x'),
                     path.get_coords('y'),
                     path.get_coords('z'),
                     zorder=-1)
 
-        # Add gates to the graph
+        # Set gates on the plot
         ax.scatter(self.get_coords('x', settings.SIGN_GATE),
                    self.get_coords('y', settings.SIGN_GATE),
                    self.get_coords('z', settings.SIGN_GATE),
                    color="black")
 
-        # Show the graph
+        # Show title
+        plt.figtext(0.5, 0.95, title, size="x-large", ha="center")
+
+        # Plot current score
+        result_color = "black";
+        if self.get_result("average") >= 100:
+            result_color = "green";
+        else:
+            result_color = "red";
+        plt.figtext(0.05, 0.1, "Paths drawn: " + str(self.get_result("average")) + "%", size="medium", color=result_color)
+
+        plt.figtext(0.05, 0.05, "Score: " + str(self.get_score()), size="large", color="black")
+        
         plt.show()
+ 
+    def update_plot(self, activity):
+        """Update the graph with the current data"""
+
+        if settings.PLOT_PROGRESS:
+
+            # Clear plot
+            settings.REALTIME_GRAPH.clear_plot()
+
+            # Set every path on the plot
+            for path in self.paths:
+                settings.REALTIME_GRAPH.field.plot(path.get_coords('x'),
+                                                   path.get_coords('y'),
+                                                   path.get_coords('z'),
+                                                   zorder=-1)
+
+            # Show current activity
+            plt.figtext(0.5, 0.95, activity, size="x-large", ha="center")
+        
+            # Plot current score
+            result_color = "black";
+            if self.get_result("average") >= 100:
+                result_color = "green";
+            else:
+                result_color = "red";
+            plt.figtext(0.05, 0.1, "Paths drawn: " + str(self.get_result("average")) + "%", size="medium", color=result_color)
+
+            score_color = "black";
+            if self.improved:
+                score_color = "green";
+            plt.figtext(0.05, 0.05, "Score: " + str(self.get_score()), size="large", color=score_color)
+            
+            # Make mouse activity possible
+            plt.pause(0.015)
 
     def print_board(self):
         """Show the numpyboard in ASCII."""
@@ -284,6 +349,36 @@ class Board(object):
             # Set a new path_number for the next path
             path_number += 1
 
+class Plot(object):
+
+    def __init__(self, width, height, depth):
+
+        # Make plot real-time
+        plt.ion()
+
+        # Config the graph
+        self.fig = plt.figure()
+        self.field = self.fig.gca(projection='3d')
+        self.field.set_xlim(0, width)
+        self.field.set_ylim(0, height)
+        self.field.set_zlim(depth, 0)
+        self.field.set_xlabel("X")
+        self.field.set_ylabel("Y")
+        self.field.set_zlabel("Z")
+        
+    def clear_plot(self):
+        for i in range(len(self.field.lines)):
+            self.field.lines.pop(0)
+        
+        for i in range(len(self.fig.texts)):
+            self.fig.texts.pop(0)
+
+    def plot_gates(self, board):
+        # Add gates to the plot
+        self.field.scatter(board.get_coords('x', settings.SIGN_GATE),
+                            board.get_coords('y', settings.SIGN_GATE),
+                            board.get_coords('z', settings.SIGN_GATE),
+                            color="black")
 
 class Gate(object):
     """Gate sets the gates in a board."""
@@ -863,7 +958,7 @@ class Solution(object):
 
     def plot_best(self):
         """Plot the best result."""
-        self.best_board.plot()
+        self.best_board.plot("The best connection:")
 
     def run(self, gates, netlist):
         """Run the file used in __main.py.
@@ -874,12 +969,15 @@ class Solution(object):
         :type netlist: Netlist(object)
         :param netlist: a instanse of the Netlist class
         """
+
+
         # Print inputted netlist
         if settings.SHOW_NETLIST:
             print("Netlist: " + CLR.GREEN + str(netlist.list) + CLR.DEFAULT)
             print("--------------------------------------------------------")
 
         # Set temporary counters
+        no_board_improvements = 0
         no_path_improvements = 0
 
         # Create a new board
@@ -891,10 +989,17 @@ class Solution(object):
         board.set_gates(gates)
         board.set_paths(netlist)
 
+        # Create a realtime plot
+        if settings.PLOT_PROGRESS:
+            settings.REALTIME_GRAPH = Plot(settings.BOARD_WIDTH,
+                                           settings.BOARD_HEIGHT,
+                                           settings.BOARD_DEPTH)
+            settings.REALTIME_GRAPH.plot_gates(board)
+
         # Draw the paths
         board.draw_paths()
 
-        while no_path_improvements <= settings.MAX_NO_IMPROVE:
+        while no_board_improvements <= settings.MAX_NO_IMPROVE:
 
             # Count this iteration
             self.boards += 1
@@ -903,13 +1008,15 @@ class Solution(object):
             result = board.get_result("average")
             score = board.get_score()
 
+            # Plot the change
+            board.update_plot("Undrawing and redrawing...")
+
             # Save the scores and result of this iteration
             self.results.append(result)
             self.scores.append(score)
 
             # Show result of the board
             if settings.SHOW_EACH_RESULT:
-                # TODO eventueel ook in __main__.py
                 sys.stdout.flush()
                 print("Board "
                       + CLR.YELLOW + "#"
@@ -932,30 +1039,13 @@ class Solution(object):
                       + str(settings.COST_PASSING_GATE)
                       + CLR.DEFAULT)
 
-            # Plot result of the board
-            if settings.SHOW_EACH_PLOT:
-                board.plot()
-
-            # Create a copy of this board for next iteration
-            board_new = copy.deepcopy(board)
-            board_new.paths = []
-            board_new.paths_drawn = []
-            board_new.paths_broken = []
-
-            for path in board.paths:
-                board_new.paths.append(copy.deepcopy(path))
-
-            for path in board.paths_drawn:
-                board_new.paths_drawn.append(copy.deepcopy(path))
-
-            for path in board.paths_broken:
-                board_new.paths_broken.append(copy.deepcopy(path))
-
             # See if this board has better scores
             if self.best_score == 0 \
                or result > self.best_result \
                or (result == self.best_result and score < self.best_score):
 
+                board.improved = True
+                
                 self.best_score = score
                 self.best_result = result
                 self.best_board = board
@@ -963,8 +1053,33 @@ class Solution(object):
             else:
                 # Count the no improvement on the score
                 no_path_improvements += 1
+                board.improved = False
+            
+            # Create a copy of the current (or best) board for next iteration
+            original = board
 
-                # Delete this board
+            if no_path_improvements > settings.MAX_NO_IMPROVE:
+                no_board_improvements += 1
+                no_path_improvements = 0
+                original = self.best_board
+
+            board_new = copy.deepcopy(original)            
+            board_new.paths = []
+            for path in original.paths:
+                board_new.paths.append(copy.deepcopy(path))
+
+            board_new.paths_drawn = []
+            for path in original.paths_drawn:
+                board_new.paths_drawn.append(copy.deepcopy(path))
+
+            board_new.paths_broken = []
+            for path in original.paths_broken:
+                board_new.paths_broken.append(copy.deepcopy(path))
+            board_new.board = None
+            board_new.board = copy.deepcopy(original.board)
+            
+            # Delete the board if it didn't improve the score
+            if board.improved == False:
                 for path in board.paths:
                     del path
                 del board
@@ -980,7 +1095,7 @@ class Solution(object):
                 board.shorten_every_path()
                 board.redraw_random_path()
 
-        # Print best result of this run TODO: In __main__.py
+        # Print best result of this run
         print("")
         print("------------ BEST RESULT out of "
               + str(self.boards)
@@ -995,6 +1110,10 @@ class Solution(object):
               + CLR.GREEN
               + str(self.best_score)
               + CLR.DEFAULT)
+
+        # Close the visualisation
+        if settings.PLOT_PROGRESS:
+            plt.ioff()
 
         # Set adapted heuristics for next run
         settings.COST_PASSING_GATE += settings.STEP_COST_PASSING_GATE
