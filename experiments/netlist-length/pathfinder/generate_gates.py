@@ -52,14 +52,14 @@ else:
 	depth = 8
 
 	# Create folder
-	os.makedirs("gates-" + str(amount_gates), exist_ok=True)
+	os.makedirs("gates/gates-" + str(amount_gates), exist_ok=True)
 
 	# Loop for amount of netlists
 	counter_files = 0
 	while counter_files < amount_files:
 
 		# Create filename
-		filename = "gates-" + str(amount_gates) + "/" + str(counter_files) + ".csv"
+		filename = "gates/gates-" + str(amount_gates) + "/" + str(counter_files) + ".csv"
 
 		# Write netlist
 		with open(filename, "w") as file:
