@@ -50,14 +50,14 @@ else:
 
 
 	# Create folder
-	os.makedirs("netlists/length95/netlists-" + str(length_netlist), exist_ok=True)
+	os.makedirs("netlists/length100/netlists-" + str(length_netlist), exist_ok=True)
 
 	# Loop for amount of netlists
 	counter_netlists = 0
 	while counter_netlists < amount_files:
 
 		# Create filename
-		filename = "netlists/length95/netlists-" + str(length_netlist) + "/" + str(counter_netlists) + ".txt"
+		filename = "netlists/length100/netlists-" + str(length_netlist) + "/" + str(counter_netlists) + ".txt"
 
 		# Write netlist
 		with open(filename, "w") as file:

@@ -23,7 +23,7 @@ for i in range(2, 100):
     # Amount of netlist files
     for j in range(1, 50):
 
-        command = "python length100 101 0 " + str(i) +  " " + str(j)
+        command = "python length100 99 0 " + str(i) +  " " + str(j)
         output = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True).strip()
 
         result = literal_eval(output.decode('ascii'))
