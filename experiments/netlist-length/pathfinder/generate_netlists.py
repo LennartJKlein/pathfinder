@@ -16,7 +16,7 @@ def make_random_netlist(length, min_gate, max_gate):
 	used_gates = []
 
 	for j in range(length):
-		netlist.append(tuple((random.sample(range(min_gate, max_gate), 2))))
+		netlist.append(tuple((random.sample(range(min_gate, max_gate + 1), 2))))
 
 	for tuple_ in netlist:
 		used_gates.append(tuple_[0])
@@ -69,7 +69,6 @@ else:
 			print(str(random_netlist), file=file, end='\n')
 
 		# Count netlist
-		#print("Netlist " + str(counter_netlists) + " generated.")
 		counter_netlists += 1
 
 	print("DONE. " + str(counter_netlists) + " netlists of length "+ str(length_netlist) +" generated.")

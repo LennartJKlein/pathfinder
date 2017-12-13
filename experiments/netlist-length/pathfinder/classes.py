@@ -342,7 +342,7 @@ class Gate(object):
 class Gates(object):
     """Gates Class that makes a board with gates."""
 
-    def __init__(self, number, sign, netlist):
+    def __init__(self, file_nr, amount, sign, netlist):
         """Initiate the Gates class.
 
         :type number: interger
@@ -361,7 +361,8 @@ class Gates(object):
         self.sign_gate = sign
 
         # Read a CSV file for gate tuples
-        with open('sample/data/gates' + str(number) + '.csv', 'r') as csvfile:
+        file = "pathfinder/gates/gates-"+amount+"/"+file_nr+".csv"
+        with open(file, 'r') as csvfile:
             reader = csv.reader(csvfile)
 
             # Skip the header
@@ -415,42 +416,19 @@ class Gates(object):
 class Netlist(object):
     """Netlist are tuples reperesenting the contecion between two gates."""
 
-    def __init__(self, number, randomised):
+    def __init__(self, file_nr, length):
         """All conections must be made to solve the case.
 
         :type number: interger
         :param number: id of the netlist
         """
 
-        if not randomised:
+        # Open netlist and read with literal evaluation
+        self.filename = "pathfinder/netlists/netlists-"+length+"/"+file_nr+".txt"
+        with open(self.filename) as f:
+            self.list = f.read()
 
-            # Open netlist and read with literal evaluation
-            with open(self.filename) as f:
-                self.list = f.read()
-
-            self.list = literal_eval(self.list)
-
-        else:
-            min_gate = 0
-            max_gate = 50
-            netlist = []
-            counter = 1
-
-
-            for j in range(60):
-                netlist.append(tuple((random.sample(range(min_gate, max_gate), 2))))
-                set(netlist)
-                list(netlist)
-                self.list = netlist
-                counter =+ 1
-
-        self.number = counter
-        self.filename = "sample/data/netlist"
-        self.filename += str(number)
-        self.filename += ".txt"
-        self.connections = 0
-
-        # Count amount of needed connections in this netlist
+        self.list = literal_eval(self.list)
         self.connections = len(self.list)
 
         # Order this list by importance of connections
@@ -981,20 +959,21 @@ class Solution(object):
                 board.redraw_random_path()
 
         # Print best result of this run TODO: In __main__.py
-        print("")
-        print("------------ BEST RESULT out of "
-              + str(self.boards)
-              + " boards ---------------")
+        if settings.SHOW_BEST_RESULT:
+            print("")
+            print("------------ BEST RESULT out of "
+                  + str(self.boards)
+                  + " boards ---------------")
 
-        print("Paths drawn: "
-              + CLR.GREEN
-              + str(self.best_result)
-              + "%" + CLR.DEFAULT)
+            print("Paths drawn: "
+                  + CLR.GREEN
+                  + str(self.best_result)
+                  + "%" + CLR.DEFAULT)
 
-        print("Score: "
-              + CLR.GREEN
-              + str(self.best_score)
-              + CLR.DEFAULT)
+            print("Score: "
+                  + CLR.GREEN
+                  + str(self.best_score)
+                  + CLR.DEFAULT)
 
         # Set adapted heuristics for next run
         settings.COST_PASSING_GATE += settings.STEP_COST_PASSING_GATE
