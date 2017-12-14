@@ -19,6 +19,17 @@ python setup.py install
 ## Documentation
 Learn how to install, test, use and integrate this program that finds efficient paths in the [documentation](docs/index.md).
 
+## Definitions:
+*Board*: The board a three dimensional grid with a presetted height, weight and depth.
+*Gate*: A gate is placed on the surface of the board and can be connected to another gate.
+*Connection*: Two gates that have to be linked, whereas gate A is the starting point and gate B is the end point.
+*Path*: A path from gate to gate, walking over the board. It cannot move diagonally only in one of six directions: north, south, west, east, up and down. 
+*Netlist*: A list of connections
+*Score* of a board: The total sum of the lengths of all connected paths.
+*Result* of a board: The percentage of made connections from the netlist.
+*Solvability of a board*: The average calculated percentage of a board with randomly placed gates and random netlists.
+
+
 ## Contributing
 
 This project is not open for contributing, for it being a school assignment.
