@@ -1,16 +1,16 @@
-## Sample
+# Sample
 
 This is where the magic happens.
 
-## Notable content:
+# Notable content:
 
-# data
+## data
 
 The assignment contains 6 net lists and two gate files. Netlist 1-3 are used on gatees1, 4-6 for gates2. The gates are loaded into a Numby board.
 The netlist files are .txt and numbered from 1 to 6. 0 is a dummy list for debugging.
 Gates are numbered from 1 to 2. Also, the gates files have a dummy named gates0. The gates are comma separated files.
 
-# settings.py
+## settings.py
 
 Before running the program, it is good to take a look at the settings. We wil explain the basics.
 PLOT_BEST, PLOT_SCORES and PLOT_RESULTS all take a Boolean value are quite self-explanatory, they will activate a plot of the result in a separate window.
@@ -29,10 +29,10 @@ The netlist and gate files are read from the data directory, in the current setu
 
 Finally SIGN_PATH_START and is a way of numbering the path in a Numpy board. It starts with 2 because gates are all numbered 1 (SIGN_GATE) and empty space has a 0. Changing this will probably break the program. But you can, by changing it into another integer.
 
-# colors.py
+## colors.py
 
 Feel free to change it.
 
-# helpers.py and classes.py
+## helpers.py and classes.py
 
-This files are documented [here](https://lennartjklein.github.io/pathfinder/). 
+This files are documented [here](https://lennartjklein.github.io/pathfinder/).
