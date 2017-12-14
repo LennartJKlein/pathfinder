@@ -36,7 +36,7 @@ print("Using pathfinding algorithm: "
 print("")
 
 # Initiate a new netlist
-netlist = Netlist(settings.FILE_NETLIST)
+netlist = Netlist(settings.FILE_NETLIST, True)
 
 # Initiate the gates
 gates = Gates(settings.FILE_GATES, settings.SIGN_GATE, netlist)
