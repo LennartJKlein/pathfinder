@@ -11,10 +11,11 @@ See the ‘discussion’ paragraph for future improvements and extensions on thi
 Our program is able to solve the [6 predefined netlists](http://heuristieken.nl/resources/CC_netlists2.txt) with a length of 30 up to 70 connections.
 These netlists were designed for 2 predefined boards (consisting of 25 and 50 gates).
 
-![Board 1 - 25 gates](http://heuristieken.nl/wiki/images/7/77/Print1.gif "Board 1 - 25 gates")  
-![Board 2 - 50 gates](http://heuristieken.nl/wiki/images/1/1d/Print2.gif "Board 2 - 50 gates")
+<img src="http://heuristieken.nl/wiki/images/7/77/Print1.gif" alt="Board 1 - 25 gates" width="48%" />
+<img src="http://heuristieken.nl/wiki/images/1/1d/Print2.gif" alt="Board 2 - 50 gates" width="48%" />
 
 The program we wrote for this case returns a non-deterministic solution (due to some semi-random pruning). To get a better understanding on the returned scores of the solutions, we conducted this experiment.
+
 ## Hypothesis
 The score is measured by the total length of all the drawn paths on the board. The more paths, the higher the score.
 
@@ -47,46 +48,47 @@ In the graphs below you can see the *average* scores for different lengths of ne
 
 <center>
 *Scores at 30 gates*
-![Scores 30 gates](https://github.com/LennartJKlein/pathfinder/blob/exp-heuristic-value/experiments/netlist-length/img/run30_score.png "Scores 30 gates")
+<img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run30_score.png" width="20%" />
 
 *Scores at 35 gates*
-![Scores 35 gates](https://github.com/LennartJKlein/pathfinder/blob/exp-heuristic-value/experiments/netlist-length/img/run35_score.png "Scores 35 gates")
+<img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run35_score.png" width="20%" />
 
 *Scores at 40 gates*
-![Scores 40 gates](https://github.com/LennartJKlein/pathfinder/blob/exp-heuristic-value/experiments/netlist-length/img/run40_score.png "Scores 40 gates")
+<img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run40_score.png" width="20%" />
 
 *Scores at 45 gates*
-![Scores 45 gates](https://github.com/LennartJKlein/pathfinder/blob/exp-heuristic-value/experiments/netlist-length/img/run45_score.png "Scores 45 gates")
+<img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run45_score.png" width="20%" />
 
 *Scores at 50 gates*
-![Scores 50 gates](https://github.com/LennartJKlein/pathfinder/blob/exp-heuristic-value/experiments/netlist-length/img/run50_score.png "Scores 50 gates")
+<img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run50_score.png" width="20%" />
 
 *Scores at 55 gates*
-![Scores 55 gates](https://github.com/LennartJKlein/pathfinder/blob/exp-heuristic-value/experiments/netlist-length/img/run55_score.png "Scores 55 gates")
+<img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run55_score.png" width="20%" />
 
 *Scores at 60 gates*
-![Scores 60 gates](https://github.com/LennartJKlein/pathfinder/blob/exp-heuristic-value/experiments/netlist-length/img/run60_score.png "Scores 60 gates")
+<img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run60_score.png" width="20%" />
 
 *Scores at 65 gates*
-![Scores 65 gates](https://github.com/LennartJKlein/pathfinder/blob/exp-heuristic-value/experiments/netlist-length/img/run65_score.png "Scores 65 gates")
+<img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run65_score.png" width="20%" />
 
 *Scores at 70 gates*
-![Scores 70 gates](https://github.com/LennartJKlein/pathfinder/blob/exp-heuristic-value/experiments/netlist-length/img/run70_score.png "Scores 70 gates")
+<img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run70_score.png" width="20%" />
 
 *Scores at 75 gates*
-![Scores 75 gates](https://github.com/LennartJKlein/pathfinder/blob/exp-heuristic-value/experiments/netlist-length/img/run75_score.png "Scores 75 gates")
+<img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run75_score.png" width="20%" />
 
 *Scores at 80 gates*
-![Scores 80 gates](https://github.com/LennartJKlein/pathfinder/blob/exp-heuristic-value/experiments/netlist-length/img/run80_score.png "Scores 80 gates")
+<img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run80_score.png" width="20%" />
 
 *Scores at 85 gates*
-![Scores 85 gates](https://github.com/LennartJKlein/pathfinder/blob/exp-heuristic-value/experiments/netlist-length/img/run85_score.png "Scores 85 gates")
+<img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run85_score.png" width="20%" />
 
 *Scores at 90 gates*
-![Scores 90 gates](https://github.com/LennartJKlein/pathfinder/blob/exp-heuristic-value/experiments/netlist-length/img/run90_score.png "Scores 90 gates")
+<img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run90_score.png" width="20%" />
 
 *Scores at 95 gates*
-![Scores 95 gates](https://github.com/LennartJKlein/pathfinder/blob/exp-heuristic-value/experiments/netlist-length/img/run95_score.png "Scores 95 gates")
+<img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run95_score.png" width="20%" />
+
 </center>
 
 ## Conclusions
