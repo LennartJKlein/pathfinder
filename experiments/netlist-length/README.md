@@ -11,8 +11,7 @@ See the ‘discussion’ paragraph for future improvements and extensions on thi
 Our program is able to solve the [6 predefined netlists](http://heuristieken.nl/resources/CC_netlists2.txt) with a length of 30 up to 70 connections.
 These netlists were designed for 2 predefined boards (consisting of 25 and 50 gates).
 
-<img src="http://heuristieken.nl/wiki/images/7/77/Print1.gif" alt="Board 1 - 25 gates" width="48%" />
-<img src="http://heuristieken.nl/wiki/images/1/1d/Print2.gif" alt="Board 2 - 50 gates" width="48%" />
+<img src="http://heuristieken.nl/wiki/images/7/77/Print1.gif" alt="Board 1 - 25 gates" width="45%" /><img src="http://heuristieken.nl/wiki/images/1/1d/Print2.gif" alt="Board 2 - 50 gates" width="45%" />
 
 The program we wrote for this case returns a non-deterministic solution (due to some semi-random pruning). To get a better understanding on the returned scores of the solutions, we conducted this experiment.
 
@@ -46,50 +45,12 @@ To achieve that, we did the following:
 ## Results
 In the graphs below you can see the *average* scores for different lengths of netlists on different amount of gates. Every graph has a linear increase.
 
-<center>
-*Scores at 30 gates*
-<img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run30_score.png" width="20%" />
-
-*Scores at 35 gates*
-<img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run35_score.png" width="20%" />
-
-*Scores at 40 gates*
-<img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run40_score.png" width="20%" />
-
-*Scores at 45 gates*
-<img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run45_score.png" width="20%" />
-
-*Scores at 50 gates*
-<img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run50_score.png" width="20%" />
-
-*Scores at 55 gates*
-<img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run55_score.png" width="20%" />
-
-*Scores at 60 gates*
-<img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run60_score.png" width="20%" />
-
-*Scores at 65 gates*
-<img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run65_score.png" width="20%" />
-
-*Scores at 70 gates*
-<img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run70_score.png" width="20%" />
-
-*Scores at 75 gates*
-<img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run75_score.png" width="20%" />
-
-*Scores at 80 gates*
-<img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run80_score.png" width="20%" />
-
-*Scores at 85 gates*
-<img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run85_score.png" width="20%" />
-
-*Scores at 90 gates*
-<img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run90_score.png" width="20%" />
-
-*Scores at 95 gates*
-<img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run95_score.png" width="20%" />
-
-</center>
+| **Scores at 30 gates** | **Scores at 35 gates** | **Scores at 40 gates** | **Scores at 45 gates** |
+| <img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run30_score.png" width="20%" /> | <img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run35_score.png" width="20%" /> | <img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run40_score.png" width="20%" /> | <img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run45_score.png" width="20%" /> |
+| **Scores at 50 gates** | **Scores at 55 gates** | **Scores at 60 gates** | |
+| <img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run50_score.png" width="20%" /> | <img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run55_score.png" width="20%" /> | <img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run60_score.png" width="20%" /> | |
+| **Scores at 70 gates** | **Scores at 75 gates** | **Scores at 80 gates** | |
+| <img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run70_score.png" width="20%" /> | <img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run75_score.png" width="20%" /> | <img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run80_score.png" width="20%" /> | |
 
 ## Conclusions
 
