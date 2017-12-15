@@ -4,9 +4,9 @@ This map contains the program we used to solve the Chips & Circuits case.
 
 # Usage
 Run the following code from this directory to run the program:
-'''
+```
 python sample
-'''
+```
 
 # Notable content:
 
