@@ -22,7 +22,6 @@ Aditions are colors.py for adding terminal colors and settings.py. settings.py c
 
 
 # Requirements
-
 To run this program, you need the following:
 
 * Python 3.6.3
@@ -31,11 +30,11 @@ To run this program, you need the following:
 
 # Installation
 
-Clone or download this repository (containing the pathfinder module) to a folder of your preference. And make sure the requirements above are installed.
+Clone or download this repository (containing the pathfinder module) to a folder of your preference. Make sure the requirements above are installed to be able to run the program.
 
 # Contributing
 
-This project is not open for contributing at the moment,2 for it being a school assignment.
+This project is not open for contributing at the moment, for it being a school assignment.
 
 # Versioning
 
@@ -54,4 +53,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 # Acknowledgments
 
 * Thanks to Daan van den Berg for creating the "Chips and circuits" case (as specified on [this Wiki](http://heuristieken.nl/wiki/index.php?title=Chips_%26_Circuits)).
-* Thanks to Westly White for his [initial grid design](https://stackoverflow.com/questions/41619600/numbering-rows-and-columns-in-a-grid-board) in board.py.
