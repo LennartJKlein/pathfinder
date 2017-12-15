@@ -43,16 +43,22 @@ To achieve that, we did the following:
 * Only the average score of the 50 randomly generated netlists (of the same length) will be used as results for the experiment
 
 ## Results
-In the graphs below you can see the *average* scores for different lengths of netlists on different amount of gates. Every graph has a linear increase.
+In the graphs below you can see the *average* scores for different lengths of netlists on different amount of gates. Every graph seems to have the same linearly increase.
 
-| | | | |
 | :-: | :-: | :-: | :-: |
 | **Scores at 30 gates** | **Scores at 35 gates** | **Scores at 40 gates** | **Scores at 45 gates** |
 | ![30][30] | ![35][35] | ![40][40] | ![45][45] |
-| **Scores at 50 gates** | **Scores at 55 gates** | **Scores at 60 gates** | |
-| ![50][50] | ![55][55] | ![60][60] | |
-| **Scores at 70 gates** | **Scores at 75 gates** | **Scores at 80 gates** | |
-| ![70][70] | ![75][75] | ![80][80] | |
+| **Scores at 50 gates** | **Scores at 55 gates** | **Scores at 60 gates** | **Scores at 70 gates** |
+| ![50][50] | ![55][55] | ![60][60] | ![70][70] |
+| **Scores at 75 gates** | **Scores at 80 gates** |						   | 						|
+| ![75][75] | ![80][80] | | |
+
+When we take a closer at the graphs of 55, 75 and 85 gates and draw a regression line through it, something else becomes clear.
+
+| :-: | :-: | :-: | :-: |
+| **Scores at 55 gates** | **Scores at 75 gates** | **Scores at 85 gates** |
+| ![55 regression][55 reg] | ![75 regression][75 reg] | ![85 regression][85 reg] |
+
 
 ## Conclusions
 
@@ -84,3 +90,6 @@ After completing this experiment, we found some ways to improve and extend this 
 [85]: https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run85_score.png "scores at 85 gates"
 [90]: https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run90_score.png "scores at 90 gates"
 [95]: https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run95_score.png "scores at 95 gates"
+[55 reg]: https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run55-score-regression.png "scores at 55 gates"
+[75 reg]: https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run75-score-regression.png "scores at 75 gates"
+[85 reg]: https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run85-score-regression.png "scores at 85 gates"
