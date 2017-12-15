@@ -877,8 +877,6 @@ class Path(object):
             return True
 
         else:
-            #if settings.SHOW_EACH_RESULT
-                #print("Path " + str(self.label) + " ERROR. Could not be drawn.")
             return False
 
     def get_coords(self, axes):
@@ -992,7 +990,7 @@ class Solution(object):
             self.scores.append(score)
 
             # Show result of the board
-            if settings.SHOW_EACH_RESULT:
+            if settings.PRINT_EACH_RESULT:
                 sys.stdout.flush()
                 print("Board "
                       + CLR.YELLOW + "#"
@@ -1072,20 +1070,21 @@ class Solution(object):
                 board.redraw_random_path()
 
         # Print best result of this run
-        print("")
-        print("------------ BEST RESULT out of "
-              + str(self.boards)
-              + " boards ---------------")
+        if settings.PRINT_BEST_RESULT:
+            print("")
+            print("------------ BEST RESULT out of "
+                  + str(self.boards)
+                  + " boards ---------------")
 
-        print("Paths drawn: "
-              + CLR.GREEN
-              + str(self.best_result)
-              + "%" + CLR.DEFAULT)
+            print("Paths drawn: "
+                  + CLR.GREEN
+                  + str(self.best_result)
+                  + "%" + CLR.DEFAULT)
 
-        print("Score: "
-              + CLR.GREEN
-              + str(self.best_score)
-              + CLR.DEFAULT)
+            print("Score: "
+                  + CLR.GREEN
+                  + str(self.best_score)
+                  + CLR.DEFAULT)
 
         # Close the visualisation
         if settings.PLOT_PROGRESS:

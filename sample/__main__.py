@@ -14,9 +14,23 @@ Pathfinder will find the most efficient path between two gates on a board.
 import colors as CLR
 import settings
 from classes import Gates, Netlist, Solution
+import sys
+
+if len(sys.argv) > 1:
+    if not sys.argv[1].isdigit() or not sys.argv[2].isdigit() or int(sys.argv[1]) > 2 or int(sys.argv[2]) > 6:
+        print("Usage: python sample gates-number netlist-number")
+        exit()
+    else:
+        settings.FILE_GATES = int(sys.argv[1])
+        settings.FILE_NETLIST = int(sys.argv[2])
+
+        if settings.FILE_GATES > 1:
+            settings.BOARD_HEIGHT = 17
+        else:
+            settings.BOARD_HEIGHT = 13
 
 # Print program settings
-if settings.SHOW_SETTINGS:
+if settings.PRINT_SETTINGS:
     print("")
     print("Using netlist: "
           + CLR.GREEN
@@ -38,7 +52,7 @@ if settings.SHOW_SETTINGS:
 netlist = Netlist(settings.FILE_NETLIST)
 
 # Print inputted netlist
-if settings.SHOW_NETLIST:
+if settings.PRINT_NETLIST:
     print("Netlist: " + CLR.GREEN + str(netlist.list) + CLR.DEFAULT)
     print("--------------------------------------------------------")
 
