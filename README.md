@@ -9,21 +9,21 @@ This last step however, the physical real-world process of connecting the gates,
 The algorithms and content of the sample has been setup to create paths from predefined net lists and two boards that can be found in sample/data. So in short, the aim is to connect the dots (gates) in a efficient manner.
 
 ## Definitions:
-*Board*: The board a three dimensional grid with a presetted height, weight and depth.
+**Board**: The board a three dimensional grid with a presetted height, weight and depth.
 
-*Gate*: A gate is placed on the surface of the board and can be connected to another gate.
+**Gate**: A gate is placed on the surface of the board and can be connected to another gate.
 
-*Connection*: Two gates that have to be linked, whereas gate A is the starting point and gate B is the end point.
+**Connection**: Two gates that have to be linked, whereas gate A is the starting point and gate B is the end point.
 
-*Path*: A path from gate to gate, walking over the board. It cannot move diagonally only in one of six directions: north, south, west, east, up and down. 
+**Path**: A path from gate to gate, walking over the board. It cannot move diagonally only in one of six directions: north, south, west, east, up and down. 
 
-*Net list*: A list of connections
+**Net list**: A list of connections
 
-*Score* of a board: The total sum of the lengths of all connected paths.
+**Score** of a board: The total sum of the lengths of all connected paths.
 
-*Result* of a board: The percentage of made connections from the netlist.
+**Result** of a board: The percentage of made connections from the netlist.
 
-*Solvability of a board*: The average calculated percentage of a board with randomly placed gates and random netlists.
+**Solvability of a board**: The average calculated percentage of a board with randomly placed gates and random netlists.
 
 ## Content of the program
 
