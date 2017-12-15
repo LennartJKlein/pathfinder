@@ -510,40 +510,23 @@ class Gates(object):
 class Netlist(object):
     """Netlist are tuples reperesenting the contecion between two gates."""
 
-    def __init__(self, number, randomised):
+    def __init__(self, number):
         """All conections must be made to solve the case.
 
         :type number: interger
         :param number: id of the netlist
         """
 
-        if not randomised:
-
-            # Open netlist and read with literal evaluation
-            with open(self.filename) as f:
-                self.list = f.read()
-
-            self.list = literal_eval(self.list)
-
-        else:
-            min_gate = 0
-            max_gate = 50
-            netlist = []
-            counter = 1
-
-
-            for j in range(60):
-                netlist.append(tuple((random.sample(range(min_gate, max_gate), 2))))
-                set(netlist)
-                list(netlist)
-                self.list = netlist
-                counter =+ 1
-
-        self.number = counter
+        # Get correct file
         self.filename = "sample/data/netlist"
         self.filename += str(number)
         self.filename += ".txt"
         self.connections = 0
+
+        # Open netlist and read with literal evaluation
+        with open(self.filename) as f:
+            self.list = f.read()
+        self.list = literal_eval(self.list)
 
         # Count amount of needed connections in this netlist
         self.connections = len(self.list)
@@ -575,8 +558,7 @@ class Netlist(object):
 
         counter_dict = dict(Counter(gate_list))
 
-        # Loop calculate the value of the tuple, make a
-        # dict containing the values
+        # Loop calculate the value of the tuple, make a dict containing the values
         sorted_dict = {}
         for connection in self.list:
             value = counter_dict[connection[0]] + counter_dict[connection[1]]
@@ -969,12 +951,6 @@ class Solution(object):
         :type netlist: Netlist(object)
         :param netlist: a instanse of the Netlist class
         """
-
-
-        # Print inputted netlist
-        if settings.SHOW_NETLIST:
-            print("Netlist: " + CLR.GREEN + str(netlist.list) + CLR.DEFAULT)
-            print("--------------------------------------------------------")
 
         # Set temporary counters
         no_board_improvements = 0

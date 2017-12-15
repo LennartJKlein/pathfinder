@@ -10,33 +10,37 @@ Authors:
 Pathfinder will find the most efficient path between two gates on a board.
 """
 
-
-# def main():
-"""Main function to execute the pagage."""
+"""Main function to execute the program."""
 import colors as CLR
 import settings
 from classes import Gates, Netlist, Solution
 
 # Print program settings
-print("")
-print("Using netlist: "
-      + CLR.GREEN
-      + str(settings.FILE_NETLIST)
-      + CLR.DEFAULT)
+if settings.SHOW_SETTINGS:
+    print("")
+    print("Using netlist: "
+          + CLR.GREEN
+          + str(settings.FILE_NETLIST)
+          + CLR.DEFAULT)
 
-print("Using gates file: "
-      + CLR.GREEN
-      + str(settings.FILE_GATES)
-      + CLR.DEFAULT)
+    print("Using gates file: "
+          + CLR.GREEN
+          + str(settings.FILE_GATES)
+          + CLR.DEFAULT)
 
-print("Using pathfinding algorithm: "
-      + CLR.GREEN
-      + str(settings.PATH_ALGORITHM)
-      + CLR.DEFAULT)
-print("")
-
+    print("Using pathfinding algorithm: "
+          + CLR.GREEN
+          + str(settings.PATH_ALGORITHM)
+          + CLR.DEFAULT)
+    print("")
+        
 # Initiate a new netlist
-netlist = Netlist(settings.FILE_NETLIST, True)
+netlist = Netlist(settings.FILE_NETLIST)
+
+# Print inputted netlist
+if settings.SHOW_NETLIST:
+    print("Netlist: " + CLR.GREEN + str(netlist.list) + CLR.DEFAULT)
+    print("--------------------------------------------------------")
 
 # Initiate the gates
 gates = Gates(settings.FILE_GATES, settings.SIGN_GATE, netlist)
@@ -57,6 +61,6 @@ if settings.PLOT_RESULTS:
 if settings.PLOT_BEST:
     solution.plot_best()
 
-#
-# if __name__ == "__main__":
-#     main()
+# Return solutions for this run in a list/array
+if settings.RETURN_RESULTS:
+    sys.stdout.write("[" + str(solution.best_result) + "," + str(solution.best_score) + "]")
