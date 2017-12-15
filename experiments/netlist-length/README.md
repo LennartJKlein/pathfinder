@@ -11,7 +11,7 @@ See the ‘discussion’ paragraph for future improvements and extensions on thi
 Our program is able to solve the [6 predefined netlists](http://heuristieken.nl/resources/CC_netlists2.txt) with a length of 30 up to 70 connections.
 These netlists were designed for 2 predefined boards (consisting of 25 and 50 gates).
 
-<img src="http://heuristieken.nl/wiki/images/7/77/Print1.gif" alt="Board 1 - 25 gates" width="45%" /><img src="http://heuristieken.nl/wiki/images/1/1d/Print2.gif" alt="Board 2 - 50 gates" width="45%" />
+<img src="http://heuristieken.nl/wiki/images/7/77/Print1.gif" alt="Board 1 - 25 gates" width="45%" />  <img src="http://heuristieken.nl/wiki/images/1/1d/Print2.gif" alt="Board 2 - 50 gates" width="45%" />
 
 The program we wrote for this case returns a non-deterministic solution (due to some semi-random pruning). To get a better understanding on the returned scores of the solutions, we conducted this experiment.
 
