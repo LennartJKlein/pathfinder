@@ -16,7 +16,7 @@ The second directory's experiment is setup to see if the effect of changing posi
 
 To run this program, you need the following:
 
-* Python 3.6.3
+* [0Python](https://www.python.org/downloads/) 3.6.3
 * [NumPy](http://www.numpy.org/) 1.13.3
 * [matplotlib](https://matplotlib.org/index.html) 2.1.0
 
