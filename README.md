@@ -6,7 +6,7 @@ Chips (or more precisely: integrated circuits) are found in your PC, MacBook, An
 
 This last step however, the physical real-world process of connecting the gates, is highly volatile. Good arrangements on the base lead to short connections, leading to faster circuits, whereas poor arrangements lead to slower circuits. It leads to no doubt that a good arrangement of logical gates and good wiring between them is of vital essence to the performance of the IC as a whole (source: http://heuristieken.nl/wiki/index.php?title=Chips_%26_Circuits).
 
-The algorithms and content of the sample is ben setup to create paths from predefined net lists and two boards that can be found in sample/data. So in short, the aim is to connect the dots (gates) in a efficient manner.
+The algorithms and content of the sample has been setup to create paths from predefined net lists and two boards that can be found in sample/data. So in short, the aim is to connect the dots (gates) in a efficient manner.
 
 ## Notable content:
 
