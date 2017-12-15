@@ -45,12 +45,14 @@ To achieve that, we did the following:
 ## Results
 In the graphs below you can see the *average* scores for different lengths of netlists on different amount of gates. Every graph has a linear increase.
 
+| | | | |
+| :-: | :-: | :-: | :-: |
 | **Scores at 30 gates** | **Scores at 35 gates** | **Scores at 40 gates** | **Scores at 45 gates** |
-| <img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run30_score.png" width="20%" /> | <img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run35_score.png" width="20%" /> | <img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run40_score.png" width="20%" /> | <img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run45_score.png" width="20%" /> |
+| ![30][30] | ![35][35] | ![40][40] | ![45][45] |
 | **Scores at 50 gates** | **Scores at 55 gates** | **Scores at 60 gates** | |
-| <img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run50_score.png" width="20%" /> | <img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run55_score.png" width="20%" /> | <img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run60_score.png" width="20%" /> | |
+| ![50][50] | ![55][55] | ![60][60] | |
 | **Scores at 70 gates** | **Scores at 75 gates** | **Scores at 80 gates** | |
-| <img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run70_score.png" width="20%" /> | <img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run75_score.png" width="20%" /> | <img src="https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run80_score.png" width="20%" /> | |
+| ![70][70] | ![75][75] | ![80][80] | |
 
 ## Conclusions
 
@@ -68,3 +70,17 @@ After completing this experiment, we found some ways to improve and extend this 
 	- runtime of each solution
 	- amount of layers needed
 	- a heatmap of busy junctions on the board
+
+[30]: https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run30_score.png "scores at 30 gates"
+[35]: https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run35_score.png "scores at 35 gates"
+[40]: https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run40_score.png "scores at 40 gates"
+[45]: https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run45_score.png "scores at 45 gates"
+[50]: https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run50_score.png "scores at 50 gates"
+[55]: https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run55_score.png "scores at 55 gates"
+[60]: https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run60_score.png "scores at 60 gates"
+[70]: https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run70_score.png "scores at 70 gates"
+[75]: https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run75_score.png "scores at 75 gates"
+[80]: https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run80_score.png "scores at 80 gates"
+[85]: https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run85_score.png "scores at 85 gates"
+[90]: https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run90_score.png "scores at 90 gates"
+[95]: https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run95_score.png "scores at 95 gates"
