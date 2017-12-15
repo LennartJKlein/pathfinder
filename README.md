@@ -8,7 +8,7 @@ This last step however, the physical real-world process of connecting the gates,
 
 The algorithms and content of the sample is ben setup to create paths from predefined net lists and two boards that can be found in sample/data. So in short, the aim is to connect the dots (gates) in a efficient manner.
 
-### Notable content:
+## Notable content:
 
 ### Docs/html
 The [documentations](https://lennartjklein.github.io/pathfinder/) of the classes and helper functions used in sample. The documentations are made by Sphinx, a docstring converter.
@@ -17,9 +17,8 @@ The [documentations](https://lennartjklein.github.io/pathfinder/) of the classes
 One experiment is documented at the moment. We used a random netlist creator and random board creator to see how the used algorithms preformed.
 
 ### Sample
-Sample is the core of our repository! \__main.\__.py is the core of the core. It makes use of classes.py and helpers.py to drive the algorithems to solve the case.
+Sample is the core of our repository! \___main.\___.py is the core of the core. It makes use of classes.py and helpers.py to drive the algorithems to solve the case.
 Aditions are colors.py for adding terminal colors and settings.py. settings.py can be used to modify the program but more on that in de README.md in the sample directory.
-
 
 ## Requirements
 To run this program, you need the following:
@@ -28,11 +27,11 @@ To run this program, you need the following:
 * [numpy](http://www.numpy.org/) 1.13.3
 * [matplotlib](https://matplotlib.org/index.html) 2.1.0
 
-### Installation
+## Installation
 
 Clone or download this repository (containing the pathfinder module) to a folder of your preference. Make sure the requirements above are installed to be able to run the program.
 
-### Definitions:
+## Definitions:
 *Board*: The board a three dimensional grid with a presetted height, weight and depth.
 
 *Gate*: A gate is placed on the surface of the board and can be connected to another gate.
