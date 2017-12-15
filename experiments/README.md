@@ -1,4 +1,4 @@
-# Experimtents
+# Experiments
 
 This repository is used to run experiments to these de endurance of the algorithms with divergent netlist and gate configurations. The complete functionality of sample has been copied into experiments. This makes it possible to easily download the content and rerun the experiments. Again see the [documentation](https://lennartjklein.github.io/pathfinder/) for details about the program.
 
