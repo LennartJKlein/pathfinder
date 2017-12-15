@@ -17,13 +17,14 @@ The [documentations](https://lennartjklein.github.io/pathfinder/) of the classes
 One experiment is documented at the moment. We used a random netlist creator and random board creator to see how the used algorithms preformed.
 
 ### Sample
-Sample is the core of our repository! \___main.\___.py is the core of the core. It makes use of classes.py and helpers.py to drive the algorithems to solve the case.
+Sample is the core of our repository.
+\___main.\___.py is the core of the core. It makes use of classes.py and helpers.py to drive the algorithms to solve the case.
 Aditions are colors.py for adding terminal colors and settings.py. settings.py can be used to modify the program but more on that in de README.md in the sample directory.
 
 ## Requirements
 To run this program, you need the following:
 
-* Python 3.6.3
+* [Python](https://www.python.org/downloads/) 3.6.3
 * [numpy](http://www.numpy.org/) 1.13.3
 * [matplotlib](https://matplotlib.org/index.html) 2.1.0
 
