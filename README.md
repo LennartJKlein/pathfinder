@@ -17,9 +17,8 @@ The [documentations](https://lennartjklein.github.io/pathfinder/) of the classes
 One experiment is documented at the moment. We used a random netlist creator and random board creator to see how the used algorithms preformed.
 
 ### Sample
-Sample is the core of our repository! \__main.\__.py is the core of the core. It makes use of classes.py and helpers.py to drive the algorithems to solve the case.
+Sample is the core of our repository! \___main.\___.py is the core of the core. It makes use of classes.py and helpers.py to drive the algorithems to solve the case.
 Aditions are colors.py for adding terminal colors and settings.py. settings.py can be used to modify the program but more on that in de README.md in the sample directory.
-
 
 ## Requirements
 To run this program, you need the following:
@@ -31,6 +30,23 @@ To run this program, you need the following:
 ## Installation
 
 Clone or download this repository (containing the pathfinder module) to a folder of your preference. Make sure the requirements above are installed to be able to run the program.
+
+## Definitions:
+*Board*: The board a three dimensional grid with a presetted height, weight and depth.
+
+*Gate*: A gate is placed on the surface of the board and can be connected to another gate.
+
+*Connection*: Two gates that have to be linked, whereas gate A is the starting point and gate B is the end point.
+
+*Path*: A path from gate to gate, walking over the board. It cannot move diagonally only in one of six directions: north, south, west, east, up and down. 
+
+*Netlist*: A list of connections
+
+*Score* of a board: The total sum of the lengths of all connected paths.
+
+*Result* of a board: The percentage of made connections from the netlist.
+
+*Solvability of a board*: The average calculated percentage of a board with randomly placed gates and random netlists.
 
 ## Contributing
 

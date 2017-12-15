@@ -38,7 +38,7 @@ Finally SIGN_PATH_START and is a way of numbering the path in a Numpy board. It 
 
 ### colors.py
 
-This program is used to pretify the output within the commandprompt
+This program is used to prettify the output within the commandprompt
 
 ### helpers.py and classes.py
 The program classes.py contains all classes that are used for our main program.
