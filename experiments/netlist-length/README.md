@@ -54,6 +54,8 @@ In the graphs below you can see the *average* scores for different lengths of ne
 | **Scores at 75 gates** | **Scores at 80 gates** |						   | 						|
 | ![75][75] | ![80][80] | | |
 
+
+
 When we take a closer at the graphs of 55, 75 and 85 gates and draw a regression line through it, something else becomes clear.
 
 | | | |
@@ -61,17 +63,19 @@ When we take a closer at the graphs of 55, 75 and 85 gates and draw a regression
 | **Scores at 55 gates** | **Scores at 75 gates** | **Scores at 85 gates** |
 | ![55 regression][55 reg] | ![75 regression][75 reg] | ![85 regression][85 reg] |
 
+The data actually does bent a bit. The scatter dots start above the line, dip beneath it and rise above the line again.
+
 
 ## Conclusions
 
-Within the scope of our experiment and by the data we were able to produce, we can say that the score function increases linearly with the length of a netlist. There are two possible explanations for this phenomenon:
+Within the scope of our experiment and by the data we were able to produce, we can say that the score function **does not increase linearly** with the length of a netlist. There are two possible explanations for this phenomenon:
 1. The written program always produces the best score for a netlist (which has the shortest possible paths, so the score is only depending on the amount of paths that is drawn)
-2. The score function has a simple nature. If it contained more variables, it could be that the score function behaves differently.
+2. The score function has a simple nature. If it contained more variables, it could be that the score function behaves more linearly.
 
 ## Discussion
 
 After completing this experiment, we found some ways to improve and extend this experiment in the future:
-1. Increase the scope of the experiment by generating netlists with a length of 50 and up. This can be used to verify or disprove the credibility of this experiment.
+1. Increase the scope of the experiment by generating netlists with a length of 50 and up. This can be used to see how the curve behaves beyond the tested perspective, so we can verify or disprove the credibility of this experiment.
 2. Find a way to shorten the runtime of the program (runXX.py) to generate results faster.
 3. Save more data of every solution than purely the score of the board. For example:
 	- if all connections were made
@@ -92,6 +96,6 @@ After completing this experiment, we found some ways to improve and extend this 
 [85]: https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run85_score.png "scores at 85 gates"
 [90]: https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run90_score.png "scores at 90 gates"
 [95]: https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run95_score.png "scores at 95 gates"
-[55 reg]: https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run55-score-regression.png "scores at 55 gates"
-[75 reg]: https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run75-score-regression.png "scores at 75 gates"
-[85 reg]: https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run85-score-regression.png "scores at 85 gates"
+[55 reg]: https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run55-scores-regression.png "scores at 55 gates"
+[75 reg]: https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run75-scores-regression.png "scores at 75 gates"
+[85 reg]: https://github.com/LennartJKlein/pathfinder/blob/master/experiments/netlist-length/img/run85-scores-regression.png "scores at 85 gates"
