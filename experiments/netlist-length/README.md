@@ -45,6 +45,7 @@ To achieve that, we did the following:
 ## Results
 In the graphs below you can see the *average* scores for different lengths of netlists on different amount of gates. Every graph seems to have the same linearly increase.
 
+| | | | |
 | :-: | :-: | :-: | :-: |
 | **Scores at 30 gates** | **Scores at 35 gates** | **Scores at 40 gates** | **Scores at 45 gates** |
 | ![30][30] | ![35][35] | ![40][40] | ![45][45] |
@@ -55,7 +56,8 @@ In the graphs below you can see the *average* scores for different lengths of ne
 
 When we take a closer at the graphs of 55, 75 and 85 gates and draw a regression line through it, something else becomes clear.
 
-| :-: | :-: | :-: | :-: |
+| | | |
+| :-: | :-: | :-: |
 | **Scores at 55 gates** | **Scores at 75 gates** | **Scores at 85 gates** |
 | ![55 regression][55 reg] | ![75 regression][75 reg] | ![85 regression][85 reg] |
 
