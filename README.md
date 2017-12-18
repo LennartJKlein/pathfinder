@@ -36,7 +36,7 @@ One experiment is documented at the moment. We used a random netlist creator and
 ### Sample
 Sample is the core of our repository.
 \___main.\___.py is the core of the core. It makes use of classes.py and helpers.py to drive the algorithms to solve the case.
-Aditions are colors.py for adding terminal colors and settings.py. settings.py can be used to modify the program but more on that in de README.md in the sample directory.
+Additions are colors.py for adding terminal colors and settings.py. settings.py can be used to modify the program but more on that in de README.md in the sample directory.
 
 ## Installation
 
