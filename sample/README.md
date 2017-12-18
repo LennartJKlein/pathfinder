@@ -20,9 +20,10 @@ Gates are numbered from 1 to 2. Also, the gates files have a dummy named gates0.
 ### settings.py
 
 Before running the program, it is good to take a look at the settings. We wil explain the basics.
+RETURN_RESULTS will return the best score and result in a list if it is true. So, it takes a Boolean value.
 PLOT_BEST, PLOT_SCORES and PLOT_RESULTS all take a Boolean value are quite self-explanatory, they will activate a plot of the result in a separate window.
 
-SHOW_NETLIST and SHOW_EACH_RESULT also takes a Boolean and will show in the terminal window. SHOW_EACH_PLOTSHOW_PROGRESS also a Boolean and shows in a separate window.
+PRINT_NETLIST and PRINT_EACH_RESULT also takes a Boolean and will show in the terminal window. PRINT_EACH_PLOT, PRINT_PROGRESS also a Boolean and shows in a separate window.
 
 PATH_ALGORITHM gives the user the choice to use DIJSKTRA’s algorithm. Although we will use DIJKSTRA while looping for a bather result. To make sure to find the best solutions start off with the A* algorithm. The setting takes a string.
 
