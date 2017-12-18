@@ -10,7 +10,7 @@ PLOT_SCORES = False
 PLOT_RESULTS = False
 
 # Export png's of the board
-EXPORT_PROGRESS = True
+EXPORT_PROGRESS = False
 
 # Prints
 PRINT_SETTINGS = False
