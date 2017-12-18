@@ -29,6 +29,7 @@ import colors as CLR
 import helpers
 import settings
 
+
 class Board(object):
     """Create a numpy board filled with numpy zeros upon initialising."""
 
@@ -266,17 +267,20 @@ class Board(object):
         plt.figtext(0.5, 0.95, title, size="x-large", ha="center")
 
         # Plot current score
-        result_color = "black";
+        result_color = "black"
         if self.get_result("average") >= 100:
-            result_color = "green";
+            result_color = "green"
         else:
-            result_color = "red";
-        plt.figtext(0.05, 0.1, "Paths drawn: " + str(self.get_result("average")) + "%", size="medium", color=result_color)
+            result_color = "red"
+        plt.figtext(0.05, 0.1, "Paths drawn: "
+                    + str(self.get_result("average"))
+                    + "%", size="medium", color=result_color)
 
-        plt.figtext(0.05, 0.05, "Score: " + str(self.get_score()), size="large", color="black")
-        
+        plt.figtext(0.05, 0.05, "Score: "
+                    + str(self.get_score()), size="large", color="black")
+
         plt.show()
- 
+
     def update_plot(self, activity):
         """Update the graph with the current data"""
 
@@ -294,23 +298,30 @@ class Board(object):
 
             # Show current activity
             plt.figtext(0.5, 0.95, activity, size="x-large", ha="center")
-        
-            # Plot current score
-            result_color = "black";
-            if self.get_result("average") >= 100:
-                result_color = "green";
-            else:
-                result_color = "red";
-            plt.figtext(0.05, 0.1, "Paths drawn: " + str(self.get_result("average")) + "%", size="medium", color=result_color)
 
-            score_color = "black";
+            # Plot current score
+            result_color = "black"
+            if self.get_result("average") >= 100:
+                result_color = "green"
+            else:
+                result_color = "red"
+            plt.figtext(0.05, 0.1, "Paths drawn: "
+                        + str(self.get_result("average"))
+                        + "%", size="medium", color=result_color)
+
+            score_color = "black"
             if self.improved:
-                score_color = "green";
-            plt.figtext(0.05, 0.05, "Score: " + str(self.get_score()), size="large", color=score_color)
-            
+                score_color = "green"
+            plt.figtext(0.05, 0.05, "Score: "
+                        + str(self.get_score()),
+                        size="large", color=score_color)
+
             if settings.EXPORT_PROGRESS:
                 # Save an image of the figure at this point
-                plt.savefig(os.path.abspath(os.path.dirname(__file__)) + '/export/' + str(self.snapshot_nr) + '.png', transparent=True)
+                plt.savefig(os.path.abspath(os.path.dirname(__file__))
+                            + '/export/'
+                            + str(self.snapshot_nr)
+                            + '.png', transparent=True)
                 self.snapshot_nr += 1
 
             # Make mouse activity possible
@@ -357,6 +368,7 @@ class Board(object):
             # Set a new path_number for the next path
             path_number += 1
 
+
 class Plot(object):
 
     def __init__(self, width, height, depth):
@@ -373,20 +385,21 @@ class Plot(object):
         self.field.set_xlabel("X")
         self.field.set_ylabel("Y")
         self.field.set_zlabel("Z")
-        
+
     def clear_plot(self):
         for i in range(len(self.field.lines)):
             self.field.lines.pop(0)
-        
+
         for i in range(len(self.fig.texts)):
             self.fig.texts.pop(0)
 
     def plot_gates(self, board):
         # Add gates to the plot
         self.field.scatter(board.get_coords('x', settings.SIGN_GATE),
-                            board.get_coords('y', settings.SIGN_GATE),
-                            board.get_coords('z', settings.SIGN_GATE),
-                            color="black")
+                           board.get_coords('y', settings.SIGN_GATE),
+                           board.get_coords('z', settings.SIGN_GATE),
+                           color="black")
+
 
 class Gate(object):
     """Gate sets the gates in a board."""
@@ -490,7 +503,8 @@ class Gates(object):
                             spaces_needed += 1
 
                     # Save gate object in gates list
-                    new_gate = Gate(gateLabel, gateX, gateY, gateZ, spaces_needed)
+                    new_gate = Gate(gateLabel, gateX, gateY, gateZ,
+                                    spaces_needed)
                     self.gates.append(new_gate)
 
     def reset_spaces_needed(self, netlist):
@@ -566,7 +580,8 @@ class Netlist(object):
 
         counter_dict = dict(Counter(gate_list))
 
-        # Loop calculate the value of the tuple, make a dict containing the values
+        # Loop calculate the value of the tuple,
+        # make a dict containing the values
         sorted_dict = {}
         for connection in self.list:
             value = counter_dict[connection[0]] + counter_dict[connection[1]]
@@ -705,15 +720,17 @@ class Path(object):
                         gate = board.gates_objects[next_neighbor[0],
                                                    next_neighbor[1],
                                                    next_neighbor[2]]
-                        if gate != None:
+                        if gate is not None:
 
                             # Make the cost higher if gate has more connections
                             for i in range(gate.spaces_needed):
                                 cost_neighbor += settings.COST_PASSING_GATE
 
-                # Check if this coordinate is new or has a lower cost than before
+                # Check if this coordinate is new or has a
+                # lower cost than before
                 if neighbor not in path_archive \
-                   or (neighbor in cost_archive and cost_neighbor < cost_archive[neighbor]):
+                        or (neighbor in cost_archive
+                            and cost_neighbor < cost_archive[neighbor]):
 
                     # Calculate the cost and add it to the queue
                     cost_archive[neighbor] = cost_neighbor
@@ -724,7 +741,6 @@ class Path(object):
                     path_archive[neighbor] = current
 
                 # -------------- / HEURISTICS ---------------
-
 
     # Backtracking the path
         if found:
@@ -790,7 +806,7 @@ class Path(object):
         queue.push(self.a)
 
         # Algorithm core logic
-        while not queue.empty() and found == False:
+        while not queue.empty() and found is False:
             # Track the distance
             loops += 1
 
@@ -824,10 +840,11 @@ class Path(object):
                     # Check if this gate needs space around it
                     if board.gates_objects[neighbor_next[0],
                                            neighbor_next[1],
-                                           neighbor_next[2]] != None:
+                                           neighbor_next[2]] is not None:
 
                         # Don't look at the own gates
-                        if not (neighbor_next == a_tpl) or (neighbor_next == b_tpl):
+                        if not (neighbor_next == a_tpl) \
+                           or (neighbor_next == b_tpl):
 
                             # Get info from this gate
                             gate = board.gates_objects[neighbor_next[0],
@@ -858,14 +875,17 @@ class Path(object):
 
                     neighbor = tuple(neighbor)
 
-                    # Check if this cell is on the i'th position in the shortest path
+                    # Check if this cell is on the i'th position in the
+                    # shortest path
                     if archive[neighbor[0], neighbor[1], neighbor[2]] == i:
 
                         # Put the ID in the Numpy board
-                        board.board[neighbor[0], neighbor[1], neighbor[2]] = self.label
+                        board.board[neighbor[0],
+                                    neighbor[1], neighbor[2]] = self.label
 
                         # Remember this coord for this path
-                        self.add_coordinate([neighbor[0], neighbor[1], neighbor[2]])
+                        self.add_coordinate([neighbor[0],
+                                             neighbor[1], neighbor[2]])
 
                         # Move the cursor
                         cursor = list(neighbor)
@@ -1029,7 +1049,7 @@ class Solution(object):
                or (result == self.best_result and score < self.best_score):
 
                 board.improved = True
-                
+
                 self.best_score = score
                 self.best_result = result
                 self.best_board = board
@@ -1038,7 +1058,7 @@ class Solution(object):
                 # Count the no improvement on the score
                 no_path_improvements += 1
                 board.improved = False
-            
+
             # Create a copy of the current (or best) board for next iteration
             original = board
 
@@ -1047,7 +1067,7 @@ class Solution(object):
                 no_path_improvements = 0
                 original = self.best_board
 
-            board_new = copy.deepcopy(original)            
+            board_new = copy.deepcopy(original)
             board_new.paths = []
             for path in original.paths:
                 board_new.paths.append(copy.deepcopy(path))
@@ -1061,9 +1081,9 @@ class Solution(object):
                 board_new.paths_broken.append(copy.deepcopy(path))
             board_new.board = None
             board_new.board = copy.deepcopy(original.board)
-            
+
             # Delete the board if it didn't improve the score
-            if board.improved == False:
+            if board.improved is False:
                 for path in board.paths:
                     del path
                 del board
