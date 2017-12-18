@@ -9,6 +9,9 @@ PLOT_BEST = False
 PLOT_SCORES = False
 PLOT_RESULTS = False
 
+# Export png's of the board
+EXPORT_PROGRESS = True
+
 # Prints
 PRINT_SETTINGS = False
 PRINT_NETLIST = False

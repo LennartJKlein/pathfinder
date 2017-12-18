@@ -17,6 +17,7 @@ import csv
 import heapq
 import random
 import sys
+import os
 from ast import literal_eval
 
 import numpy as np
@@ -61,6 +62,8 @@ class Board(object):
         self.paths_drawn = []
 
         self.improved = False
+
+        self.snapshot_nr = 0
 
     def draw_paths(self):
         """Draw all the paths for this board (if possible)."""
@@ -305,6 +308,11 @@ class Board(object):
                 score_color = "green";
             plt.figtext(0.05, 0.05, "Score: " + str(self.get_score()), size="large", color=score_color)
             
+            if settings.EXPORT_PROGRESS:
+                # Save an image of the figure at this point
+                plt.savefig(os.path.abspath(os.path.dirname(__file__)) + '/export/' + str(self.snapshot_nr) + '.png', transparent=True)
+                self.snapshot_nr += 1
+
             # Make mouse activity possible
             plt.pause(0.015)
 
@@ -733,6 +741,7 @@ class Path(object):
 
                 # Remember this coord for this path
                 self.add_coordinate([cursor[0], cursor[1], cursor[2]])
+                board.update_plot("Drawing paths...")
 
                 cursor = path_archive[cursor]
 
@@ -864,6 +873,7 @@ class Path(object):
 
             # Add the starting point to the end of the path-list
             self.add_coordinate(self.a)
+            board.update_plot("Drawing paths...")
 
             # Add 1 to the made connections for gate A and B
             board.gates_objects[self.a[0],

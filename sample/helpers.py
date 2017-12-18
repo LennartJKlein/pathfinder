@@ -1,6 +1,6 @@
 """Helper functions used in __main__.py.
 
-Name: heplers.py
+Name: helpers.py
 
 Authors:
     - Jurre Brandsen
